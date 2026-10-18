@@ -68,8 +68,8 @@ Nothing to install: only Node 18 or newer.
 - **Secrets** (Settings → Secrets and variables → Actions):
   - `URNA_KEY`: 64 hex characters made with `openssl rand -hex 32`. It encrypts the choices. Also kept in the password manager as "Urna · URNA_KEY". It can't be recovered or changed: without it the urn can't be opened.
   - `STRIPE_SECRET_KEY`: a **live** restricted key (`rk_live_…`) with only Products (write), Prices (write), Payment Links (write) and Checkout Sessions (read). Also in the password manager. If it is lost or leaked, make a new one in Stripe (dashboard.stripe.com/apikeys) and replace the secret.
-- **Stripe.** 85 live payment links, one per step of the price ladder, and one gift link, all in `config.json`. They stay off until the box starts and the daily step switches them on the morning of 1 November 2026. After paying, people land on `returnTo` (https://www.ramos-saavedra.com/urna) with `?paid=1`, or `?gave=1` after a gift.
-- **The box** is sealed until `start` (1 November 2026, 00:00 UTC). Before then the daily step publishes it at day 0 and needs no key.
+- **Stripe.** 85 live payment links, one per step of the price ladder, and one gift link, all in `config.json`. They stay off until the box starts and the daily step switches them on the morning of 19 October 2026. After paying, people land on `returnTo` (https://www.ramos-saavedra.com/urna) with `?paid=1`, or `?gave=1` after a gift.
+- **The box** is sealed until `start` (19 October 2026, 00:00 UTC). Before then the daily step publishes it at day 0 and needs no key.
 
 ### Buttons in the Actions tab
 
