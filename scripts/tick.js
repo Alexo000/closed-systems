@@ -131,7 +131,7 @@ async function main() {
     kinds: cfg.kinds.map(k => ({ key: k.key, name: k.name, op: k.op, does: k.does, stock: k.stock, available: available.includes(k.key) })),
     left, actionary: cfg.actionary,
     nextOpening: { day: nextOpen, date: C.dateOfDay(cfg, nextOpen) },
-    rules: { start: cfg.price.start, halveAfterDays: cfg.price.halveAfterDays, openEveryDays: cfg.openEveryDays, breakWithinDays: cfg.breakWithinDays, rent: cfg.fund.rent, monthDays: cfg.fund.monthDays, reserveMonths: cfg.fund.reserveMonths },
+    rules: { start: cfg.price.start, stepsPerDouble: cfg.price.stepsPerDouble, dropEveryDays: cfg.price.dropEveryDays, ladder: C.priceLadder(cfg), openEveryDays: cfg.openEveryDays, breakWithinDays: cfg.breakWithinDays, rent: cfg.fund.rent, monthDays: cfg.fund.monthDays, reserveMonths: cfg.fund.reserveMonths },
     fund: { balance: money.balance, toBox: money.toBox, rentPaid: money.rentPaid, monthsLeft: money.monthsLeft },
     priceHistory: prices,
   });

@@ -137,7 +137,7 @@ footer a::after { content: " →"; }
     <h1>Urna</h1>
     <p class="lede">A sealed box of stone, roots, seeds and water. Anyone can pay to break an ampoule inside it and choose, in secret, what it holds.</p>
     <ol class="steps">
-      <li>Pay to break an ampoule. The price doubles every time someone does.</li>
+      <li>Pay to break an ampoule. The price doubles every time someone does, and drops a little every week nobody does.</li>
       <li>Choose what is inside. It breaks on a secret day within six weeks, and nobody else knows what it was until the urn opens.</li>
       <li>Come back. Every morning the box lives one more week.</li>
     </ol>
@@ -165,7 +165,7 @@ footer a::after { content: " →"; }
       <details class="rules">
         <summary>The rules</summary>
         <ul>
-          <li><b>Price.</b> <span id="rPrice">Starts at £1. It doubles with every ampoule broken and halves after 52 days with none.</span></li>
+          <li><b>Price.</b> <span id="rPrice">Starts at £1. It doubles with every ampoule broken and drops about 9% each week with none.</span></li>
           <li><b>Secret.</b> Your alias and the price go in the log. Your choice, and the day it breaks, are sealed with a code published the same day. The break day is random, between 1 and <span id="rWithin">45</span> days later, so nobody can tell whose ampoule just broke. The salt in the water only shows in bands.</li>
           <li><b>Openings.</b> <span id="rOpen">Every 261 days the urn opens.</span> Every choice is shown, and anyone can check it against its seal.</li>
           <li><b>Rent.</b> <span id="rRent">The money pays the urn's own costs.</span> What is left builds the real box. If a month can't be paid, the urn closes for good.</li>
@@ -643,13 +643,15 @@ function since() {
 }
 
 // ---------- the rest ----------
-function nextHalving() {
-  const ph = L.priceHistory, today = ph.length - 1, r = L.rules;
-  if (L.price <= r.start) return null;
+// the next drop: one step down the ladder after dropEveryDays days with nobody paying
+function nextDrop() {
+  const ph = L.priceHistory, today = ph.length - 1, r = L.rules, lad = r.ladder || [], i = lad.indexOf(L.price);
+  if (i <= 0) return null;
   let j = 0; for (let d = today; d > 0; d--) if (ph[d] !== ph[d - 1]) { j = d; break; }
   const lastBuy = L.purchases.length ? L.purchases[L.purchases.length - 1].day + 1 : 0;
-  return Math.max(j, lastBuy) + r.halveAfterDays;
+  return { day: Math.max(j, lastBuy) + r.dropEveryDays, price: lad[i - 1] };
 }
+const upPrice = () => { const lad = L.rules.ladder || [], i = lad.indexOf(L.price); return i < 0 ? L.price * 2 : lad[Math.min(lad.length - 1, i + L.rules.stepsPerDouble)]; };
 function render() {
   $('opsLink').href = L.actionary; $('opsLink2').href = L.actionary;
   const nameOf = k => (L.kinds.find(x => x.key === k) || { name: k }).name;
@@ -657,8 +659,8 @@ function render() {
   vitals(); mood(now); clock(now); if (S.started) since();
   // price and choice
   $('priceNow').textContent = money(L.price);
-  const nh = nextHalving();
-  $('priceNote').textContent = !S.started ? `to break the first one, from ${fmtDay(0, { day: 'numeric', month: 'long' })}.` : S.closed ? 'The urn is closed.' : `today. The next person doubles it to ${money(Math.min(4096, L.price * 2))}.` + (nh != null ? ` If nobody pays, it halves on ${fmtDay(nh, { day: 'numeric', month: 'short' })}.` : '');
+  const nd = nextDrop();
+  $('priceNote').textContent = !S.started ? `to break the first one, from ${fmtDay(0, { day: 'numeric', month: 'long' })}.` : S.closed ? 'The urn is closed.' : `today. The next person doubles it to ${money(upPrice())}.` + (nd ? ` If nobody pays, it drops to ${money(nd.price)} on ${fmtDay(nd.day, { day: 'numeric', month: 'short' })}, and a little more each week after.` : '');
   const card = k => `<div class="amp${k.available ? '' : ' out'}">${glyphSVG(k.op, 'glyph', 1.9)}<b>${k.name}</b><a href="${L.actionary.replace(/all\/?$/, '')}${k.op.toLowerCase().replace(/\s+/g, '-')}/">${k.op}</a><span>${k.does}</span></div>`;
   const base = L.kinds.filter(k => ['seeds', 'salt', 'water'].includes(k.key)), ops = L.kinds.filter(k => !['seeds', 'salt', 'water'].includes(k.key));
   $('amps').innerHTML = `<div class="row base">${base.map(card).join('')}</div>` + (ops.length ? `<h3>Other operations</h3><div class="row">${ops.map(card).join('')}</div>` : '');
@@ -667,7 +669,7 @@ function render() {
   else if (L.link) { pay.textContent = `Pay ${money(L.price)} and break one`; pay.href = L.link; pay.setAttribute('aria-disabled', 'false'); }
   else { pay.textContent = S.started ? 'Payments open soon' : `Opens on ${fmtDay(0, { day: 'numeric', month: 'long' })}`; pay.setAttribute('aria-disabled', 'true'); pay.removeAttribute('href'); }
   $('rWithin').textContent = r.breakWithinDays || 45;
-  $('rPrice').textContent = `Starts at ${money(r.start)}. It doubles with every ampoule broken and halves after ${r.halveAfterDays} days with none.`;
+  $('rPrice').textContent = `Starts at ${money(r.start)}. It doubles with every ampoule broken and drops about ${Math.round(100 * (1 - Math.pow(2, -1 / r.stepsPerDouble)))}% every ${r.dropEveryDays === 7 ? 'week' : r.dropEveryDays + ' days'} with none, so it halves in about ${r.stepsPerDouble * r.dropEveryDays} days. Everyone who pays on the same day pays that day's price.`;
   $('rOpen').textContent = `Every ${r.openEveryDays} days the urn opens; the next opening is on ${fmtDay(L.nextOpening.day)}.`;
   $('rRent').textContent = `The money pays the urn's own costs, ${money(r.rent)} every ${r.monthDays} days, and keeps ${r.reserveMonths} months in reserve.`;
   // money

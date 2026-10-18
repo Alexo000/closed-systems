@@ -70,7 +70,8 @@
   "price": {
     "start": 1,
     "max": 4096,
-    "halveAfterDays": 52
+    "stepsPerDouble": 7,
+    "dropEveryDays": 7
   },
   "openEveryDays": 261,
   "breakWithinDays": 45,

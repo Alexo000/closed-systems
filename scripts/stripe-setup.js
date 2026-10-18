@@ -1,4 +1,4 @@
-// Creates the Stripe product, one price per step (£1, £2, £4 … up to the maximum) and one payment link per step.
+// Creates the Stripe product, one price per step of the ladder (£1, £1.10, £1.20 … up to the maximum) and one payment link per step.
 // Each link asks for the ampoule from a menu and an optional alias. Writes the links into config.json.
 // Run it first with the test key (sk_test_…) and then again with the live one.
 // Usage: STRIPE_SECRET_KEY=sk_test_... node scripts/stripe-setup.js
@@ -8,7 +8,7 @@ const S = require('../lib/stripe.js');
 
 (async () => {
   const cfg = C.loadConfig();
-  const ladder = []; for (let p = cfg.price.start; p <= cfg.price.max; p *= 2) ladder.push(p);
+  const ladder = C.priceLadder(cfg);
   const product = await S.call('POST', 'products', { name: 'Urna: one ampoule', description: 'Breaks one ampoule over the box at the next daily step. Part of Closed Systems.' });
   const links = [];
   for (const price of ladder) {
