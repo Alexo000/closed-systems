@@ -1,0 +1,29 @@
+# Run by hand from the Actions tab: creates the Stripe payment links with the STRIPE_SECRET_KEY secret
+# and saves them in config.json. Run it again with the live key when you switch Stripe to live.
+name: stripe-setup
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: urna
+  cancel-in-progress: false
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Create the payment links
+        run: node scripts/stripe-setup.js
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      - name: Save them
+        run: |
+          git config user.name "urna"
+          git config user.email "urna@users.noreply.github.com"
+          git add config.json
+          git commit -m "Stripe links" || echo "Nothing new"
+          git push
