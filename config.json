@@ -1,94 +1,523 @@
 {
-  "name": "Urna",
-  "start": "2026-11-01T00:00:00Z",
-  "seed": 7919,
-  "site": "https://alexo000.github.io/closed-systems/",
-  "actionary": "https://operations.ramos-saavedra.com/all/",
-  "engine": {
-    "layout": "pisos",
-    "capMode": "encima",
-    "material": 0,
-    "prep": "ranuras",
-    "holeD": 3,
-    "bridge": 1,
-    "plant": "ficus",
-    "capMix": "mezcla",
-    "temp": 21,
-    "lightMode": "led",
-    "saltG": 0.13
+ "name": "Urna",
+ "start": "2026-11-01T00:00:00Z",
+ "seed": 7919,
+ "site": "https://alexo000.github.io/closed-systems/",
+ "actionary": "https://operations.ramos-saavedra.com/all/",
+ "engine": {
+  "layout": "pisos",
+  "capMode": "encima",
+  "material": 0,
+  "prep": "ranuras",
+  "holeD": 3,
+  "bridge": 1,
+  "plant": "ficus",
+  "capMix": "mezcla",
+  "temp": 21,
+  "lightMode": "led",
+  "saltG": 0.13
+ },
+ "kinds": [
+  {
+   "key": "seeds",
+   "engine": "semillas",
+   "name": "Seeds",
+   "op": "Seed And Leave",
+   "does": "They sprout where they land.",
+   "stock": 30
   },
-  "kinds": [
-    {
-      "key": "seeds",
-      "engine": "semillas",
-      "name": "Seeds",
-      "op": "Seed And Leave",
-      "does": "They sprout where they land.",
-      "stock": 30
-    },
-    {
-      "key": "salt",
-      "engine": "sal",
-      "name": "Salt",
-      "op": "Ratchet",
-      "does": "It runs into the water and stays there for good.",
-      "stock": 20
-    },
-    {
-      "key": "water",
-      "engine": "agua",
-      "name": "Water",
-      "op": "Rehearse",
-      "does": "The whole gesture, with no effect.",
-      "stock": 20
-    },
-    {
-      "key": "resin",
-      "engine": "resina",
-      "name": "Resin",
-      "op": "Freeze The Joint",
-      "does": "Glues the joints nearby: that slab won't split.",
-      "stock": 10
-    },
-    {
-      "key": "hormone",
-      "engine": "hormona",
-      "name": "Hormone",
-      "op": "Exaggerate",
-      "does": "One plant thickens its roots two and a half times, for a year.",
-      "stock": 10
-    },
-    {
-      "key": "ink",
-      "engine": "tinta",
-      "name": "Ink",
-      "op": "Conceal",
-      "does": "A strip of the glass goes dark for good, for the plants and for you.",
-      "stock": 10
-    }
-  ],
-  "price": {
-    "start": 1,
-    "max": 4096,
-    "stepsPerDouble": 7,
-    "dropEveryDays": 7
+  {
+   "key": "salt",
+   "engine": "sal",
+   "name": "Salt",
+   "op": "Ratchet",
+   "does": "It runs into the water and stays there for good.",
+   "stock": 20
   },
-  "openEveryDays": 261,
-  "breakWithinDays": 45,
-  "fund": {
-    "start": 30,
-    "rent": 5,
-    "monthDays": 30,
-    "reserveMonths": 6
+  {
+   "key": "water",
+   "engine": "agua",
+   "name": "Water",
+   "op": "Rehearse",
+   "does": "The whole gesture, with no effect.",
+   "stock": 20
   },
-  "revive": {
-    "target": 30
+  {
+   "key": "resin",
+   "engine": "resina",
+   "name": "Resin",
+   "op": "Freeze The Joint",
+   "does": "Glues the joints nearby: that slab won't split.",
+   "stock": 10
   },
-  "stripe": {
-    "feePct": 0.015,
-    "feeFixed": 0.2,
-    "currency": "gbp"
+  {
+   "key": "hormone",
+   "engine": "hormona",
+   "name": "Hormone",
+   "op": "Exaggerate",
+   "does": "One plant thickens its roots two and a half times, for a year.",
+   "stock": 10
   },
-  "links": [],
-  "reviveLink": null
+  {
+   "key": "ink",
+   "engine": "tinta",
+   "name": "Ink",
+   "op": "Conceal",
+   "does": "A strip of the glass goes dark for good, for the plants and for you.",
+   "stock": 10
+  }
+ ],
+ "price": {
+  "start": 1,
+  "max": 4096,
+  "stepsPerDouble": 7,
+  "dropEveryDays": 7
+ },
+ "openEveryDays": 261,
+ "breakWithinDays": 45,
+ "fund": {
+  "start": 30,
+  "rent": 5,
+  "monthDays": 30,
+  "reserveMonths": 6
+ },
+ "revive": {
+  "target": 30
+ },
+ "stripe": {
+  "feePct": 0.015,
+  "feeFixed": 0.2,
+  "currency": "gbp"
+ },
+ "links": [
+  {
+   "price": 1,
+   "id": "plink_1URqoZD3aK2nHEcqUV5mMnZR",
+   "url": "https://buy.stripe.com/cNiaEWfXU3wreUW27NgEg00"
+  },
+  {
+   "price": 1.1,
+   "id": "plink_1URqoaD3aK2nHEcqU0n7VqBd",
+   "url": "https://buy.stripe.com/28EbJ01303wr5kmbIngEg01"
+  },
+  {
+   "price": 1.2,
+   "id": "plink_1URqoaD3aK2nHEcqLYxw71jJ",
+   "url": "https://buy.stripe.com/4gM9ASaDAeb53ce8wbgEg02"
+  },
+  {
+   "price": 1.3,
+   "id": "plink_1URqobD3aK2nHEcqzFPhF2VG",
+   "url": "https://buy.stripe.com/3cI9AS6nk1ojdQSdQvgEg03"
+  },
+  {
+   "price": 1.5,
+   "id": "plink_1URqobD3aK2nHEcq6D0xkfv9",
+   "url": "https://buy.stripe.com/5kQeVc3b88QL14627NgEg04"
+  },
+  {
+   "price": 1.6,
+   "id": "plink_1URqocD3aK2nHEcqVOLU3hJU",
+   "url": "https://buy.stripe.com/8x25kC4fcc2X146aEjgEg05"
+  },
+  {
+   "price": 1.8,
+   "id": "plink_1URqodD3aK2nHEcqHXtn7N78",
+   "url": "https://buy.stripe.com/28EeVc2746ID28a5jZgEg06"
+  },
+  {
+   "price": 2,
+   "id": "plink_1URqodD3aK2nHEcqO49q9b5C",
+   "url": "https://buy.stripe.com/00w9ASeTQc2X7su5jZgEg07"
+  },
+  {
+   "price": 2.2,
+   "id": "plink_1URqoeD3aK2nHEcqSLpR5yKM",
+   "url": "https://buy.stripe.com/7sY00i3b82sn6oq6o3gEg08"
+  },
+  {
+   "price": 2.4,
+   "id": "plink_1URqoeD3aK2nHEcqUTYO6oRQ",
+   "url": "https://buy.stripe.com/bJe14m8vs2sneUW7s7gEg09"
+  },
+  {
+   "price": 2.7,
+   "id": "plink_1URqofD3aK2nHEcqtgKOGjSx",
+   "url": "https://buy.stripe.com/5kQ14maDA3wrdQSdQvgEg0a"
+  },
+  {
+   "price": 3,
+   "id": "plink_1URqofD3aK2nHEcqUdrMlFiE",
+   "url": "https://buy.stripe.com/aFadR84fc0kf6oq13JgEg0b"
+  },
+  {
+   "price": 3.3,
+   "id": "plink_1URqogD3aK2nHEcqSG54W9ha",
+   "url": "https://buy.stripe.com/fZu8wOh1Y2sneUWaEjgEg0c"
+  },
+  {
+   "price": 3.6,
+   "id": "plink_1URqogD3aK2nHEcqNIoOiWqN",
+   "url": "https://buy.stripe.com/9B69ASh1Y0kf8wy6o3gEg0d"
+  },
+  {
+   "price": 4,
+   "id": "plink_1URqohD3aK2nHEcqcvpD6cRT",
+   "url": "https://buy.stripe.com/fZu9AS3b82sndQSdQvgEg0e"
+  },
+  {
+   "price": 4.4,
+   "id": "plink_1URqohD3aK2nHEcqr3rn8eES",
+   "url": "https://buy.stripe.com/8x29AS130aYT28acMrgEg0f"
+  },
+  {
+   "price": 4.9,
+   "id": "plink_1URqoiD3aK2nHEcqDlxV2wD9",
+   "url": "https://buy.stripe.com/4gM7sK6nkaYT4gi7s7gEg0g"
+  },
+  {
+   "price": 5.4,
+   "id": "plink_1URqoiD3aK2nHEcq8tls3g2f",
+   "url": "https://buy.stripe.com/3cI00i6nkaYT7su13JgEg0h"
+  },
+  {
+   "price": 5.9,
+   "id": "plink_1URqojD3aK2nHEcqI3HkdrA0",
+   "url": "https://buy.stripe.com/6oU5kC7rogjdcMO3bRgEg0i"
+  },
+  {
+   "price": 6.6,
+   "id": "plink_1URqojD3aK2nHEcq7N811Yo3",
+   "url": "https://buy.stripe.com/eVq14m7roaYT3ce4fVgEg0j"
+  },
+  {
+   "price": 7.2,
+   "id": "plink_1URqokD3aK2nHEcqtKsXMhKl",
+   "url": "https://buy.stripe.com/4gM9AScLI8QL3cecMrgEg0k"
+  },
+  {
+   "price": 8,
+   "id": "plink_1URqokD3aK2nHEcqVOpkzFkU",
+   "url": "https://buy.stripe.com/9B65kCh1YaYT6oq3bRgEg0l"
+  },
+  {
+   "price": 8.8,
+   "id": "plink_1URqolD3aK2nHEcqEF3xn5iq",
+   "url": "https://buy.stripe.com/fZu00i8vsff94gi9AfgEg0m"
+  },
+  {
+   "price": 9.8,
+   "id": "plink_1URqolD3aK2nHEcqKXgVKna8",
+   "url": "https://buy.stripe.com/28E4gy274gjd28a27NgEg0n"
+  },
+  {
+   "price": 11,
+   "id": "plink_1URqomD3aK2nHEcqjsmPFFXv",
+   "url": "https://buy.stripe.com/eVq00ifXU3wr7sueUzgEg0o"
+  },
+  {
+   "price": 12,
+   "id": "plink_1URqomD3aK2nHEcqSgzpKAHW",
+   "url": "https://buy.stripe.com/00w8wO4fc7MHdQSbIngEg0p"
+  },
+  {
+   "price": 13,
+   "id": "plink_1URqonD3aK2nHEcqKCT52AX2",
+   "url": "https://buy.stripe.com/dRm9AS8vs8QLdQSh2HgEg0q"
+  },
+  {
+   "price": 14,
+   "id": "plink_1URqonD3aK2nHEcqmn82WP5q",
+   "url": "https://buy.stripe.com/eVqdR86nkaYT5km27NgEg0r"
+  },
+  {
+   "price": 16,
+   "id": "plink_1URqooD3aK2nHEcqT360vrKk",
+   "url": "https://buy.stripe.com/9B6cN4eTQgjd4gi6o3gEg0s"
+  },
+  {
+   "price": 18,
+   "id": "plink_1URqooD3aK2nHEcqFqr4Gq4c",
+   "url": "https://buy.stripe.com/5kQ9AS8vsaYTcMO9AfgEg0t"
+  },
+  {
+   "price": 20,
+   "id": "plink_1URqopD3aK2nHEcq0806h9IF",
+   "url": "https://buy.stripe.com/bJefZg6nk4AvbIK6o3gEg0u"
+  },
+  {
+   "price": 22,
+   "id": "plink_1URqopD3aK2nHEcqTY8zMrcE",
+   "url": "https://buy.stripe.com/8x2eVc8vsaYTfZ0dQvgEg0v"
+  },
+  {
+   "price": 24,
+   "id": "plink_1URqoqD3aK2nHEcq159BzDyl",
+   "url": "https://buy.stripe.com/9B600iaDA9UP5km3bRgEg0w"
+  },
+  {
+   "price": 26,
+   "id": "plink_1URqoqD3aK2nHEcqahUtEXXD",
+   "url": "https://buy.stripe.com/bJe6oG130gjd28ah2HgEg0x"
+  },
+  {
+   "price": 29,
+   "id": "plink_1URqorD3aK2nHEcqWEdp9Tmo",
+   "url": "https://buy.stripe.com/dRmfZgbHE7MHaEGbIngEg0y"
+  },
+  {
+   "price": 32,
+   "id": "plink_1URqorD3aK2nHEcqqNRXE9Qo",
+   "url": "https://buy.stripe.com/aFa5kC7roff93cefYDgEg0z"
+  },
+  {
+   "price": 35,
+   "id": "plink_1URqosD3aK2nHEcqW9dn2WNe",
+   "url": "https://buy.stripe.com/28E14mh1YaYTdQS7s7gEg0A"
+  },
+  {
+   "price": 39,
+   "id": "plink_1URqosD3aK2nHEcqvvALXpsm",
+   "url": "https://buy.stripe.com/aFaaEW8vs8QLaEG7s7gEg0B"
+  },
+  {
+   "price": 43,
+   "id": "plink_1URqotD3aK2nHEcqHvjM5uqy",
+   "url": "https://buy.stripe.com/3cI28q3b8gjd6oqh2HgEg0C"
+  },
+  {
+   "price": 48,
+   "id": "plink_1URqotD3aK2nHEcq51lFgoEg",
+   "url": "https://buy.stripe.com/00w00i4fc2sncMO13JgEg0D"
+  },
+  {
+   "price": 53,
+   "id": "plink_1URqouD3aK2nHEcq7vi98gVr",
+   "url": "https://buy.stripe.com/3cIbJ04fc8QL7sudQvgEg0E"
+  },
+  {
+   "price": 58,
+   "id": "plink_1URqouD3aK2nHEcqUVzyz0ca",
+   "url": "https://buy.stripe.com/cNiaEW2745Ez6oq7s7gEg0F"
+  },
+  {
+   "price": 64,
+   "id": "plink_1URqouD3aK2nHEcqQjFGge6w",
+   "url": "https://buy.stripe.com/7sYbJ0h1Yeb57su8wbgEg0G"
+  },
+  {
+   "price": 71,
+   "id": "plink_1URqovD3aK2nHEcqcpLxB0aX",
+   "url": "https://buy.stripe.com/dRmfZgfXUd71bIK6o3gEg0H"
+  },
+  {
+   "price": 78,
+   "id": "plink_1URqovD3aK2nHEcqrqdOY69p",
+   "url": "https://buy.stripe.com/6oUbJ0cLIaYT28a6o3gEg0I"
+  },
+  {
+   "price": 86,
+   "id": "plink_1URqowD3aK2nHEcqN7n7vk2p",
+   "url": "https://buy.stripe.com/28EeVc7ro4Av3ceeUzgEg0J"
+  },
+  {
+   "price": 95,
+   "id": "plink_1URqowD3aK2nHEcqTKZDlYlL",
+   "url": "https://buy.stripe.com/3cIcN49zwff97suaEjgEg0K"
+  },
+  {
+   "price": 105,
+   "id": "plink_1URqoxD3aK2nHEcq9E5hJftO",
+   "url": "https://buy.stripe.com/28EcN4aDAeb5eUWfYDgEg0L"
+  },
+  {
+   "price": 115,
+   "id": "plink_1URqoyD3aK2nHEcqFc6Oh1E2",
+   "url": "https://buy.stripe.com/14AeVc6nk4AvbIK27NgEg0M"
+  },
+  {
+   "price": 130,
+   "id": "plink_1URqoyD3aK2nHEcq39zZHutm",
+   "url": "https://buy.stripe.com/14AfZg8vs2snaEGcMrgEg0N"
+  },
+  {
+   "price": 140,
+   "id": "plink_1URqozD3aK2nHEcqncwZPJ7I",
+   "url": "https://buy.stripe.com/6oU4gycLI8QL4gifYDgEg0O"
+  },
+  {
+   "price": 155,
+   "id": "plink_1URqozD3aK2nHEcq6wyvLxMk",
+   "url": "https://buy.stripe.com/8x26oGaDAd719AC5jZgEg0P"
+  },
+  {
+   "price": 170,
+   "id": "plink_1URqp0D3aK2nHEcq12TIGgX2",
+   "url": "https://buy.stripe.com/fZu14m6nkc2X8wy3bRgEg0Q"
+  },
+  {
+   "price": 190,
+   "id": "plink_1URqp0D3aK2nHEcqFgJAvlPG",
+   "url": "https://buy.stripe.com/eVqbJ03b84AvcMO7s7gEg0R"
+  },
+  {
+   "price": 210,
+   "id": "plink_1URqp1D3aK2nHEcqGNmSVm3s",
+   "url": "https://buy.stripe.com/28E8wOh1Y7MHeUWcMrgEg0S"
+  },
+  {
+   "price": 230,
+   "id": "plink_1URqp1D3aK2nHEcq2pXJ2ERL",
+   "url": "https://buy.stripe.com/aFa6oG6nkeb5eUW6o3gEg0T"
+  },
+  {
+   "price": 255,
+   "id": "plink_1URqp2D3aK2nHEcqh9OWqnFB",
+   "url": "https://buy.stripe.com/cNi14m274aYT6oqh2HgEg0U"
+  },
+  {
+   "price": 285,
+   "id": "plink_1URqp2D3aK2nHEcqHAbbwBFb",
+   "url": "https://buy.stripe.com/cNi3cu274c2X002h2HgEg0V"
+  },
+  {
+   "price": 310,
+   "id": "plink_1URqp3D3aK2nHEcqxLc6YkDe",
+   "url": "https://buy.stripe.com/dRm14mbHE2sn6oqh2HgEg0W"
+  },
+  {
+   "price": 345,
+   "id": "plink_1URqp3D3aK2nHEcqLgtYw7p4",
+   "url": "https://buy.stripe.com/28E14m5jgc2X7su6o3gEg0X"
+  },
+  {
+   "price": 380,
+   "id": "plink_1URqp4D3aK2nHEcq26lHUXHq",
+   "url": "https://buy.stripe.com/9B600idPM6ID4gidQvgEg0Y"
+  },
+  {
+   "price": 420,
+   "id": "plink_1URqp4D3aK2nHEcqlcxytT9R",
+   "url": "https://buy.stripe.com/dRm5kCfXUaYT4gih2HgEg0Z"
+  },
+  {
+   "price": 465,
+   "id": "plink_1URqp5D3aK2nHEcqXnzxrV59",
+   "url": "https://buy.stripe.com/9B6fZgaDA8QLeUW8wbgEg10"
+  },
+  {
+   "price": 510,
+   "id": "plink_1URqp5D3aK2nHEcq1MUwK1tT",
+   "url": "https://buy.stripe.com/cNibJ02742sn7sueUzgEg11"
+  },
+  {
+   "price": 565,
+   "id": "plink_1URqp6D3aK2nHEcqF9s7XhJZ",
+   "url": "https://buy.stripe.com/aFa5kC8vsc2XbIKh2HgEg12"
+  },
+  {
+   "price": 625,
+   "id": "plink_1URqp6D3aK2nHEcqfl1Mai7Z",
+   "url": "https://buy.stripe.com/6oUcN43b8gjd4gifYDgEg13"
+  },
+  {
+   "price": 690,
+   "id": "plink_1URqp7D3aK2nHEcqifxuIMcQ",
+   "url": "https://buy.stripe.com/3cI4gy2743wrcMOh2HgEg14"
+  },
+  {
+   "price": 760,
+   "id": "plink_1URqp7D3aK2nHEcq7LJAX0mJ",
+   "url": "https://buy.stripe.com/7sYeVc3b85Ez4gih2HgEg15"
+  },
+  {
+   "price": 840,
+   "id": "plink_1URqp8D3aK2nHEcqzV51eNFj",
+   "url": "https://buy.stripe.com/fZu3cucLI8QL6oqbIngEg16"
+  },
+  {
+   "price": 925,
+   "id": "plink_1URqp8D3aK2nHEcqOZt4fPQp",
+   "url": "https://buy.stripe.com/3cI28q5jgc2X0024fVgEg17"
+  },
+  {
+   "price": 1000,
+   "id": "plink_1URqp9D3aK2nHEcqwGgtEBDk",
+   "url": "https://buy.stripe.com/14AaEW274ff9cMO13JgEg18"
+  },
+  {
+   "price": 1150,
+   "id": "plink_1URqp9D3aK2nHEcqPOeJ11ug",
+   "url": "https://buy.stripe.com/fZufZgaDA6ID6oqbIngEg19"
+  },
+  {
+   "price": 1250,
+   "id": "plink_1URqpAD3aK2nHEcqV0ZRX1aA",
+   "url": "https://buy.stripe.com/14A8wO6nk8QLfZ0h2HgEg1a"
+  },
+  {
+   "price": 1400,
+   "id": "plink_1URqpAD3aK2nHEcqMyrrM7dQ",
+   "url": "https://buy.stripe.com/3cI14m4fcgjd5kmdQvgEg1b"
+  },
+  {
+   "price": 1500,
+   "id": "plink_1URqpBD3aK2nHEcqpM4YM6Fs",
+   "url": "https://buy.stripe.com/4gM3cuaDA7MH5km4fVgEg1c"
+  },
+  {
+   "price": 1700,
+   "id": "plink_1URqpBD3aK2nHEcqw5R1lf8d",
+   "url": "https://buy.stripe.com/6oUfZg4fc3wr002h2HgEg1d"
+  },
+  {
+   "price": 1850,
+   "id": "plink_1URqpBD3aK2nHEcqgJKOCrtF",
+   "url": "https://buy.stripe.com/7sY4gyfXUd719AC3bRgEg1e"
+  },
+  {
+   "price": 2050,
+   "id": "plink_1URqpCD3aK2nHEcqYZZZHmHf",
+   "url": "https://buy.stripe.com/fZu14m2746ID6oqcMrgEg1f"
+  },
+  {
+   "price": 2250,
+   "id": "plink_1URqpCD3aK2nHEcqoqkJPKLt",
+   "url": "https://buy.stripe.com/9B6eVccLI5Ez4gi7s7gEg1g"
+  },
+  {
+   "price": 2500,
+   "id": "plink_1URqpDD3aK2nHEcqIlpZQptZ",
+   "url": "https://buy.stripe.com/8x2cN48vs3wrdQS5jZgEg1h"
+  },
+  {
+   "price": 2750,
+   "id": "plink_1URqpDD3aK2nHEcqRPVQCalw",
+   "url": "https://buy.stripe.com/eVqbJ01303wr28a3bRgEg1i"
+  },
+  {
+   "price": 3050,
+   "id": "plink_1URqpED3aK2nHEcq0v0XFFUH",
+   "url": "https://buy.stripe.com/4gM9ASh1Y8QLbIKaEjgEg1j"
+  },
+  {
+   "price": 3350,
+   "id": "plink_1URqpED3aK2nHEcqgqfOst0o",
+   "url": "https://buy.stripe.com/aFafZgdPMd71eUWdQvgEg1k"
+  },
+  {
+   "price": 3700,
+   "id": "plink_1URqpFD3aK2nHEcqE9hKJlJT",
+   "url": "https://buy.stripe.com/eVqbJ04fc1oj1468wbgEg1l"
+  },
+  {
+   "price": 4100,
+   "id": "plink_1URqpFD3aK2nHEcqsNPGYKVC",
+   "url": "https://buy.stripe.com/3cI5kC5jgff99ACh2HgEg1m"
+  }
+ ],
+ "reviveLink": {
+  "id": "plink_1URqpGD3aK2nHEcqxsjIrwRM",
+  "url": "https://donate.stripe.com/9B6dR8cLI5EzdQS7s7gEg1n"
+ }
 }
