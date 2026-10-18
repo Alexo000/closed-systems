@@ -1,0 +1,31 @@
+name: urna-daily-step
+on:
+  schedule:
+    - cron: '7 5 * * *'   # every day at 05:07 UTC
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: urna
+  cancel-in-progress: false
+jobs:
+  step:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Daily step
+        run: node scripts/tick.js
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          URNA_KEY: ${{ secrets.URNA_KEY }}
+      - name: Publish
+        run: |
+          git config user.name "urna"
+          git config user.email "urna@users.noreply.github.com"
+          git add docs/ledger.json docs/state.json
+          if [ -f private/ledger.enc.json ]; then git add private/ledger.enc.json; fi
+          git commit -m "Daily step $(date -u +%F)" || echo "Nothing new"
+          git push

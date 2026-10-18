@@ -1,0 +1,89 @@
+{
+  "name": "Urna",
+  "start": "2026-11-01T00:00:00Z",
+  "seed": 7919,
+  "site": "https://alexo000.github.io/closed-systems/",
+  "actionary": "https://operations.ramos-saavedra.com/all/",
+  "engine": {
+    "layout": "pisos",
+    "capMode": "encima",
+    "material": 0,
+    "prep": "ranuras",
+    "holeD": 3,
+    "bridge": 1,
+    "plant": "ficus",
+    "capMix": "mezcla",
+    "temp": 21,
+    "lightMode": "led",
+    "saltG": 0.13
+  },
+  "kinds": [
+    {
+      "key": "seeds",
+      "engine": "semillas",
+      "name": "Seeds",
+      "op": "Seed And Leave",
+      "does": "They sprout where they land.",
+      "stock": 30
+    },
+    {
+      "key": "salt",
+      "engine": "sal",
+      "name": "Salt",
+      "op": "Ratchet",
+      "does": "It runs into the water and stays there for good.",
+      "stock": 20
+    },
+    {
+      "key": "water",
+      "engine": "agua",
+      "name": "Water",
+      "op": "Rehearse",
+      "does": "The whole gesture, with no effect.",
+      "stock": 20
+    },
+    {
+      "key": "resin",
+      "engine": "resina",
+      "name": "Resin",
+      "op": "Freeze The Joint",
+      "does": "Glues the joints nearby: that slab won't split.",
+      "stock": 10
+    },
+    {
+      "key": "hormone",
+      "engine": "hormona",
+      "name": "Hormone",
+      "op": "Exaggerate",
+      "does": "One plant thickens its roots two and a half times, for a year.",
+      "stock": 10
+    },
+    {
+      "key": "ink",
+      "engine": "tinta",
+      "name": "Ink",
+      "op": "Conceal",
+      "does": "A strip of the glass goes dark for good, for the plants and for you.",
+      "stock": 10
+    }
+  ],
+  "price": {
+    "start": 1,
+    "max": 4096,
+    "halveAfterDays": 52
+  },
+  "openEveryDays": 261,
+  "breakWithinDays": 45,
+  "fund": {
+    "start": 30,
+    "rent": 5,
+    "monthDays": 30,
+    "reserveMonths": 6
+  },
+  "stripe": {
+    "feePct": 0.015,
+    "feeFixed": 0.2,
+    "currency": "gbp"
+  },
+  "links": []
+}

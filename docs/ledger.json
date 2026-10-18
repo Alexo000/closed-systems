@@ -1,0 +1,96 @@
+{
+ "purchases": [],
+ "donations": [],
+ "openings": [],
+ "closedDay": null,
+ "available": [
+  "seeds",
+  "salt",
+  "water",
+  "resin",
+  "hormone",
+  "ink"
+ ],
+ "name": "Urna",
+ "start": "2026-11-01T00:00:00Z",
+ "started": false,
+ "updated": "2026-10-18T09:01:22.970Z",
+ "today": 0,
+ "date": "2026-11-01",
+ "price": 1,
+ "link": null,
+ "kinds": [
+  {
+   "key": "seeds",
+   "name": "Seeds",
+   "op": "Seed And Leave",
+   "does": "They sprout where they land.",
+   "stock": 30,
+   "available": true
+  },
+  {
+   "key": "salt",
+   "name": "Salt",
+   "op": "Ratchet",
+   "does": "It runs into the water and stays there for good.",
+   "stock": 20,
+   "available": true
+  },
+  {
+   "key": "water",
+   "name": "Water",
+   "op": "Rehearse",
+   "does": "The whole gesture, with no effect.",
+   "stock": 20,
+   "available": true
+  },
+  {
+   "key": "resin",
+   "name": "Resin",
+   "op": "Freeze The Joint",
+   "does": "Glues the joints nearby: that slab won't split.",
+   "stock": 10,
+   "available": true
+  },
+  {
+   "key": "hormone",
+   "name": "Hormone",
+   "op": "Exaggerate",
+   "does": "One plant thickens its roots two and a half times, for a year.",
+   "stock": 10,
+   "available": true
+  },
+  {
+   "key": "ink",
+   "name": "Ink",
+   "op": "Conceal",
+   "does": "A strip of the glass goes dark for good, for the plants and for you.",
+   "stock": 10,
+   "available": true
+  }
+ ],
+ "left": 100,
+ "actionary": "https://operations.ramos-saavedra.com/all/",
+ "nextOpening": {
+  "day": 261,
+  "date": "2027-07-20"
+ },
+ "rules": {
+  "start": 1,
+  "halveAfterDays": 52,
+  "openEveryDays": 261,
+  "breakWithinDays": 45,
+  "rent": 5,
+  "monthDays": 30,
+  "reserveMonths": 6
+ },
+ "fund": {
+  "balance": 30,
+  "toBox": 0,
+  "rentPaid": 0,
+  "monthsLeft": 6
+ },
+ "priceHistory": [
+  1
+ ]
+}

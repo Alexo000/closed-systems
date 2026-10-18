@@ -1,0 +1,509 @@
+<title>Urna</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="A sealed box that lives or dies by what strangers pay. Part of Closed Systems by Alejandro Ramos Saavedra.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=VT323&display=swap">
+<style>
+/* Same family as Shubyrinth: ink on paper, a bitmap display face, mono for data, hard shadows on what you can touch. */
+:root {
+  --paper: #ffffff; --ground: #fcfcfc; --ink: #111111; --muted: #565656; --rule: #d9d9d9; --soft: #bdbdbd; --tint: #f2f2f2;
+  --display: "VT323", "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --body: "Inter", system-ui, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --paper: #121212; --ground: #171717; --ink: #ededed; --muted: #a3a3a3; --rule: #333333; --soft: #5c5c5c; --tint: #1d1d1d; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --paper: #121212; --ground: #171717; --ink: #ededed; --muted: #a3a3a3; --rule: #333333; --soft: #5c5c5c; --tint: #1d1d1d; color-scheme: dark; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--paper); color: var(--ink); font: 15px/1.5 var(--body); margin: 0; }
+a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; }
+.wrap > * { min-width: 0; }
+h1, h2 { font-family: var(--display); font-weight: 400; line-height: 1; margin: 0; }
+h1 { font-size: clamp(64px, 11vw, 112px); letter-spacing: -.01em; }
+h2 { font-size: 32px; }
+h3 { font: 500 11.5px/1.3 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+p { margin: 0; }
+.eyebrow { font: 500 12px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.lede { max-width: 54ch; font-size: 17px; }
+.note { font-size: 13.5px; color: var(--muted); max-width: 66ch; }
+.cap { font: 400 12px/1.5 var(--mono); color: var(--muted); }
+header { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; border-bottom: 1px solid var(--ink); padding-bottom: 24px; }
+.steps { margin: 4px 0 0; padding-left: 22px; display: grid; gap: 4px; max-width: 60ch; }
+.steps li::marker { font: 500 12px var(--mono); }
+.thanks { padding: 12px 14px; background: var(--ink); color: var(--paper); font-size: 15px; box-shadow: 5px 5px 0 var(--soft); }
+
+/* the box and its vital signs */
+.bench { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 40px; align-items: start; }
+.boxcol, .side { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; min-width: 0; }
+.glass { position: relative; border: 1px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); background: var(--ground); margin-right: 5px; }
+#box { width: 100%; aspect-ratio: 160 / 200; display: block; image-rendering: pixelated; touch-action: manipulation; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--paper); font: 400 12px/1.3 var(--mono); padding: 4px 7px; white-space: nowrap; }
+.mood { display: grid; gap: 2px; }
+.mood b { font: 400 40px/1 var(--display); }
+.mood span { font-size: 15px; }
+#spark { width: 100%; height: 56px; display: block; }
+.vitals { display: grid; grid-template-columns: minmax(0, 1fr); border-top: 1px solid var(--ink); }
+.vital { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--rule); }
+.vital .vl { font: 500 11.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.vital .vv { font: 400 22px/1 var(--display); text-align: right; white-space: nowrap; }
+.vital .vv small { font: 400 12px var(--mono); color: var(--muted); margin-left: 4px; }
+.seg { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 3px; max-width: 220px; }
+.seg i { height: 14px; border: 1px solid var(--ink); position: relative; }
+.seg i.on { background: var(--ink); }
+.seg i.mark::after { content: ""; position: absolute; left: -3px; top: -5px; bottom: -5px; border-left: 1px dashed var(--ink); }
+.seg.blink i.on:last-of-type { animation: blink 1.2s steps(2, jump-none) infinite; }
+@keyframes blink { 50% { background: transparent; } }
+.more { font: 400 12px/1.6 var(--mono); color: var(--muted); }
+.since { font-size: 14px; padding: 10px 12px; border: 1px dashed var(--ink); }
+
+/* break an ampoule */
+.card { display: grid; gap: 14px; padding: 18px; border: 1px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); background: var(--paper); margin-right: 5px; }
+.price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.price b { font: 400 56px/0.9 var(--display); }
+.price span { font-size: 13.5px; color: var(--muted); max-width: 40ch; }
+.amps { display: grid; gap: 8px; }
+.amps .row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.amp { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; align-content: start; padding: 10px; border: 1px solid var(--rule); min-width: 0; }
+.amp .glyph { grid-row: span 3; width: 30px; height: 50px; color: var(--ink); }
+.amp b { font: 400 22px/1 var(--display); }
+.amp a { font: 400 11px/1.3 var(--mono); color: var(--muted); text-decoration: none; }
+.amp a:hover { text-decoration: underline; }
+.amp span { font-size: 13px; line-height: 1.35; }
+.amps .row.base .amp { border-color: var(--ink); }
+.amp.out { opacity: .45; }
+.amp.out b::after { content: " sold out"; font-size: 15px; }
+.amps h3 { margin-top: 4px; }
+.pay { display: block; text-align: center; font: 400 26px/1 var(--display); padding: 13px 12px 11px; background: var(--ink); color: var(--paper); text-decoration: none; box-shadow: 4px 4px 0 var(--soft); }
+.pay:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--soft); }
+.pay:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--soft); }
+.pay[aria-disabled="true"] { background: repeating-linear-gradient(135deg, var(--tint) 0 6px, var(--paper) 6px 12px); color: var(--muted); border: 1px solid var(--soft); box-shadow: none; pointer-events: none; transform: none; }
+.pay:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+details.rules { border-top: 1px solid var(--ink); }
+details.rules summary { cursor: pointer; padding: 10px 0; font: 500 11.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; list-style: none; display: flex; justify-content: space-between; }
+details.rules summary::after { content: "+"; font: 400 20px/0.6 var(--display); }
+details.rules[open] summary::after { content: "−"; }
+details.rules ul { margin: 0 0 6px; padding: 0; list-style: none; display: grid; gap: 10px; }
+details.rules li { font-size: 14px; }
+details.rules li b { font-weight: 600; }
+
+/* price, money, log */
+.edge { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; border-top: 1px solid var(--ink); padding-top: 20px; }
+.two { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 40px; }
+.two > div { display: grid; gap: 10px; align-content: start; min-width: 0; }
+#pricec { width: 100%; height: 150px; display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 400 12px var(--mono); color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.mk { width: 10px; height: 10px; display: inline-block; vertical-align: -1px; color: var(--ink); }
+.mk.sealed { color: var(--soft); }
+.money { margin: 0; display: grid; }
+.money div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.money dt { font-size: 14px; }
+.money dt small { display: block; font: 400 12px var(--mono); color: var(--muted); }
+.money dd { margin: 0; font: 400 28px/1 var(--display); }
+.log { list-style: none; margin: 0; padding: 0; max-height: 560px; overflow-y: auto; border-bottom: 1px solid var(--rule); }
+.log li { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 14px; padding: 10px 2px; border-top: 1px solid var(--rule); font-size: 14.5px; line-height: 1.45; }
+.log .when { font: 400 12px/1.5 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.log .when b { display: block; font: 400 20px/1 var(--display); color: var(--ink); }
+.log .sealc { font: 400 11.5px var(--mono); color: var(--muted); word-break: break-all; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font: 500 12px var(--mono); border: 1px solid var(--ink); padding: 1px 6px; margin-left: 4px; white-space: nowrap; }
+.chip.ok::after { content: "seal ✓"; color: var(--muted); font-weight: 400; margin-left: 2px; }
+.chip.bad::after { content: "seal ✗"; margin-left: 2px; }
+.log li.r-open { background: var(--tint); }
+.log li.r-closed { background: var(--ink); color: var(--paper); }
+.log li.r-closed .when, .log li.r-closed .when b { color: var(--paper); }
+.credits { display: grid; gap: 8px; border-top: 1px solid var(--rule); padding-top: 18px; max-width: 70ch; font-size: 13.5px; }
+footer { display: flex; flex-wrap: wrap; gap: 8px 22px; font: 400 13px var(--mono); border-top: 1px solid var(--ink); padding-top: 16px; }
+footer a::after { content: " →"; }
+@media (max-width: 880px) { .bench, .two { grid-template-columns: minmax(0, 1fr); } .glass { max-width: 460px; } }
+@media (max-width: 560px) { .amps .row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .log li { grid-template-columns: minmax(0, 1fr); gap: 2px; } .log .when b { display: inline; margin-right: 6px; } .price b { font-size: 48px; } }
+@media (max-width: 360px) { .amps .row { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .seg.blink i.on:last-of-type { animation: none; } .pay:hover, .pay:active { transform: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Closed Systems · live</div>
+    <h1>Urna</h1>
+    <p class="lede">A sealed box of stone, roots, seeds and water. Anyone can pay to break an ampoule inside it and choose, in secret, what it holds.</p>
+    <ol class="steps">
+      <li>Pay to break an ampoule. The price doubles every time someone does.</li>
+      <li>Choose what is inside. It breaks on a secret day within six weeks, and nobody else knows what it was until the urn opens.</li>
+      <li>Come back. Every morning the box lives one more week.</li>
+    </ol>
+    <p class="thanks" id="thanks" hidden>Thank you. Your ampoule goes on the rail at the next daily step, early tomorrow UK time, and breaks on a secret day within the next 45 days. Your alias and the price will be in the log tomorrow.</p>
+  </header>
+
+  <section class="bench" aria-label="The box">
+    <div class="boxcol">
+      <div class="glass"><canvas id="box" role="img" aria-label="Cross-section of the box: stone slabs, roots, seed capsules and water"></canvas><div class="tip" id="tip" hidden></div></div>
+      <p class="mood" id="mood" aria-live="polite"><b>Loading…</b><span>Fetching the box.</span></p>
+      <p class="cap" id="clock"></p>
+      <canvas id="spark" role="img" aria-label="Plants alive over time"></canvas>
+    </div>
+    <div class="side">
+      <div class="vitals" id="vitals" aria-label="Vital signs"></div>
+      <p class="more" id="more"></p>
+      <p class="since" id="since" hidden></p>
+      <div class="card" id="buy">
+        <h2>Break an ampoule</h2>
+        <p class="price"><b id="priceNow">£–</b><span id="priceNote"></span></p>
+        <div class="amps" id="amps"></div>
+        <a class="pay" id="pay" href="#" aria-disabled="true">Payments open soon</a>
+        <p class="note">You choose the ampoule on the next page. It goes on the rail at the next daily step and breaks on a secret day within the next 45 days, so the payment can't be cancelled or refunded. Your alias and the price go in the public log.</p>
+      </div>
+      <details class="rules">
+        <summary>The rules</summary>
+        <ul>
+          <li><b>Price.</b> <span id="rPrice">Starts at £1. It doubles with every ampoule broken and halves after 52 days with none.</span></li>
+          <li><b>Secret.</b> Your alias and the price go in the log. Your choice, and the day it breaks, are sealed with a code published the same day. The break day is random, between 1 and <span id="rWithin">45</span> days later, so nobody can tell whose ampoule just broke. The salt in the water only shows in bands.</li>
+          <li><b>Openings.</b> <span id="rOpen">Every 261 days the urn opens.</span> Every choice is shown, and anyone can check it against its seal.</li>
+          <li><b>Rent.</b> <span id="rRent">The money pays the urn's own costs.</span> What is left builds the real box. If a month can't be paid, the urn closes for good.</li>
+          <li><b>Time.</b> One day here is one week in the box. The lamp in the box is on from 07:00 to 21:00, London time.</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <section class="edge" aria-label="Price and money">
+    <div class="two">
+      <div>
+        <h3>Price</h3>
+        <canvas id="pricec" role="img" aria-label="The price of breaking an ampoule over time"></canvas>
+        <p class="legend" id="legend"></p>
+      </div>
+      <div>
+        <h3>The urn's money</h3>
+        <dl class="money" id="money"></dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="edge" aria-labelledby="logH">
+    <h2 id="logH">Log</h2>
+    <ol class="log" id="log"></ol>
+    <p class="note">How to check a seal: on the day of each purchase the log shows a code, the SHA-256 of "number:choice:secret". When the urn opens it publishes the choice and the secret, and anyone can work the code out again. This page checks the opened ones for you.</p>
+  </section>
+
+  <section class="credits" aria-label="Who made this">
+    <h3>Who made this</h3>
+    <p>Urna is part of Closed Systems, a series of sealed boxes where what happens inside depends on rules set from outside. The box on this page is a simulation that moves on once a day; the money builds the real one. Each ampoule is one of the operations in the <a id="opsLink" href="https://operations.ramos-saavedra.com/all/">Actionary</a>.</p>
+    <p>I built it with Claude, an AI. Fonts: VT323 by Peter Hull, Inter by Rasmus Andersson, IBM Plex Mono by IBM.</p>
+    <p class="cap">Alejandro Ramos Saavedra · <a href="https://ramos-saavedra.com">ramos-saavedra.com</a></p>
+  </section>
+
+  <footer>
+    <a href="simulator/">Try your own box in the simulator</a>
+    <a id="opsLink2" href="https://operations.ramos-saavedra.com/all/">Actionary</a>
+    <a href="https://ramos-saavedra.com">ramos-saavedra.com</a>
+  </footer>
+</div>
+
+<script>
+/*GLYPHS*/
+</script>
+<script>
+const $ = id => document.getElementById(id);
+const LAMP = [7, 21];            // the lamp timer, London time
+const STEP_UTC = 5 * 60 + 10;    // the daily step lands around 05:10 UTC
+const reduced = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
+const money = v => '£' + (Math.round(v * 100) / 100).toLocaleString('en-GB', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 });
+const fmtDay = (d, opts) => new Date(new Date(L.start).getTime() + d * 864e5).toLocaleDateString('en-GB', opts || { day: 'numeric', month: 'short', year: 'numeric' });
+try { if (new URLSearchParams(location.search).has('paid')) $('thanks').hidden = false; } catch (e) {}
+
+// how each ampoule is marked once the urn has opened; sealed ones are grey dots
+const SALT = ['fresh', 'salty', 'very salty', 'poisoned'];
+const MARK = { seeds: 'dot', salt: 'square', water: 'ring', resin: 'diamond', hormone: 'triangle', ink: 'bar' };
+function markSVG(kind) {
+  const m = MARK[kind], cls = kind ? 'mk' : 'mk sealed';
+  const shape = !kind ? '<circle cx="5" cy="5" r="3.2" fill="currentColor"/>' : m === 'dot' ? '<circle cx="5" cy="5" r="4" fill="currentColor"/>' : m === 'square' ? '<rect x="1.2" y="1.2" width="7.6" height="7.6" fill="currentColor"/>' : m === 'ring' ? '<circle cx="5" cy="5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.5"/>' : m === 'diamond' ? '<polygon points="5,0.6 9.4,5 5,9.4 0.6,5" fill="currentColor"/>' : m === 'triangle' ? '<polygon points="5,0.8 9.4,9 0.6,9" fill="currentColor"/>' : '<rect x="3" y="0.6" width="4" height="8.8" fill="currentColor"/>';
+  return `<svg class="${cls}" viewBox="0 0 10 10" aria-hidden="true">${shape}</svg>`;
+}
+function drawMark(x, cx, cy, kind, r, ink, soft) {
+  const m = MARK[kind]; x.fillStyle = kind ? ink : soft; x.strokeStyle = ink; x.lineWidth = 1.5; x.beginPath();
+  if (!kind) { x.arc(cx, cy, r * 0.8, 0, 7); x.fill(); return; }
+  if (m === 'dot') { x.arc(cx, cy, r, 0, 7); x.fill(); }
+  else if (m === 'square') { x.fillRect(cx - r * 0.9, cy - r * 0.9, r * 1.8, r * 1.8); }
+  else if (m === 'ring') { x.arc(cx, cy, r * 0.85, 0, 7); x.fillStyle = getVar('--paper'); x.fill(); x.stroke(); }
+  else if (m === 'diamond') { x.moveTo(cx, cy - r * 1.1); x.lineTo(cx + r * 1.1, cy); x.lineTo(cx, cy + r * 1.1); x.lineTo(cx - r * 1.1, cy); x.fill(); }
+  else if (m === 'triangle') { x.moveTo(cx, cy - r); x.lineTo(cx + r, cy + r * 0.8); x.lineTo(cx - r, cy + r * 0.8); x.fill(); }
+  else { x.fillRect(cx - r * 0.45, cy - r, r * 0.9, r * 2); }
+}
+const getVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const hexRGB = h => { h = h.replace('#', ''); if (h.length === 3) h = h.split('').map(c => c + c).join(''); const n = parseInt(h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+
+// ---------- time: London clock, the lamp, the next daily step ----------
+function londonHM(now) {
+  try { const p = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(now); return [+p.find(x => x.type === 'hour').value, +p.find(x => x.type === 'minute').value]; }
+  catch (e) { return [now.getUTCHours(), now.getUTCMinutes()]; }
+}
+function lampOn(now) { const [h, m] = londonHM(now), t = h + m / 60; return t >= LAMP[0] && t < LAMP[1]; }
+function msToNextStep(now) {
+  const d = new Date(now); d.setUTCHours(0, STEP_UTC, 0, 0); if (d <= now) d.setUTCDate(d.getUTCDate() + 1); return d - now;
+}
+const dur = ms => { const m = Math.max(1, Math.round(ms / 60000)), h = Math.floor(m / 60); return h ? `${h} h ${m % 60} min` : `${m} min`; };
+
+// ---------- loading ----------
+let L = null, S = null, refreshTimer = null;
+async function load() {
+  try {
+    const [a, b] = await Promise.all([fetch('ledger.json', { cache: 'no-store' }), fetch('state.json', { cache: 'no-store' })]);
+    L = await a.json(); S = await b.json();
+    if (S.started === undefined) S.started = true;
+  } catch (e) { $('mood').innerHTML = '<b>Out of reach.</b><span>The box could not be loaded. Try again later.</span>'; return; }
+  prepareBox(); render();
+  clearTimeout(refreshTimer);
+  if (!S.closed) refreshTimer = setTimeout(load, msToNextStep(new Date()) + 6 * 60000);
+}
+
+// ---------- the box: a still layer drawn once, and a moving layer on top ----------
+// cell classes: 0 air, 1 water, 2 glass, 3-6 support (rusting), 10-13 stone (worn), 14-17 hole (cracking), 20-23 root (thickness), 24 dead root, 25 stem, 26 seed, 27 capsule
+const box = $('box'), bx = box.getContext('2d');
+let still = null, cls = null, waterCells = [], grainSpots = [], grains = [], nextGrain = 0;
+const hash = (x, y) => (((x * 73856093) ^ (y * 19349663)) >>> 0) % 1000 / 1000;
+function tones() {
+  const p = hexRGB(getVar('--paper') || '#ffffff'), k = hexRGB(getVar('--ink') || '#111111');
+  return t => p.map((v, j) => Math.round(v + (k[j] - v) * t));
+}
+function prepareBox() {
+  const W = S.W, H = S.H, bin = atob(S.cells), mix = tones();
+  cls = new Uint8Array(W * H); for (let i = 0; i < W * H; i++) cls[i] = bin.charCodeAt(i);
+  still = document.createElement('canvas'); still.width = W; still.height = H;
+  const sx = still.getContext('2d'), img = sx.createImageData(W, H);
+  waterCells = []; grainSpots = [];
+  for (let i = 0; i < W * H; i++) {
+    const c = cls[i], x = i % W, y = (i / W) | 0, n = hash(x, y);
+    let t = 0.02;
+    if (c === 1) { t = 0.12; waterCells.push(i); }
+    else if (c === 2) t = 0.5;
+    else if (c >= 3 && c <= 6) t = 0.78 - 0.1 * (c - 3) - (n > 0.7 ? 0.08 : 0);
+    else if (c >= 10 && c <= 13) t = 0.22 + 0.05 * (c - 10) + (n > 0.82 ? 0.07 : n < 0.1 ? -0.04 : 0);
+    else if (c >= 14 && c <= 17) t = [0.04, 0.3, 0.58, 0.88][c - 14];
+    else if (c >= 20 && c <= 23) t = 0.6 + 0.13 * (c - 20);
+    else if (c === 24) t = (x + y) % 2 ? 0.28 : 0.38;
+    else if (c === 25 || c === 26) t = 1;
+    else if (c === 27) t = (x + y) % 2 ? 0.08 : 0.5;
+    const col = mix(t), o = i * 4; img.data[o] = col[0]; img.data[o + 1] = col[1]; img.data[o + 2] = col[2]; img.data[o + 3] = 255;
+    // grains fall from the underside of stone next to a crack
+    if (c >= 10 && c <= 13 && y + 1 < H && cls[i + W] === 0) {
+      for (let dx = -3; dx <= 3; dx++) for (let dy = -3; dy <= 0; dy++) { const j = i + dy * W + dx; if (j >= 0 && cls[j] >= 15 && cls[j] <= 17) { grainSpots.push(i + W); dx = dy = 9; } }
+    }
+  }
+  sx.putImageData(img, 0, 0);
+  grains = [];
+  sizeBox();
+}
+function sizeBox() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1), w = box.clientWidth || 420;
+  box.width = Math.round(w * dpr); box.height = Math.round(w * 1.25 * dpr);
+}
+function drawBox(t, now) {
+  if (!S || !still) return;
+  const W = S.W, H = S.H, cw = box.width, ch = box.height, s = cw / W, mix = tones(), rgb = a => `rgb(${a})`;
+  const night = S.started && !S.closed && !lampOn(now), calm = !S.started ? 0 : night ? 0.25 : 1;
+  bx.imageSmoothingEnabled = false; bx.clearRect(0, 0, cw, ch); bx.drawImage(still, 0, 0, cw, ch);
+  // water: a slow drift of specks and a surface that never quite settles
+  const ph = Math.floor(t * 0.8 * calm);
+  bx.fillStyle = rgb(mix(0.26));
+  for (const i of waterCells) { const x = i % W, y = (i / W) | 0; if ((((x + ph) * 7 + y * 13) % 23 + 23) % 23 === 0) bx.fillRect(x * s, y * s, s, s); }
+  bx.fillStyle = rgb(mix(0.5));
+  const wt = S.waterTop;
+  for (let x = 0; x < W; x++) if (cls[wt * W + x] === 1) { const dy = (Math.sin(x * 0.45 + t * 1.1) * 0.35 + Math.sin(x * 0.17 - t * 0.6) * 0.25) * calm; bx.fillRect(x * s, (wt + dy) * s, s + 0.5, Math.max(1, s * 0.45)); }
+  // salt crust at the waterline
+  if (S.saltBand > 0) { const hh = [0, 1.2, 2.6, 4.4][S.saltBand] * s, yy = wt * s;
+    for (let x = 1; x < W - 1; x++) { const j = (Math.sin(x * 1.7) + Math.sin(x * 0.43)) * 0.18 * hh; bx.fillStyle = rgb(mix(0)); bx.fillRect(x * s, yy - hh - j, s + 0.5, hh + j); if ((x * 7) % 5 < 2) { bx.fillStyle = rgb(mix(0.45)); bx.fillRect(x * s, yy - hh - j, s * 0.6, s * 0.6); } } }
+  // leaves, swaying a little; less at night
+  bx.strokeStyle = rgb(mix(1)); bx.lineWidth = Math.max(1.5, s * 0.8); bx.lineCap = 'round';
+  for (const p of S.plants) {
+    const px = (p.x + 0.5) * s, py = (p.y + 0.5) * s, n = 2 + Math.round(p.v * 4);
+    const sway = reduced ? 0 : (Math.sin(t * 0.9 + p.id * 1.7) * 0.6 + Math.sin(t * 2.3 + p.id) * 0.25) * (0.35 + p.v) * calm;
+    for (let k = 0; k < n; k++) {
+      const side = k % 2 ? 1 : -1, len = (7 + 9 * p.v) * s * (0.7 + 0.3 * ((p.id * 7 + k * 13) % 10) / 10), lift = (k / n) * 6 * s, droop = night ? len * 0.18 : 0, dx = sway * len * 0.12;
+      bx.beginPath(); bx.moveTo(px, py + lift); bx.quadraticCurveTo(px + side * len * 0.55 + dx * 0.5, py + lift - len * 0.45 + droop, px + side * len + dx, py + lift + len * 0.25 + droop * 1.6); bx.stroke();
+    }
+  }
+  // grains working loose from the cracks
+  if (!reduced && S.started && !S.closed && grainSpots.length && t > nextGrain) { grains.push({ i: grainSpots[Math.floor(Math.random() * grainSpots.length)], y: 0, born: t }); nextGrain = t + 4 + Math.random() * 9; }
+  bx.fillStyle = rgb(mix(0.45));
+  grains = grains.filter(g => {
+    const x = g.i % W, y0 = (g.i / W) | 0, y = y0 + g.y;
+    const below = cls[(Math.floor(y) + 1) * W + x];
+    if (below === 0 && y < H - 2) g.y += 0.35; else g.rest = g.rest || t;
+    bx.fillRect(x * s, Math.floor(y0 + g.y) * s, s, s);
+    return !g.rest || t - g.rest < 1.5;
+  });
+  // ink on the glass hides the box from you too
+  bx.fillStyle = rgb(mix(0.92)); for (const col of S.shade) bx.fillRect(col * s, 0, s + 0.5, ch);
+  if (night) { bx.fillStyle = 'rgba(10,10,10,0.5)'; bx.fillRect(0, 0, cw, ch); }
+  if (S.closed) { bx.fillStyle = 'rgba(10,10,10,0.62)'; bx.fillRect(0, 0, cw, ch); }
+}
+let lastFrame = 0;
+function frame(ms) {
+  if (!document.hidden && ms - lastFrame > 60) { lastFrame = ms; drawBox(ms / 1000, new Date()); }
+  requestAnimationFrame(frame);
+}
+// point at a plant to see what it is
+box.addEventListener('pointermove', e => {
+  if (!S) return;
+  const r = box.getBoundingClientRect(), cx = (e.clientX - r.left) / r.width * S.W, cy = (e.clientY - r.top) / r.height * S.H;
+  let best = null, bd = 12;
+  for (const p of S.plants) { const d = Math.hypot(p.x - cx, p.y - cy); if (d < bd) { bd = d; best = p; } }
+  const tip = $('tip');
+  if (!best) { tip.hidden = true; return; }
+  tip.textContent = `${best.sp === 'robinia' ? 'Robinia' : 'Fig'} · ${best.v > 0.66 ? 'strong' : best.v > 0.33 ? 'steady' : 'weak'}`;
+  tip.hidden = false; tip.style.left = `${Math.min(r.width - tip.offsetWidth, Math.max(0, e.clientX - r.left + 12))}px`; tip.style.top = `${Math.max(0, e.clientY - r.top - 30)}px`;
+});
+box.addEventListener('pointerleave', () => { $('tip').hidden = true; });
+
+// ---------- vital signs, mood and clock ----------
+function seg(frac, opts) {
+  const n = Math.max(0, Math.min(10, Math.round(frac * 10)));
+  return `<span class="seg${opts && opts.blink ? ' blink' : ''}" aria-hidden="true">${Array.from({ length: 10 }, (_, k) => `<i class="${k < n ? 'on' : ''}${opts && opts.mark === k ? ' mark' : ''}"></i>`).join('')}</span>`;
+}
+function vitals() {
+  const f = L.fund, r = L.rules, hmax = Math.max(10, ...S.hist), stock = L.kinds.reduce((a, k) => a + (k.stock || 0), 0) || 100;
+  const rows = [
+    ['Plants', seg(S.alive / hmax, { blink: S.alive > 0 && S.alive <= 2 }), `${S.alive}<small>alive</small>`],
+    ['Salt', seg([0.2, 0.5, 0.8, 1][S.saltBand], { blink: S.saltBand >= 1 }), `${SALT[S.saltBand]}`],
+    ['Rail', seg(L.left / stock), `${L.left}<small>ampoules</small>`],
+    ...(r.rent > 0 ? [['Rent', seg((f.monthsLeft || 0) / r.reserveMonths, { blink: (f.monthsLeft || 0) < 1.5 }), `${Math.floor(f.monthsLeft || 0)}<small>${Math.floor(f.monthsLeft || 0) === 1 ? 'month' : 'months'}</small>`]] : []),
+  ];
+  $('vitals').innerHTML = rows.map(([l, b, v]) => `<div class="vital"><span class="vl">${l}</span>${b}<span class="vv">${v}</span></div>`).join('');
+  $('more').textContent = `Generation ${S.generation} · ${S.planted} plants so far · ${S.lines} lines of holes split · ${S.capsBroken} of ${S.caps} capsules broken` + (S.shade.length ? ` · ${Math.round(100 * S.shade.length / S.W)}% of the glass inked` : '');
+}
+function mood(now) {
+  const night = S.started && !S.closed && !lampOn(now), f = L.fund, r = L.rules;
+  let b, s;
+  if (S.closed) { b = 'Closed.'; s = `The money ran out on day ${L.closedDay}. The box stays as it was that day.`; }
+  else if (S.alive === 0 && S.waiting === 0) { b = 'Empty.'; s = 'Nothing is alive in the box. Only seeds can bring it back.'; }
+  else if (!S.started) { b = 'Sealed.'; s = `The box starts on ${fmtDay(0, { day: 'numeric', month: 'long', year: 'numeric' })}. Until then nothing moves inside.`; }
+  else if (S.saltBand >= 3) { b = 'Poisoned.'; s = 'The water is so salty that nothing can germinate.'; }
+  else if (S.saltBand >= 1) { b = 'Salty.'; s = `The plants that drink this water are struggling. ${S.alive} ${S.alive === 1 ? 'is' : 'are'} still alive.`; }
+  else if (r.rent > 0 && (f.monthsLeft || 0) < 1.5) { b = 'Hungry.'; s = `The fund covers about ${Math.max(1, Math.round((f.monthsLeft || 0) * 4.3))} more weeks of rent.`; }
+  else if (S.alive === 0) { b = 'Dormant.'; s = `${S.waiting} ${S.waiting === 1 ? 'seed is' : 'seeds are'} waiting to germinate.`; }
+  else { b = 'Growing.'; s = `${S.alive} ${S.alive === 1 ? 'plant is' : 'plants are'} alive, up to generation ${S.generation}.`; }
+  if (night) { s = `The lamp is off until ${String(LAMP[0]).padStart(2, '0')}:00 London time. ${b === 'Growing.' ? s : b.replace('.', ':') + ' ' + s.charAt(0).toLowerCase() + s.slice(1)}`; b = 'Asleep.'; }
+  $('mood').innerHTML = `<b>${b}</b><span>${s}</span>`;
+}
+function clock(now) {
+  if (!S) return;
+  const [h, m] = londonHM(now), hm = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  if (!S.started) { const d = Math.max(0, Math.ceil((new Date(L.start) - now) / 864e5)); $('clock').textContent = `Sealed · starts in ${d} ${d === 1 ? 'day' : 'days'} · London ${hm} · the lamp is on from 07:00 to 21:00.`; return; }
+  const next = S.closed ? 'The urn is closed.' : `Next week in the box in ${dur(msToNextStep(now))}.`;
+  $('clock').textContent = `Week ${S.week} · ${S.years.toFixed(1)} years in · London ${hm} · lamp ${lampOn(now) ? 'on' : 'off'}. ${next}`;
+}
+
+// ---------- since your last visit (kept in this browser only) ----------
+function since() {
+  const now = { day: S.day, alive: S.alive, buys: L.purchases.length, opens: L.openings.length, price: L.price };
+  let before = null;
+  try { before = JSON.parse(localStorage.getItem('urna.seen') || 'null'); } catch (e) {}
+  try { localStorage.setItem('urna.seen', JSON.stringify(now)); } catch (e) {}
+  if (!before || before.day >= now.day) return;
+  const bits = [];
+  const wk = now.day - before.day; bits.push(`${wk} ${wk === 1 ? 'week has' : 'weeks have'} passed in the box`);
+  const nb = now.buys - before.buys; if (nb > 0) bits.push(`${nb} ${nb === 1 ? 'ampoule' : 'ampoules'} broke`);
+  if (now.alive !== before.alive) bits.push(`plants alive went from ${before.alive} to ${now.alive}`);
+  if (now.opens > before.opens) bits.push('the urn opened');
+  if (now.price !== before.price) bits.push(`the price went from ${money(before.price)} to ${money(now.price)}`);
+  const last = bits.pop();
+  $('since').textContent = `Since your last visit, ${bits.length ? bits.join(', ') + ' and ' + last : last}.`;
+  $('since').hidden = false;
+}
+
+// ---------- the rest ----------
+function nextHalving() {
+  const ph = L.priceHistory, today = ph.length - 1, r = L.rules;
+  if (L.price <= r.start) return null;
+  let j = 0; for (let d = today; d > 0; d--) if (ph[d] !== ph[d - 1]) { j = d; break; }
+  const lastBuy = L.purchases.length ? L.purchases[L.purchases.length - 1].day + 1 : 0;
+  return Math.max(j, lastBuy) + r.halveAfterDays;
+}
+function render() {
+  $('opsLink').href = L.actionary; $('opsLink2').href = L.actionary;
+  const nameOf = k => (L.kinds.find(x => x.key === k) || { name: k }).name;
+  const r = L.rules, now = new Date();
+  vitals(); mood(now); clock(now); if (S.started) since();
+  // price and choice
+  $('priceNow').textContent = money(L.price);
+  const nh = nextHalving();
+  $('priceNote').textContent = !S.started ? `to break the first one, from ${fmtDay(0, { day: 'numeric', month: 'long' })}.` : S.closed ? 'The urn is closed.' : `today. The next person doubles it to ${money(Math.min(4096, L.price * 2))}.` + (nh != null ? ` If nobody pays, it halves on ${fmtDay(nh, { day: 'numeric', month: 'short' })}.` : '');
+  const card = k => `<div class="amp${k.available ? '' : ' out'}">${glyphSVG(k.op, 'glyph', 1.9)}<b>${k.name}</b><a href="${L.actionary.replace(/all\/?$/, '')}${k.op.toLowerCase().replace(/\s+/g, '-')}/">${k.op}</a><span>${k.does}</span></div>`;
+  const base = L.kinds.filter(k => ['seeds', 'salt', 'water'].includes(k.key)), ops = L.kinds.filter(k => !['seeds', 'salt', 'water'].includes(k.key));
+  $('amps').innerHTML = `<div class="row base">${base.map(card).join('')}</div>` + (ops.length ? `<h3>Other operations</h3><div class="row">${ops.map(card).join('')}</div>` : '');
+  const pay = $('pay');
+  if (S.closed) { pay.textContent = 'The urn is closed'; pay.setAttribute('aria-disabled', 'true'); pay.removeAttribute('href'); }
+  else if (L.link) { pay.textContent = `Pay ${money(L.price)} and break one`; pay.href = L.link; pay.setAttribute('aria-disabled', 'false'); }
+  else { pay.textContent = S.started ? 'Payments open soon' : `Opens on ${fmtDay(0, { day: 'numeric', month: 'long' })}`; pay.setAttribute('aria-disabled', 'true'); pay.removeAttribute('href'); }
+  $('rWithin').textContent = r.breakWithinDays || 45;
+  $('rPrice').textContent = `Starts at ${money(r.start)}. It doubles with every ampoule broken and halves after ${r.halveAfterDays} days with none.`;
+  $('rOpen').textContent = `Every ${r.openEveryDays} days the urn opens; the next opening is on ${fmtDay(L.nextOpening.day)}.`;
+  $('rRent').textContent = `The money pays the urn's own costs, ${money(r.rent)} every ${r.monthDays} days, and keeps ${r.reserveMonths} months in reserve.`;
+  // money
+  const f = L.fund;
+  $('money').innerHTML = [
+    ['In the fund', r.rent > 0 ? `rent for ${Math.floor(f.monthsLeft || 0)} ${Math.floor(f.monthsLeft || 0) === 1 ? 'month' : 'months'}` : 'no rent to pay', money(f.balance)],
+    ['Paid in rent', `${money(r.rent)} every ${r.monthDays} days`, money(f.rentPaid)],
+    ['To the real box', 'what is left over', money(f.toBox)],
+  ].map(([a, b, c]) => `<div><dt>${a}<small>${b}</small></dt><dd>${c}</dd></div>`).join('');
+  $('legend').innerHTML = `<span>${markSVG(null)}sealed</span>` + L.kinds.map(k => `<span>${markSVG(k.key)}${k.name.toLowerCase()}</span>`).join('');
+  // log
+  const rows = [];
+  for (const p of L.purchases) rows.push({ day: p.day, o: 1, cls: 'r-buy', html: `<b>${p.alias}</b> paid ${money(p.price)}.${p.reveal ? ` <span class="chip" data-n="${p.n}">${markSVG(p.reveal.kind)}${nameOf(p.reveal.kind)}</span> <span class="sealc">${p.reveal.breakDay == null ? '' : L.closedDay != null && p.reveal.breakDay >= L.closedDay ? 'never broke' : `broke on day ${p.reveal.breakDay}`}</span>` : ''}<br><span class="sealc">seal ${p.seal.slice(0, 16)}…</span>` });
+  for (const d of L.donations) rows.push({ day: d.day, o: 0, cls: 'r-don', html: `<b>${d.alias}</b> gave ${money(d.amount)}, less than the day's price: no ampoule, all to the fund.` });
+  for (const o of L.openings) rows.push({ day: o.day, o: 2, cls: 'r-open', html: o.final ? `The urn opened for the last time as it closed: ${o.count} ${o.count === 1 ? 'ampoule' : 'ampoules'} shown.` : `The urn opened: ${o.count} ${o.count === 1 ? 'ampoule' : 'ampoules'} shown${o.count ? ': ' + Object.entries(o.counts).map(([k, v]) => `${v} ${nameOf(k).toLowerCase()}`).join(', ') : ''}.` });
+  if (L.closedDay != null) rows.push({ day: L.closedDay, o: 3, cls: 'r-closed', html: 'The money did not cover the rent. The urn closed.' });
+  for (const d of (L.late || [])) rows.push({ day: d.day, o: 0, cls: 'r-don', html: `<b>${d.alias}</b> paid ${money(d.amount)} after the urn closed. It will be refunded.` });
+  rows.sort((a, b) => b.day - a.day || b.o - a.o);
+  $('log').innerHTML = rows.length ? rows.map(x => `<li class="${x.cls}"><span class="when"><b>day ${x.day}</b>${fmtDay(x.day)}</span><span class="txt">${x.html}</span></li>`).join('') : '<li><span class="when"><b>–</b></span><span class="txt">Nobody has paid yet.</span></li>';
+  checkSeals();
+  drawSpark(); drawPrice(); drawBox(performance.now() / 1000, now);
+}
+function drawSpark() {
+  const c = $('spark'), dpr = Math.min(2, window.devicePixelRatio || 1), w = c.clientWidth || 420, h = 56;
+  c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+  const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const ink = getVar('--ink'), muted = getVar('--muted'), H = S.hist, mx = Math.max(4, ...H), top = 16, bot = h - 2;
+  x.font = '400 11px "IBM Plex Mono", monospace'; x.fillStyle = muted; x.fillText(`plants alive over ${S.years.toFixed(0)} years · most at once ${mx}`, 0, 10);
+  if (H.length < 2) return;
+  const bw = w / H.length;
+  x.fillStyle = ink; H.forEach((v, i) => { const hh = (bot - top) * v / mx; if (hh > 0) x.fillRect(i * bw, bot - hh, Math.max(1, bw - 0.6), hh); });
+}
+function drawPrice() {
+  const c = $('pricec'), dpr = Math.min(2, window.devicePixelRatio || 1), w = c.clientWidth || 600, h = 150;
+  c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+  const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const ink = getVar('--ink'), muted = getVar('--muted'), rule = getVar('--rule'), soft = getVar('--soft');
+  const ph = L.priceHistory, n = Math.max(2, ph.length), Lm = 46, T = 8, B = 20, Wd = w - Lm - 8, Hd = h - T - B;
+  const mx = Math.max(8, ...ph, ...L.purchases.map(p => p.price)), lo = 0, hi = Math.log2(mx) + 0.6;
+  const X = d => Lm + Wd * d / (n - 1), Y = v => T + Hd * (1 - (Math.log2(v) - lo) / (hi - lo));
+  x.font = '400 11px "IBM Plex Mono", monospace'; x.strokeStyle = rule; x.fillStyle = muted; x.lineWidth = 1;
+  for (const v of [1, 10, 100, 1000]) { if (v > mx * 1.4) break; const y = Y(v); x.beginPath(); x.moveTo(Lm, y); x.lineTo(Lm + Wd, y); x.stroke(); x.textAlign = 'right'; x.textBaseline = 'middle'; x.fillText(money(v), Lm - 6, y); }
+  x.textAlign = 'left'; x.textBaseline = 'top'; x.fillText('day 0', Lm, T + Hd + 5); x.textAlign = 'right'; x.fillText(`day ${n - 1}`, Lm + Wd, T + Hd + 5);
+  x.setLineDash([2, 3]); x.strokeStyle = soft; for (const o of L.openings) { x.beginPath(); x.moveTo(X(Math.min(n - 1, o.day)), T); x.lineTo(X(Math.min(n - 1, o.day)), T + Hd); x.stroke(); } x.setLineDash([]);
+  x.strokeStyle = ink; x.lineWidth = 1.4; x.beginPath(); ph.forEach((v, d) => { d ? (x.lineTo(X(d), Y(ph[d - 1])), x.lineTo(X(d), Y(v))) : x.moveTo(X(0), Y(v)); }); x.stroke();
+  for (const p of L.purchases) drawMark(x, X(Math.min(n - 1, p.day)), Y(p.price), p.reveal ? p.reveal.kind : null, 3.6, ink, soft);
+}
+async function checkSeals() {
+  if (!window.crypto || !crypto.subtle) return;
+  for (const p of L.purchases) {
+    if (!p.reveal) continue;
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${p.n}:${p.reveal.kind}:${p.reveal.nonce}`));
+    const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    const bd = p.day + 1 + parseInt(p.reveal.nonce.slice(0, 8), 16) % (L.rules.breakWithinDays || 45);
+    const el = document.querySelector(`.chip[data-n="${p.n}"]`);
+    if (el) el.classList.add(hex === p.seal && (p.reveal.breakDay == null || p.reveal.breakDay === bd) ? 'ok' : 'bad');
+  }
+}
+let rt = null; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (S) { sizeBox(); drawSpark(); drawPrice(); drawBox(performance.now() / 1000, new Date()); } }, 120); });
+const retheme = () => { if (S) { prepareBox(); render(); } };
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', retheme); } catch (e) {}
+new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+setInterval(() => { if (S) { const now = new Date(); clock(now); mood(now); if (reduced) drawBox(0, now); } }, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S && !S.closed && Date.now() - new Date(S.updated).getTime() > 25 * 3600e3) load(); });
+load();
+if (!reduced) requestAnimationFrame(frame);
+</script>

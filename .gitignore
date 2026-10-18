@@ -1,0 +1,7 @@
+node_modules/
+demo/
+demo-site/
+preview/
+preview2/
+*.png
+shot*.js

@@ -1,0 +1,16 @@
+{
+  "name": "closed-systems",
+  "private": true,
+  "description": "Closed Systems: Urna, a sealed box that lives or dies by what strangers pay, and the simulator for The Cycle.",
+  "scripts": {
+    "tick": "node scripts/tick.js",
+    "demo": "node scripts/demo.js",
+    "verify": "node scripts/verify.js",
+    "pages": "node scripts/build-pages.js",
+    "key": "node scripts/new-key.js",
+    "stripe-setup": "node scripts/stripe-setup.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

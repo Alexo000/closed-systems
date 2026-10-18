@@ -1,0 +1,2337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>The Cycle</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=VT323&display=swap">
+<style>
+/* Test bench: the box on the left, the settings on the right, the edge finder below. Same family as the urn page and Shubyrinth. */
+:root {
+  --paper: #ffffff; --card: #fcfcfc; --ink: #111111; --muted: #565656; --line: #d9d9d9; --soft: #f2f2f2; --shadow: #bdbdbd;
+  --water: #2f6c9c; --life: #4f7f32; --crack: #b8432c; --sun: #a77412;
+  --g1: #dfe6d6; --g2: #a9c48e; --g3: #6f9a4c; --g4: #2f5a1c;
+  --box-air: #f6f5f0; --box-water: #cfe0ec;
+  --h0: #eef2e8; --h1: #2f5a1c;
+  --k-seed: #7a5428; --k-salt: #5f6f80; --k-agua: #3f7fa6; --k-none: #8a949c; --u-alive: #6f9a4c; --u-salt: #8d98a3; --u-dry: #c9b99a;
+  --display: "VT323", "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --body: "Inter", system-ui, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121212; --card: #171717; --ink: #ededed; --muted: #a3a3a3; --line: #333333; --soft: #1d1d1d; --shadow: #5c5c5c;
+    --water: #78acd8; --life: #92bf6c; --crack: #e9765d; --sun: #d9a948;
+    --g1: #2b3327; --g2: #4d6a37; --g3: #79a356; --g4: #b9dd94;
+    --box-air: #1f2425; --box-water: #1d3446; --h0: #232a22; --h1: #b9dd94; color-scheme: dark;
+    --k-seed: #c9965c; --k-salt: #a9b6c4; --k-agua: #7fb6d8; --k-none: #7d878f; --u-alive: #8fbf68; --u-salt: #77828d; --u-dry: #6f6450;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121212; --card: #171717; --ink: #ededed; --muted: #a3a3a3; --line: #333333; --soft: #1d1d1d; --shadow: #5c5c5c;
+  --water: #78acd8; --life: #92bf6c; --crack: #e9765d; --sun: #d9a948;
+  --g1: #2b3327; --g2: #4d6a37; --g3: #79a356; --g4: #b9dd94;
+  --box-air: #1f2425; --box-water: #1d3446; --h0: #232a22; --h1: #b9dd94; color-scheme: dark;
+  --k-seed: #c9965c; --k-salt: #a9b6c4; --k-agua: #7fb6d8; --k-none: #7d878f; --u-alive: #8fbf68; --u-salt: #77828d; --u-dry: #6f6450;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--paper); color: var(--ink); font: 15px/1.5 var(--body); margin: 0; }
+a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.lang { font: 400 13px var(--mono); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 64px; display: grid; gap: 36px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+h1, h2 { font-family: var(--display); font-weight: 400; line-height: 1; }
+h1 { font-size: clamp(56px, 9vw, 96px); }
+h2 { font-size: clamp(28px, 3.4vw, 38px); }
+h3 { font: 600 15px/1.2 var(--body); }
+p { margin: 0; }
+.eyebrow { font: 500 12px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.lede { max-width: 64ch; font-size: 17.5px; }
+.muted { color: var(--muted); }
+header { display: grid; gap: 14px; }
+
+.bench { display: grid; grid-template-columns: minmax(0, 480px) minmax(0, 1fr); gap: 32px; align-items: start; }
+.boxcol { display: grid; gap: 12px; min-width: 0; }
+#box { width: calc(100% - 5px); aspect-ratio: 160 / 200; display: block; background: var(--box-air); border: 1px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); }
+#line { width: 100%; height: 76px; display: block; }
+.transport { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button, select { font: 500 13px/1 var(--mono); color: var(--ink); background: var(--card); border: 1px solid var(--line); padding: 9px 12px; cursor: pointer; }
+button:hover, select:hover { border-color: var(--muted); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+button.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); box-shadow: 3px 3px 0 var(--shadow); }
+button.primary:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow); }
+button.primary:disabled { background: repeating-linear-gradient(135deg, var(--soft) 0 6px, var(--paper) 6px 12px); color: var(--muted); border-color: var(--line); box-shadow: none; cursor: default; }
+.speed { display: flex; align-items: center; gap: 8px; font: 500 12px var(--mono); color: var(--muted); margin-left: auto; }
+.speed input { width: 110px; accent-color: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font: 500 11.5px var(--mono); color: var(--muted); }
+.legend i { display: inline-block; width: 11px; height: 11px; vertical-align: -1px; margin-right: 5px; border: 1px solid rgba(0,0,0,.12); }
+
+.side { display: grid; gap: 22px; min-width: 0; }
+.readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 10px; }
+.readout div { border-top: 1.5px solid var(--ink); padding-top: 8px; }
+.readout b { display: block; font: 400 30px/0.9 var(--display); white-space: nowrap; font-variant-numeric: tabular-nums; margin-bottom: 4px; }
+.readout span { font: 500 11.5px/1.3 var(--mono); color: var(--muted); }
+.status { font-size: 15px; padding: 10px 12px; background: var(--soft); }
+.status.done { background: var(--ink); color: var(--paper); }
+.seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.seg button:first-child { grid-column: 1 / -1; }
+.seg button { text-align: left; padding: 10px 12px; display: grid; gap: 4px; line-height: 1.25; }
+.seg button small { font: 400 11px/1.3 var(--mono); color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.seg button[aria-pressed="true"] small { color: var(--paper); opacity: .75; }
+.params { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 24px; }
+.prm { display: grid; gap: 4px; }
+.prm label { display: flex; justify-content: space-between; gap: 10px; font: 500 12.5px/1.3 var(--mono); }
+.prm label output { color: var(--ink); font-variant-numeric: tabular-nums; }
+.prm input[type=range] { width: 100%; accent-color: var(--ink); }
+.prm select { width: 100%; text-align: left; }
+.prm small { font-size: 13.5px; line-height: 1.35; color: var(--muted); }
+.note { font-size: 14px; color: var(--muted); }
+.groups { display: grid; gap: 22px; }
+.group { display: grid; gap: 12px; }
+.group > h3 { border-top: 1.5px solid var(--ink); padding-top: 10px; }
+.calc { font-size: 14px; line-height: 1.4; padding: 9px 12px; border-left: 3px solid var(--line); background: var(--soft); }
+.calc.good { border-left-color: var(--life); }
+.calc.bad { border-left-color: var(--crack); }
+.prm.off { opacity: .45; }
+.cmpcap { font: 500 12px var(--mono); color: var(--muted); max-width: 820px; }
+.maps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; max-width: 900px; }
+.mapbox { position: relative; display: grid; gap: 8px; min-width: 0; }
+.mapbox h3 { font-size: 15px; }
+.mapbox svg { width: 100%; height: auto; display: block; overflow: visible; }
+.hm-cell { cursor: default; }
+.hm-cell:hover, .hm-cell:focus { stroke: var(--ink); stroke-width: 1.5; outline: none; }
+.hm-val { font: 500 11px var(--mono); pointer-events: none; }
+.tip { position: absolute; pointer-events: none; background: var(--card); border: 1px solid var(--line); padding: 8px 10px; font: 400 12.5px/1.4 var(--mono); color: var(--muted); box-shadow: 0 2px 10px rgba(0,0,0,.12); max-width: 240px; z-index: 5; }
+.tip b { display: block; font: 400 24px/1 var(--display); color: var(--ink); margin-bottom: 2px; }
+.hmkey { display: flex; align-items: center; gap: 8px; font: 500 12px var(--mono); color: var(--muted); }
+.hmkey i { display: block; width: 160px; height: 10px; background: linear-gradient(90deg, var(--h0), var(--h1)); border: 1px solid var(--line); }
+@media (max-width: 760px) { .maps { grid-template-columns: minmax(0, 1fr); } }
+
+.edge { display: grid; gap: 18px; border-top: 1.5px solid var(--ink); padding-top: 22px; }
+.edge .controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; }
+.edge .controls .prm { min-width: 180px; }
+.bar { height: 4px; background: var(--soft); overflow: hidden; width: 220px; }
+.bar i { display: block; height: 100%; width: 0; background: var(--ink); }
+#chart { width: 100%; max-width: 820px; min-width: 560px; height: auto; display: block; }
+.cap { font: 500 12px var(--mono); color: var(--muted); }
+.verdict { font-size: 17px; max-width: 70ch; }
+.findings { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 74ch; font-size: 16px; }
+#cmpStone, #cmpSeed { width: 100%; max-width: 820px; min-width: 600px; height: auto; display: block; }
+.chartwrap { overflow-x: auto; }
+.glegend { display: flex; flex-wrap: wrap; gap: 6px 16px; font: 500 12px var(--mono); color: var(--muted); }
+.glegend i { display: inline-block; width: 12px; height: 12px; vertical-align: -2px; margin-right: 6px; }
+.sv-ax { font: 500 11px var(--mono); fill: var(--muted); }
+.sv-lab { font: 600 12px var(--mono); fill: var(--ink); }
+
+/* la urna */
+.buy { display: grid; gap: 10px; padding: 16px; border: 1px solid var(--ink); background: var(--paper); box-shadow: 5px 5px 0 var(--ink); margin-right: 5px; }
+.buy h3 { font: 400 30px/1 var(--display); }
+.choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 6px; }
+.choices i { font: 500 10.5px/1.2 var(--mono); font-style: normal; color: var(--muted); letter-spacing: .02em; }
+.choices .group-l { grid-column: 1 / -1; font: 500 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+.choices label { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1px 9px; align-content: start; padding: 9px 10px; border: 1px solid var(--line); cursor: pointer; font-size: 14px; line-height: 1.25; }
+.choices label:has(input:checked) { border-color: var(--ink); background: var(--soft); }
+.choices input { position: absolute; opacity: 0; pointer-events: none; }
+.choices label:has(input:focus-visible) { outline: 2px solid var(--water); outline-offset: 2px; }
+.choices b { font: 400 21px/1 var(--display); }
+.choices .glyph { grid-row: span 3; width: 26px; height: 44px; color: var(--ink); }
+.choices i, .choices small { grid-column: 2; }
+.choices small { font-size: 12.5px; color: var(--muted); }
+.peek { display: flex; align-items: center; gap: 8px; font: 500 12.5px var(--mono); color: var(--muted); cursor: pointer; }
+.peek input { accent-color: var(--ink); }
+.urna { display: grid; gap: 8px; min-width: 0; }
+.urna > h3 { border-top: 1.5px solid var(--ink); padding-top: 10px; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.urna > h3 small { font: 500 11.5px var(--mono); color: var(--muted); }
+#uprice { width: 100%; height: 150px; display: block; }
+.ulog { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; border-bottom: 1px solid var(--line); }
+.ulog li { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 10px; padding: 7px 2px; border-top: 1px solid var(--line); font-size: 14.5px; line-height: 1.35; }
+.ulog .when { font: 500 11.5px/1.6 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.ulog li.k-urna { font-weight: 600; }
+.ulog li.k-vida .txt { color: var(--muted); font-style: italic; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font: 500 11.5px/1 var(--mono); padding: 2px 6px; margin-left: 6px; color: var(--ink); border: 1px solid var(--ink); vertical-align: 1px; white-space: nowrap; }
+.mk { width: 10px; height: 10px; display: inline-block; color: var(--ink); flex: none; }
+
+.optable { width: 100%; max-width: 900px; min-width: 640px; border-collapse: collapse; font-size: 14.5px; }
+.optable th { font: 500 11.5px var(--mono); color: var(--muted); text-align: left; padding: 6px 8px; border-bottom: 1.5px solid var(--ink); }
+.optable td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.optable td.n { font: 600 13px var(--mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.optable th.n { text-align: right; }
+.optable td b { font: 600 13px var(--mono); }
+.optable td i { display: block; font: 500 11px var(--mono); font-style: normal; color: var(--muted); }
+.optable tr.hi td { background: var(--soft); }
+.optable tr.ctl td { color: var(--muted); }
+
+.lied { font: 600 11.5px var(--mono); margin-left: 6px; }
+#cmpUrna { width: 100%; max-width: 860px; min-width: 620px; height: auto; display: block; }
+#cmpTie { width: 100%; max-width: 720px; min-width: 520px; height: auto; display: block; }
+@media (max-width: 440px) { .choices { grid-template-columns: minmax(0, 1fr); } .ulog li { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+@media (max-width: 860px) { .bench { grid-template-columns: minmax(0, 1fr); } .seg { grid-template-columns: minmax(0, 1fr); } .speed { margin-left: 0; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Closed Systems · simulation A · version 3.7</div>
+    <h1>The Cycle</h1>
+    <p class="lede">A cross-section of the box, 16 by 20 cm. Roots follow the water through the holes, thicken and split the stone. The stone falls and breaks capsules, and the seeds that survive start another generation. Each cell is a millimetre and each step is a week.</p>
+    <p class="note">It uses the values from two research reports, one on stone and plant and one on sealed seed: the strength of each stone once wet, the pressure a root can hold for years, and the life of a dry, sealed seed, following the Ellis and Roberts curve. How fast the root thickens and how long the seed really lasts are still assumptions until the physical test measures them. Since version 3.3 you can choose natural London light through the seasons, and rules that break ampoules from outside. Version 3.4 adds the urn: anyone pays to break an ampoule and chooses in secret whether the box lives or dies; the price doubles with each purchase. In 3.5, the urn pays the rent for its place with what it raises, and if the money runs out, the box is removed. In 3.6, each type of ampoule has its own stock: 30 of seeds and 20 of salt give a tie. In 3.7, the ampoules come from the operations in the compendium: besides seeds, salt and water, you can break extra water, desiccant, ink, resin, hormone, compost or acid. Use it to compare designs. It can't predict dates.</p>
+    <p class="lang"><a href="es/" hreflang="es" lang="es">Español</a></p>
+  </header>
+
+  <section class="bench" aria-label="The box">
+    <div class="boxcol">
+      <canvas id="box" width="480" height="600" aria-label="Cross-section of the glass box with stones, roots, capsules and water"></canvas>
+      <canvas id="line" width="480" height="76" aria-label="Living plants over time"></canvas>
+      <div class="transport">
+        <button id="play" class="primary" type="button">Pause</button>
+        <button id="restart" type="button">Restart</button>
+        <button id="another" type="button">Another box</button>
+        <label class="speed" for="spd">Speed <input id="spd" type="range" min="1" max="20" step="1" value="3"><output id="spdOut">3 wk</output></label>
+      </div>
+      <div class="buy" id="buyBox">
+        <h3>Break an ampoule</h3>
+        <div class="choices" role="radiogroup" aria-label="Which ampoule you choose" id="choices"></div>
+        <button type="button" id="buyBtn" class="primary">Pay £20 and break</button>
+        <p class="note" id="mine">Nobody else will see what you choose until the urn opens. All the ampoules look the same.</p>
+        <label class="peek" for="peek"><input type="checkbox" id="peek"> See what nobody sees</label>
+      </div>
+      <div class="legend" aria-label="Colours">
+        <span><i id="lgStone"></i>stone</span><span><i id="lgHole"></i>hole</span><span><i style="background:#b0402a"></i>living root</span><span><i style="background:#70645a"></i>dead root</span><span><i style="background:#7ec3e0"></i>capsule</span><span><i style="background:#3a2412"></i>seed</span><span><i style="background:#6b6b66"></i>support</span><span><i id="lgWater"></i>water</span><span><i style="background:rgb(214,170,30)"></i>acid</span><span><i style="background:rgb(79,140,52)"></i>nutrients</span><span><i style="background:rgb(170,176,182)"></i>salt</span><span><i style="background:rgb(150,160,170)"></i>urn ampoule, not yet opened</span><span><i style="background:rgb(214,219,226)"></i>salt crust</span>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="readout" id="readout"></div>
+      <p class="status" id="status">Running.</p>
+      <div class="urna" id="urnaBox">
+        <h3>The urn <small id="uNext"></small></h3>
+        <canvas id="uprice" role="img" aria-label="Price of breaking an ampoule over the years"></canvas>
+        <p class="cap">Each dot is a purchase. The grey dotted lines are the openings: a grey dot takes its shape when the urn opens: ● seeds, ■ salt, ○ water, ◆ resin, ▲ hormone, ▮ ink, ◎ extra water, □ desiccant, ✚ compost, ✕ acid. The green dotted line is the fund that pays the rent.</p>
+        <ol class="ulog" id="ulog"></ol>
+      </div>
+
+      <div class="prm">
+        <h3>Layout</h3>
+        <div class="seg" id="layoutSeg">
+          <button type="button" data-l="pisosR" aria-pressed="true">Redesigned floors<small>Several lines of holes per slab · capsules on the slab that will fall</small></button>
+          <button type="button" data-l="linea" aria-pressed="false">One line per slab<small>As in the report · only one strip falls</small></button>
+          <button type="button" data-l="pisos" aria-pressed="false">Original floors<small>#16 · capsules on the floor below</small></button>
+          <button type="button" data-l="ciclo" aria-pressed="false">Cycle<small>#10 · stones on top of capsules</small></button>
+          <button type="button" data-l="columna" aria-pressed="false">Column<small>#17 · a capsule inside each block</small></button>
+        </div>
+      </div>
+
+      <div class="groups" id="params"></div>
+      <p class="note">Changing a setting restarts the box with the same stone. "Another box" changes the stone, its veins and the random draw.</p>
+    </div>
+  </section>
+
+  <section class="edge" aria-labelledby="v3H">
+    <div class="eyebrow">What changed with the research</div>
+    <h2 id="v3H">The stone decides whether the root wins. The seed decides whether there is a next generation.</h2>
+    <p class="lede" style="font-size:16.5px">Before, root strength was a free multiplier. Now each hole in the section stands for a line of holes that runs 15 cm into the box. The root thickens until it fills each hole and pushes with a pressure of about 0.3 MPa. The stone bridges between holes break if that pressure is greater than their wet strength. The root thickens most near the trunk, so each plant only splits the slab beneath it. Dry, sealed seed follows the Ellis and Roberts curve: it barely loses strength for years and then drops fast, sooner in the heat. The fig only germinates in light; in shade it stays dormant. Each bar sums up 40 boxes over 40 years.</p>
+    <h3>Stone and slab</h3>
+    <div class="chartwrap"><svg id="cmpStone" viewBox="0 0 800 360" role="img" aria-label="Highest generation by stone and slab preparation"></svg></div>
+    <p class="cmpcap">With the fig and Robinia mix, seed at its central values, 21 °C and roots that thicken 1 mm a year. LED light and no outside rules.</p>
+    <h3>Seed, temperature and plant</h3>
+    <div class="chartwrap"><svg id="cmpSeed" viewBox="0 0 800 360" role="img" aria-label="Highest generation by seed, temperature and plant"></svg></div>
+    <p class="cmpcap">Bath limestone with grooves, 21 °C except where stated. Half-life of dry, sealed fig seed at 20 °C: 2, 8 and 30 years are the low, central and high values in the seed report. The first row is version 3, with the old curve and no light. LED light and no outside rules.</p>
+    <div class="glegend"><span><i style="background:var(--g1)"></i>generation 1 only</span><span><i style="background:var(--g2)"></i>reached 2</span><span><i style="background:var(--g3)"></i>reached 3</span><span><i style="background:var(--g4)"></i>4 or more</span></div>
+    <ul class="findings">
+      <li><b>Marble and Portland don't give way.</b> With the measured pressure, marble split in no box and Portland in only 13%. Bath limestone with V-grooves split in every box.</li>
+      <li><b>Grooves or a joint make the difference.</b> The same Bath limestone with holes and no grooves split in only 28% of boxes. With grooves, or with the slab cut and rejoined with lime, it split in all of them.</li>
+      <li><b>3 mm holes work better than 5 mm.</b> The root fills them sooner and the slab falls around year 3.6 instead of year 6. With the mix, the boxes that reach the third generation rise from 48% to 75%.</li>
+      <li><b>Light matters.</b> The fig doesn't germinate in the dark, so many of its seeds land in the shade of the slabs and stay dormant. With fig alone, 40% of boxes get there; with the mix, 75%, because Robinia does germinate in the dark. I tried putting the light at the sides and it didn't help.</li>
+      <li><b>The Robinia mix is a safety net.</b> If fig seed turns out to have the pessimistic value of 2 years, no box reaches the third generation with fig alone, and half do with the mix. That is why the mix is now the starting value.</li>
+      <li><b>21 °C is better than 25 °C.</b> At 25 °C the fig seed wears out sooner and only 10% of boxes reach the third generation with fig alone.</li>
+      <li><b>A single line per slab does less.</b> It always splits, but it reaches the third generation in 2 or 3 boxes in 10, against 5 or 6 with several lines of the same size. With a single line, the new plant has to find that one path, and fewer capsules fall.</li>
+    </ul>
+    <p class="note">In version 2, with root strength as an assumption, putting the capsules on the slab that will fall raised the boxes reaching the third generation from 30% to 62%. That idea still holds: it is the basis of the two new layouts.</p>
+  </section>
+
+  <section class="edge" aria-labelledby="extH">
+    <div class="eyebrow">Outside: light and rules</div>
+    <h2 id="extH">London light slows the cycle. Seeds from outside make it last.</h2>
+    <p class="lede" style="font-size:16.5px">This version adds two things that come from outside the box. The first is natural London light: the box starts on 1 April and in December gets about a tenth of the light it gets in June. The second is rules: a shelf under the lid with 15 ampoules per rule, which break when something happens outside, for example every £1,000 of donations. Each ampoule holds seeds, nutrients, weak acid or salt. In the simulation, each rule breaks the number of ampoules a year you set, on average, in random weeks. Each bar sums up 80 boxes over 40 years.</p>
+    <div class="chartwrap"><svg id="cmpExt" viewBox="0 0 800 480" role="img" aria-label="Highest generation, boxes alive at 40 years and year of the first slab, by light and outside rules"></svg></div>
+    <p class="cmpcap">Redesigned floors, Bath limestone with grooves, 3 mm holes, Robinia mix and 21 °C. The default rules break seeds, acid and nutrients, one ampoule of each type every two years. The outlined row marks the settings the page opens with. Since version 3.4 salt drains into the water and stays there; the salt rows were recalculated with that.</p>
+    <div class="glegend"><span><i style="background:var(--g1)"></i>generation 1 only</span><span><i style="background:var(--g2)"></i>reached 2</span><span><i style="background:var(--g3)"></i>reached 3</span><span><i style="background:var(--g4)"></i>4 or more</span></div>
+    <ul class="findings">
+      <li><b>London light slows the cycle.</b> The first slab falls around year 4.8 instead of 3.5, and 54% of boxes reach the third generation against 70% with LED light. In winter the plant hardly grows and the fig doesn't germinate. Its seeds wait for spring and age in the meantime.</li>
+      <li><b>Seeds from outside keep the box alive.</b> With no rules, every box goes out before 40 years, half of them around year 21. With one ampoule of seeds every two years, 2 boxes in 3 are still alive at 40.</li>
+      <li><b>Better if they arrive slowly.</b> Each rule has 15 ampoules. At one a year they run out around year 15, and only 1 box in 10 is still alive at 40. At one every two years they last 30 years.</li>
+      <li><b>With seeds from outside, counting generations is less useful.</b> Those plants split slabs that would have gone to the next generation, so the bar drops even though the box lasts twice as long. For this piece, how long it stays alive says more.</li>
+      <li><b>Loose acid and nutrients barely show; salt does.</b> With acid or nutrients at one a year, the result stays within the normal variation from one box to another. Salt stays in the water, so at one a year the third generation drops from 70% to 31%.</li>
+      <li><b>At three a year, the damage shows.</b> With acid, the third generation drops from 70% to 39%: it makes the slab fall a little sooner, but it burns the roots that should carry on. With salt, the box dies around year 4, and in 6 boxes in 10 a second generation is never born.</li>
+    </ul>
+    <p class="note">For the piece: loose acid or nutrients don't change the story of the box, because the box absorbs them. Salt does, because it builds up: in a closed box nothing takes it out.</p>
+  </section>
+
+  <section class="edge" aria-labelledby="urnaH">
+    <div class="eyebrow">The urn</div>
+    <h2 id="urnaH">Salt decides who wins. Rent decides whether there is a game at all.</h2>
+    <p class="lede" style="font-size:16.5px">Anyone can pay to break an ampoule and choose in secret between seeds, so it lives; salt, so it dies; or water, which does nothing. Who paid and how much is public; what they chose is known when the urn opens, every 5 years. The price starts at £20, doubles with each purchase and halves after a year with no purchases. There are 30 ampoules of seeds, 20 of salt and 20 of water. Salt drains into the water and stays there, because the box is closed. Since version 3.5, everything paid goes into a fund that pays the rent for the space; if the fund runs out, the box is removed. I ran 40 boxes over 40 years per row with an invented public: 40 people a week think about it, a typical person would pay £4 and a few much more; 45% want it to live, 35% want it to die and the rest pay for the gesture.</p>
+    <div class="chartwrap"><svg id="cmpUrna" viewBox="0 0 860 560" role="img" aria-label="How the boxes end at 40 years with the urn, by public, salt and rent"></svg></div>
+    <div class="glegend"><span><i style="background:var(--u-alive)"></i>alive at 40 years</span><span><i style="background:var(--u-salt)"></i>killed by salt</span><span><i style="background:var(--u-dry)"></i>ran out of seeds</span><span><i style="background:var(--g1)"></i>empty: it went out and nobody revived it</span><span><i style="background:var(--ink)"></i>removed: not enough for the rent</span></div>
+    <p class="cmpcap">Redesigned floors, Bath limestone with grooves, 3 mm holes, Robinia mix, 21 °C, LED light, 0.13 g of salt per ampoule, and 30 ampoules of seeds, 20 of salt and 20 of water, except where stated. Rows with rent start with a fund of £1,200. Life: years with something alive and in place, median. Plants: how many lived in total, median. Raised: what the public paid, median.</p>
+    <ul class="findings">
+      <li><b>The public makes it live longer.</b> With nobody outside, the box goes out around year 21 and about 19 plants pass through it. With the urn and no rent, 6 boxes in 10 are still alive at 40 years and about 43 plants pass through. On average it goes empty and sprouts again twice.</li>
+      <li><b>With 0.13 g of salt per ampoule, the two sides weigh about the same.</b> With the public split in two, 6 boxes in 10 are still alive at 40. If the side that wants it to die is the larger, only 2 in 10. With 0.18 g, salt killed more than half the boxes even with the public split in two; with 0.09 g it killed none.</li>
+      <li><b>A tie needs more seeds than salt.</b> With 20 and 20, the help ran out before the harm: even as the majority, the side that wants it to live kept only 4 boxes in 10 alive, because the seeds ran out around year 33. From about 25 seed ampoules against 20 of salt, each side wins about 8 times in 10 when it is the majority. More than 30 changes nothing: in 40 years nobody gets round to buying them.</li>
+      <li><b>Rent has a very clear edge.</b> This public raises about £120 a month on average. With £50 rent the box is never removed. With £100, it is removed in more than half the boxes, around year 10. With £200, in all of them, before year 2. With 160 people a week instead of 40, £100 is always enough.</li>
+      <li><b>The people who want it to die pay the rent.</b> With £100 rent and more people who want it to live, it is removed more often, 2 times in 3: with no opposition there are fewer purchases and less money comes in.</li>
+      <li><b>Lowering the price faster saves it from the rent, but lets in more salt.</b> If the price halves every 6 months, the box is hardly ever removed, but salt kills more than 8 boxes in 10. A starting fund of £6,000 also saves it, without that cost.</li>
+    </ul>
+    <h3>How many seeds does a tie need?</h3>
+    <div class="chartwrap"><svg id="cmpTie" viewBox="0 0 760 300" role="img" aria-label="How often each side wins when it is the majority, by how many seed ampoules are on the rail"></svg></div>
+    <div class="glegend"><span><i style="background:var(--u-alive)"></i>majority wants it to live: alive at 40</span><span><i style="background:var(--u-salt)"></i>majority wants it to die: dead at 40</span><span><i style="background:var(--ink)"></i>public split in two: alive at 40</span></div>
+    <p class="cmpcap">20 salt ampoules of 0.13 g, 20 of water and no rent. Majority: 60% against 20%. Split in two: 40% against 40%. 40 boxes over 40 years per point.</p>
+    <p class="note">For the piece: rent turns money into time. Each purchase pays for months in the room, whoever makes it. What you decide before sealing the box is how much salt each ampoule holds, how many seeds are on the rail, how much the space costs and how big a fund it starts with.</p>
+  </section>
+
+  <section class="edge" aria-labelledby="opsH">
+    <div class="eyebrow">Ampoules that come from the operations</div>
+    <h2 id="opsH">Freezing the joint kills more than salt.</h2>
+    <p class="lede" style="font-size:16.5px">Each ampoule is an operation from the compendium brought into the box. Seeds are Seed And Leave, salt is Ratchet and plain water is Rehearse: the whole gesture, with no consequence. Since version 3.7 there are seven more. To see what each one does on its own, I ran 40 boxes over 40 years with 15 ampoules of that type, one a year, with no urn and nothing else from outside.</p>
+    <div class="chartwrap"><table class="optable">
+      <thead><tr><th>Ampoule</th><th>What it does in the box</th><th class="n">life</th><th class="n">plants</th><th class="n">1st slab</th><th class="n">lines</th></tr></thead>
+      <tbody id="opsBody"></tbody>
+    </table></div>
+    <p class="cmpcap">Redesigned floors, Bath limestone with grooves, 3 mm holes, Robinia mix, 21 °C and LED light. Life: years with something alive. Plants: how many lived in total. 1st slab: the year the first one falls. Lines: how many lines of holes split. Medians of 40 boxes. Without a lasting source of seeds, every box goes out before 40 years; what changes is when and how.</p>
+    <ul class="findings">
+      <li><b>Freezing the joint kills more than salt.</b> With resin once a year, the slabs hardly split, no capsules open and the box goes out around year 15, with 2 plants in its whole life. Keeping the structure stops the next generation.</li>
+      <li><b>Exaggerating brings everything forward.</b> With hormone, the first slab falls around year 2 instead of 3.6.</li>
+      <li><b>Seeds lengthen, salt shortens.</b> With seeds the box lives to around year 27 and 48 plants pass through; with salt it goes out around year 19.</li>
+      <li><b>Ink takes light from the box and sight from the public.</b> Fewer plants pass through, 13 against 18, and fewer slabs split. The stained strip can't be seen from outside either.</li>
+      <li><b>Extra water, desiccant, compost and acid, on their own, barely change the result.</b> Their weight should show up in combination with the others: extra water dilutes the salt and desiccant concentrates it. That still needs measuring.</li>
+    </ul>
+    <p class="note">The rules of the urn are operations too: the rising price is Raise The Cost, the secret choice is Conceal, the urn sealed until its date is Delay, the rent is Lease, the seed mix is Hedge and the box itself is Weather.</p>
+  </section>
+
+  <section class="edge" aria-labelledby="mapH">
+    <div class="eyebrow">What still needs measuring</div>
+    <h2 id="mapH">What the physical test has to show</h2>
+    <p class="lede" style="font-size:16.5px">The two things nobody has measured are how fast the root thickens and how long sealed fig seed lasts. Each square sums up 48 boxes over 40 years with that combination, in redesigned floors, Bath limestone with grooves and 3 mm holes. The number is the percentage of boxes that reach the third generation. The dotted outline is the likely zone according to the reports, and the ring is the central estimate. The fig only germinates in light. LED light and no outside rules.</p>
+    <div class="maps">
+      <div class="mapbox" id="mapA"><h3>Fig only</h3></div>
+      <div class="mapbox" id="mapB"><h3>Mixed with Robinia</h3></div>
+    </div>
+    <div class="hmkey"><span>0%</span><i></i><span>100% reach the third generation</span></div>
+    <ul class="findings">
+      <li><b>The root matters more than the seed.</b> If it thickens less than half a millimetre a year, the first slab takes about 13 years to fall and almost no box reaches the third generation, whatever the seed.</li>
+      <li><b>With fig alone, the seed counts too.</b> It needs a half-life of 8 years or more and a root of at least 0.75 mm a year, and even then only 3 to 5 boxes in 10 get there. With 3 years or less, almost none.</li>
+      <li><b>With the mix, fig seed hardly matters.</b> From half a millimetre a year, 5 to 8 boxes in 10 get there across almost the whole seed range, because Robinia carries the next generation.</li>
+      <li><b>What the root jar has to show:</b> half a millimetre a year or more of thickening. With that and the mix, the design works. The seed test at 45 °C is still useful to confirm that Robinia lasts as long as estimated.</li>
+    </ul>
+  </section>
+
+  <section class="edge" aria-labelledby="edgeH">
+    <div class="eyebrow">Find the edge</div>
+    <h2 id="edgeH">Where does it tip from going out to carrying on?</h2>
+    <p class="lede" style="font-size:16.5px">Run many boxes with the settings above, changing only one. Each bar shows which generation the boxes with that value reached. The edge is where the bars suddenly change colour: there, a small change in the design decides whether the cycle goes out early or links several generations.</p>
+    <div class="controls">
+      <div class="prm"><label for="sweepKey">Setting to vary</label><select id="sweepKey"></select></div>
+      <div class="prm"><label for="sweepRuns">Boxes per value</label><select id="sweepRuns"><option value="10">10 (fast)</option><option value="20" selected>20</option><option value="40">40 (slow)</option></select></div>
+      <div class="prm"><label for="sweepYears">Years per box</label><select id="sweepYears"><option value="20">20</option><option value="30" selected>30</option><option value="50">50</option></select></div>
+      <button id="sweepGo" class="primary" type="button">Run boxes</button>
+      <div><div class="bar"><i id="sweepBar"></i></div><div class="note" id="sweepMsg" style="margin-top:6px">About 20 to 60 seconds.</div></div>
+    </div>
+    <p class="verdict" id="verdict" hidden></p>
+    <div class="glegend" id="glegend" hidden><span><i style="background:var(--g1)"></i>generation 1 only</span><span><i style="background:var(--g2)"></i>reached 2</span><span><i style="background:var(--g3)"></i>reached 3</span><span><i style="background:var(--g4)"></i>4 or more</span></div>
+    <div class="chartwrap" id="chartwrap" hidden><svg id="chart" viewBox="0 0 720 300" role="img" aria-label="Highest generation by the value of the setting"></svg><p class="cap">Above each bar, the average generation. Below, the value tested and how long a typical box lasted before going out.</p></div>
+  </section>
+</div>
+
+<script>
+function makeSim(opt) {
+  // Una caja de vidrio en corte. 1 celda = 1 mm. 1 paso = 1 semana.
+  const W = 160, H = 200, N = W * H;
+  const AIR = 0, GLASS = 1, SUP = 2, STONE = 3, ROOT = 4, DROOT = 5, PLANT = 6, SEED = 7, CAP = 8;
+  // sig: resistencia a la tensión ya mojada, en MPa (estimada en el reporte "Piedra y planta para El ciclo")
+  const MAT = [
+    { name: 'caliza de Bath', sig: 1.4, hard: 0.35, pore: 0.05 },
+    { name: 'caliza tipo Caen', sig: 0.9, hard: 0.25, pore: 0.07 },
+    { name: 'caliza Portland', sig: 3.4, hard: 0.55, pore: 0.03 },
+    { name: 'arenisca St Bees', sig: 4.2, hard: 0.6, pore: 0.03 },
+    { name: 'mármol de Carrara', sig: 7.0, hard: 0.85, pore: 0.0 },
+    { name: 'alabastro', sig: 0.8, hard: 0.3, pore: 0.01 },
+  ];
+  // dmax: diámetro máximo de raíz (mm). tmin/topt/thot: temperaturas (°C) para el vigor.
+  // El resto son los valores de cada especie cuando no es la planta elegida (por ejemplo, en una cápsula mixta).
+  // seedHalf: años hasta perder la mitad de la germinación, seca y sellada, a 20 °C (reporte "Semilla sellada para El ciclo").
+  const SPECIES = {
+    ficus: { lightGerm: true, dmax: 12, tmin: 13, topt: 21, thot: 32, pSust: 0.3, thickRate: 1, longevity: 12, seedHalf: 8, germ: 0.4 },
+    robinia: { dmax: 12, tmin: 6, topt: 16, thot: 28, pSust: 0.35, thickRate: 1, longevity: 15, seedHalf: 25, germ: 0.25 },
+    chicharo: { dmax: 1.6, tmin: 4, topt: 15, thot: 24, pSust: 0.5, thickRate: 4, longevity: 0.5, seedHalf: 20, germ: 0.85 },
+  };
+  const o = Object.assign({
+    layout: 'pisos', material: 0, plant: 'ficus', prep: 'ranuras', holeD: 5, bridge: 1.5, joint: 0.12,
+    pSust: 0.3, thickRate: 1, temp: 21, seedHalf: 8, seedsPerCap: 16, germ: 0.4, capFrag: 0.5, capMix: 'misma', lightFrom: 'arriba', lightMode: 'led',
+    r1t: 'ninguna', r1f: 0, r2t: 'ninguna', r2f: 0, r3t: 'ninguna', r3f: 0,
+    longevity: 12, selfSeed: 0, rust: 0, seed: 1,
+    // la urna: cualquiera paga para romper una ampolleta y elige en secreto
+    outside: 'reglas', uVisitors: 40, uWtp: 4, uTail: 1.8, uSiga: 0.45, uMuera: 0.35, uLie: 0.15, uSilent: 0.3,
+    uP0: 20, uQuiet: 12, uReveal: 5, uPerType: 20, saltG: 0.18, waterMl: 500,
+    rent: 0, fund0: 1200, uSeeds: null, uSalt: null, uWater: null, uOps: 10,   // ampolletas de cada tipo; si no se dan, uPerType   // la urna paga su propia renta (libras al mes) con lo que reúne; si el fondo se acaba, la quitan
+  }, opt || {});
+  const MAIN = SPECIES[o.plant] ? o.plant : 'ficus';
+  const PARTNER = MAIN === 'robinia' ? 'ficus' : 'robinia';
+  // valor de una especie: los ajustes si es la planta elegida, los de la tabla si no
+  const par = (sp, k) => (sp === MAIN && o[k] != null) ? o[k] : SPECIES[sp][k];
+  const fTOf = sp => {
+    const S = SPECIES[sp];
+    let f = (o.temp - S.tmin) / (S.topt - S.tmin);
+    if (o.temp > S.thot) f *= Math.max(0.3, 1 - (o.temp - S.thot) / 8);
+    return Math.max(0.15, Math.min(1, f));
+  };
+  const FT = { ficus: fTOf('ficus'), robinia: fTOf('robinia'), chicharo: fTOf('chicharo') };
+  const fT = FT[MAIN];
+  // Curva de Ellis y Roberts: la semilla casi no muere durante una meseta y luego cae rápido.
+  // Lote que empieza con 95 % vivo; "vida media" = años hasta perder la mitad de esa germinación.
+  // Temperatura con las constantes universales de Dickie et al. (1990).
+  const erf = x => { const t = 1 / (1 + 0.3275911 * Math.abs(x)); const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return x >= 0 ? y : -y; };
+  const PHI = z => 0.5 * (1 + erf(z / Math.SQRT2));
+  const tempF = Math.pow(10, -0.0329 * (o.temp - 20) - 0.000478 * (o.temp * o.temp - 400));
+  const viabSp = (sp, weeks) => Math.min(1, PHI(1.645 - 1.708 * (weeks / 52) / (par(sp, 'seedHalf') * tempF)) / 0.95);
+  const viab = weeks => viabSp(MAIN, weeks);
+  // Luz natural de Londres (ventana al norte), respecto a una lámpara LED de 12 horas = 1.
+  // La caja empieza el 1 de abril; el solsticio de invierno cae unas 37.6 semanas después.
+  const seasonAt = w => o.lightMode !== 'londres' ? 1 : 0.12 + 0.98 * Math.pow((1 - Math.cos(2 * Math.PI * (w - 37.6) / 52.18)) / 2, 1.3);
+  let SEASON = seasonAt(0), boostUntil = -1;
+  // Ampolletas de afuera: un riel bajo la tapa con 15 ampolletas por regla.
+  // Cada regla se dispara al azar con la frecuencia dada (veces al año) y rompe una ampolleta de su tipo.
+  const RACK = [24, 136, 52, 108, 80, 38, 122, 66, 94];
+  const rules = [1, 2, 3].map(k => ({ k, t: o['r' + k + 't'] || 'ninguna', f: +o['r' + k + 'f'] || 0, left: 15 }));
+  const salt = [];
+  let rackI = 0;
+  // En una caja cerrada la sal no se va nunca: escurre al agua y se acumula.
+  let saltG = 0, waterTop0 = 0;
+  const waterVol = () => o.waterMl * Math.max(1, H - 1 - waterTop) / Math.max(1, H - 1 - waterTop0);   // ml: cambia si sube o baja el agua
+  const salinity = () => saltG / (waterVol() / 1000);                     // gramos por litro
+  // tinta en el vidrio: cuánta luz deja pasar cada columna (1 = toda)
+  const shade = new Float32Array(160).fill(1);
+  const saltStress = () => Math.max(0, Math.min(1, (salinity() - 1.5) / 4.5)); // nada bajo 1.5 g/L, letal hacia 6 g/L
+  // La urna: el precio se duplica con cada compra y baja a la mitad tras cada periodo sin compras.
+  // Se sabe quién pagó; lo que eligió se sabe cuando se abre la urna, cada cierto número de años.
+  const URNA = o.outside === 'urna';
+  const KINDS = ['semillas', 'sal', 'agua'];
+  // las ampolletas que vienen de las operaciones del compendio
+  const OPS = ['acido', 'inundar', 'secante', 'tinta', 'resina', 'hormona', 'composta'];
+  const ALLK = KINDS.concat(OPS);
+  const QUIET = Math.round(o.uQuiet * 52.18 / 12);
+  const ust = { price: o.uP0, lastChange: 0, money: 0, n: 0, maxPrice: o.uP0, stock: Object.assign({ semillas: o.uSeeds != null ? o.uSeeds : o.uPerType, sal: o.uSalt != null ? o.uSalt : o.uPerType, agua: o.uWater != null ? o.uWater : o.uPerType }, Object.fromEntries(OPS.map(k => [k, o.uOps]))), nextReveal: Math.round(o.uReveal * 52.18), revealedUpTo: 0, reveals: 0, fund: o.fund0, rentPaid: 0 };
+  const RENTW = o.rent * 12 / 52.18;   // renta por semana
+  const monthsLeft = () => o.rent > 0 ? ust.fund / o.rent : Infinity;
+  const buys = [], priceLog = [[0, o.uP0]], uLog = [], fundLog = [[0, o.fund0]];
+  const SIGW = 0.02, LINE = 150, EDGE = 1; // peso propio (MPa), largo de la línea de orificios y orilla (mm)
+  const grooveF = o.prep === 'ranuras' ? 0.5 : 1;
+  const sigEff = () => o.prep === 'junta' ? o.joint : MAT[o.material].sig;
+
+  let s = (o.seed >>> 0) || 1;
+  const rnd = () => { s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const gauss = () => { let u = 0; while (!u) u = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rnd()); };
+  const poisson = l => { if (l <= 0) return 0; if (l > 30) return Math.max(0, Math.round(l + Math.sqrt(l) * gauss())); let L = Math.exp(-l), k = 0, q = 1; do { k++; q *= rnd(); } while (q > L); return k - 1; };
+
+  const type = new Uint8Array(N), body = new Int32Array(N).fill(-1), str = new Float32Array(N), dmg = new Float32Array(N);
+  const mat = new Uint8Array(N), owner = new Int32Array(N).fill(-1), thick = new Float32Array(N), capOf = new Int16Array(N).fill(-1);
+  const holeOf = new Int32Array(N).fill(-1), life = new Float32Array(N), stamp = new Int32Array(N);
+  let stampN = 0;
+  let waterTop = H - 17;
+  const bodies = [], holes = [], caps = [], plants = [], landed = [], events = [], supCells = [];
+  let week = 0, changed = false;
+  const tot = { drowned: 0, crushed: 0, seedsOut: 0, capsBroken: 0, capsFell: 0, falls: 0, holesBroken: 0, germinated: 0, maxGen: 1, plantsEver: 0, maxDepth: 0, plantsWet: 0, plantsBroke: 0, dud: 0, germBy: {}, dormant: 0, darkDud: 0, ext: 0, extBy: {}, germExt: 0, chem: 0, saltKilled: 0 };
+  // cuánto empuja una raíz llena contra lo que resiste un puente: arriba de 1, dos orificios vecinos con raíz bastan
+  const designRatio = () => par(MAIN, 'pSust') * Math.max(1, Math.round(o.holeD)) / (sigEff() * grooveF * Math.max(0.3, o.bridge));
+  let lastCause = 0;
+  let ending = null, endWeek = 0;
+  const hist = [];
+
+  // ---------- resistencia de la piedra: ruido suave + vetas ----------
+  const G = 10, gw = Math.ceil(W / G) + 2, gh = Math.ceil(H / G) + 2, grid = new Float32Array(gw * gh);
+  for (let i = 0; i < grid.length; i++) grid[i] = rnd();
+  const veinA = rnd() * 6.28, veinB = rnd() * 6.28;
+  function noise(x, y) {
+    const gx = x / G, gy = y / G, x0 = Math.floor(gx), y0 = Math.floor(gy), fx = gx - x0, fy = gy - y0;
+    const a = grid[y0 * gw + x0], b = grid[y0 * gw + x0 + 1], c = grid[(y0 + 1) * gw + x0], d = grid[(y0 + 1) * gw + x0 + 1];
+    const u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy);
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+  }
+  function strengthAt(x, y) {
+    let v = 0.75 + 0.35 * (noise(x, y) - 0.5) + 0.12 * (rnd() - 0.5);
+    const vein = Math.sin(x * 0.11 + y * 0.07 + 2.5 * Math.sin(y * 0.05 + veinA) + veinB);
+    if (Math.abs(vein) < 0.05) v *= 0.55;
+    return Math.max(0.25, Math.min(1.2, v));
+  }
+
+  // ---------- construcción ----------
+  const at = (x, y) => y * W + x;
+  for (let x = 0; x < W; x++) { type[at(x, 0)] = GLASS; type[at(x, H - 1)] = GLASS; }
+  for (let y = 0; y < H; y++) { type[at(0, y)] = GLASS; type[at(W - 1, y)] = GLASS; }
+
+  function newBody() { const b = { id: bodies.length, cells: [], holes: [], cause: 0, dirty: false, alive: true, maxY: 0, comX: 0 }; bodies.push(b); return b; }
+  function setStone(i, b, m) {
+    type[i] = STONE; body[i] = b.id; mat[i] = m; str[i] = strengthAt(i % W, (i / W) | 0); dmg[i] = 0; b.cells.push(i);
+  }
+  function finishBody(b) { b.cells = b.cells.filter(i => type[i] === STONE && body[i] === b.id); }
+  function newHole(b) { const h = { id: holes.length, body: b.id, cells: [], intact: true, dmg: 0, rows: 1, caps: [] }; holes.push(h); b.holes.push(h.id); return h; }
+  function carve(h, x, y) {
+    const i = at(x, y);
+    if (type[i] === STONE && body[i] === h.body) { type[i] = AIR; body[i] = -1; holeOf[i] = h.id; h.cells.push(i); }
+    else if (type[i] === AIR && holeOf[i] < 0 && x > 0 && x < W - 1) { holeOf[i] = h.id; h.cells.push(i); }
+  }
+  function finishHole(h) { const ys = new Set(h.cells.map(i => (i / W) | 0)); h.rows = Math.max(1, ys.size); }
+  // Cada orificio del corte es una línea de orificios que entra 15 cm en la caja.
+  // Entre orificio y orificio queda un puente de piedra (o de junta de cal) que la raíz tiene que romper.
+  function makeLine(hx, hy) {
+    const d = Math.max(1, Math.round(o.holeD)), b = Math.max(0.3, o.bridge), s = d + b;
+    const n = Math.max(1, Math.floor((LINE - 2 * EDGE - d) / s) + 1);
+    const joint = o.prep === 'junta';
+    let lf = 1;
+    if (!joint) {
+      let v = 0.75 + 0.35 * (noise(hx, hy) - 0.5);
+      const vein = Math.sin(hx * 0.11 + hy * 0.07 + 2.5 * Math.sin(hy * 0.05 + veinA) + veinB);
+      if (Math.abs(vein) < 0.12) v *= 0.75;
+      lf = Math.max(0.55, Math.min(1.35, v / 0.75));
+    }
+    const R = new Float32Array(n + 1);
+    for (let j = 0; j <= n; j++) {
+      const w = (j === 0 || j === n) ? EDGE : b;
+      const vr = joint ? 0.8 + 0.4 * rnd() : 0.75 + 0.5 * rnd();
+      R[j] = sigEff() * lf * vr * grooveF * w;
+    }
+    return { n, d, s, R, y: hy, ok: new Uint8Array(n + 1).fill(1), D: new Float32Array(n), own: new Int32Array(n).fill(-1),
+      i0: Math.max(0, Math.min(n - 1, Math.floor(n / 4 + rnd() * n / 2))), first: -1, broken: 0,
+      load: new Float32Array(n + 1), F: new Float32Array(n) };
+  }
+  function hole(b, hx, y0, y1) {
+    const h = newHole(b), d = Math.max(1, Math.round(o.holeD)), xa = hx - Math.floor((d - 1) / 2);
+    for (let y = y0; y <= y1; y++) for (let x = xa; x < xa + d; x++) {
+      const i = at(x, y);
+      // solo dentro de la piedra (no en el aire de alrededor)
+      if (type[i] === STONE && body[i] === b.id) carve(h, x, y);
+      else if (type[i] === AIR) { const l = type[at(xa - 1, y)] === STONE, r = type[at(xa + d, y)] === STONE; if (l && r) carve(h, x, y); }
+    }
+    finishHole(h); h.line = makeLine(hx, (y0 + y1) >> 1); return h;
+  }
+  function slab(x0, y0, w, h, holeXs) {
+    const b = newBody(), m = o.material, M = MAT[m];
+    for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) {
+      const ex = Math.min(x - x0, x0 + w - 1 - x), ey = Math.min(y - y0, y0 + h - 1 - y);
+      if (ex + ey < 2 + (rnd() < 0.5 ? 1 : 0)) continue;
+      if (ey === 0 && rnd() < 0.12) continue;
+      if (ey > 0 && rnd() < M.pore) continue;
+      setStone(at(x, y), b, m);
+    }
+    for (const hx of holeXs) hole(b, hx, y0, y0 + h - 1);
+    finishBody(b); return b;
+  }
+  function blob(cx, cy, rx, ry, holeXs) {
+    const b = newBody(), m = o.material, M = MAT[m];
+    const p1 = rnd() * 6.28, p2 = rnd() * 6.28;
+    for (let y = cy - ry - 2; y <= cy + ry + 2; y++) for (let x = cx - rx - 2; x <= cx + rx + 2; x++) {
+      const dx = (x - cx) / rx, dy = (y - cy) / ry, a = Math.atan2(dy, dx);
+      const r = 1 + 0.08 * Math.sin(3 * a + p1) + 0.05 * Math.sin(5 * a + p2);
+      if (dx * dx + dy * dy > r * r || dy > 0.8) continue;
+      if (rnd() < M.pore) continue;
+      setStone(at(x, y), b, m);
+    }
+    for (const hx of holeXs) hole(b, hx, cy - ry - 2, cy + ry + 2);
+    finishBody(b); return b;
+  }
+  function supRect(x0, y0, x1, y1) {
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+      const i = at(x, y); type[i] = SUP; supCells.push(i);
+      life[i] = o.rust > 0 ? o.rust * 52 * (0.55 + 0.9 * rnd()) : 1e12;
+    }
+  }
+  function capsule(cx, cy, r, n, h) {
+    const id = caps.length, c = { id, cells: [], cx, cy, r, intact: true, hole: h ? h.id : -1, mix: [MAIN] };
+    // cápsula mixta: 3 de cada 10 semillas son de la otra especie (Robinia, o higuera si la planta es Robinia)
+    if (o.capMix === 'mezcla' && n >= 2) {
+      const nP = Math.max(1, Math.round(n * 0.3)); c.mix = [];
+      for (let k = 0; k < n; k++) c.mix.push(k < nP ? PARTNER : MAIN);
+      for (let k = n - 1; k > 0; k--) { const j = Math.floor(rnd() * (k + 1)); const t = c.mix[k]; c.mix[k] = c.mix[j]; c.mix[j] = t; }
+    }
+    if (h) {
+      for (let y = cy - r - 3; y <= cy + r + 3; y++) for (let x = cx - r - 3; x <= cx + r + 3; x++)
+        if ((x - cx) ** 2 + (y - cy) ** 2 <= (r + 2.4) ** 2) carve(h, x, y);
+      h.caps.push(id); finishHole(h);
+    }
+    for (let y = cy - r - 1; y <= cy + r + 1; y++) for (let x = cx - r - 1; x <= cx + r + 1; x++) {
+      const d = Math.hypot(x - cx, y - cy), i = at(x, y);
+      if (d >= r - 0.5 && d <= r + 0.5) { type[i] = CAP; capOf[i] = id; dmg[i] = 0; c.cells.push(i); }
+    }
+    let placed = 0;
+    for (let y = cy + r - 1; y > cy - r && placed < n; y--) for (let x = cx - r + 1; x < cx + r && placed < n; x += 2) {
+      const i = at(x, y);
+      if (Math.hypot(x - cx, y - cy) < r - 1 && type[i] === AIR) { type[i] = SEED; capOf[i] = id; placed++; }
+    }
+    caps.push(c); return c;
+  }
+
+  function build() {
+    const nSeeds = Math.round(o.seedsPerCap);
+    if (o.layout === 'pisos') {
+      waterTop = H - 17;
+      const tiers = [
+        { y: 34, holes: [44, 80, 116] },
+        { y: 92, holes: [28, 70, 98, 134], caps: [42, 58, 84, 112, 124] },
+        { y: 148, holes: [22, 50, 86, 120, 142], caps: [36, 66, 100, 132] },
+      ];
+      const mode = o.capMode || 'debajo';
+      tiers.forEach((t, k) => {
+        slab(5, t.y, 150, 14, t.holes);
+        supRect(1, t.y + 14, 13, t.y + 15); supRect(W - 14, t.y + 14, W - 2, t.y + 15);
+        // 'debajo': sobre el piso que recibe la caída. 'encima': sobre el piso que va a caer.
+        const xs = mode === 'encima' ? (tiers[k + 1] && tiers[k + 1].caps) : t.caps;
+        if (xs) for (const x of xs) capsule(x, t.y - 6, 5, nSeeds, null);
+      });
+      for (const x of tiers[0].holes) newPlant(at(x, 33), 1);
+    } else if (o.layout === 'linea') {
+      // Como en el reporte: una sola línea por losa, cerca de un apoyo. Al partirse cae solo la franja corta,
+      // con sus cápsulas encima; el resto de la losa se queda sobre una repisa ancha.
+      // Cada línea va donde caen las semillas de la generación anterior.
+      waterTop = H - 17;
+      const th = 12, tiers = [
+        { y: 34, x: 58, strip: 'L', caps: [22, 40] },
+        { y: 92, x: 62, strip: 'R', caps: [102, 126] },
+        { y: 148, x: 100, strip: 'R', caps: [] },
+      ];
+      tiers.forEach(t => {
+        slab(5, t.y, 150, th, [t.x]);
+        // sello en las orillas: la línea es el único camino de la raíz hacia el agua
+        supRect(1, t.y, 4, t.y + th - 1); supRect(W - 5, t.y, W - 2, t.y + th - 1);
+        if (t.strip === 'L') { supRect(1, t.y + th, 13, t.y + th + 1); supRect(Math.round((t.x + 154) / 2) - 14, t.y + th, W - 2, t.y + th + 1); }
+        else { supRect(W - 14, t.y + th, W - 2, t.y + th + 1); supRect(1, t.y + th, Math.round((5 + t.x) / 2) + 14, t.y + th + 1); }
+        for (const x of t.caps) capsule(x, t.y - 6, 5, nSeeds, null);
+      });
+      newPlant(at(58, 33), 1); newPlant(at(72, 33), 1);
+    } else if (o.layout === 'pisos2') {
+      // pisos generales: n losas, m orificios por losa, cápsulas sobre la losa que va a caer
+      waterTop = H - 17;
+      const n = Math.max(2, Math.min(5, Math.round(o.tiers || 3))), th = Math.round(o.th || 14), m = Math.max(1, Math.round(o.holesN || 4));
+      const gap = Math.floor((waterTop - 34 - 20) / (n - 1) + 0.5);
+      const ys = []; for (let k = 0; k < n; k++) ys.push(30 + k * gap);
+      const holeXs = k => { const out = []; for (let j = 0; j < m; j++) out.push(Math.round(5 + 150 * (j + 0.5 + (k % 2 ? 0.25 : -0.25) + 0.0) / m)); return out.map(x => Math.max(18, Math.min(142, x))); };
+      ys.forEach((y, k) => {
+        const hx = holeXs(k);
+        slab(5, y, 150, th, hx);
+        supRect(1, y + th, 13, y + th + 1); supRect(W - 14, y + th, W - 2, y + th + 1);
+        const riding = (o.capMode || 'encima') === 'encima';
+        if ((riding && k < n - 1) || (!riding && k > 0)) {
+          const src = riding ? hx : holeXs(k - 1);
+          const xs = []; for (let j = 0; j + 1 < src.length; j++) xs.push(Math.round((src[j] + src[j + 1]) / 2));
+          if (xs.length < 2) xs.push(Math.round((src[0] + 5) / 2), Math.round((src[src.length - 1] + 155) / 2));
+          for (const x of xs) capsule(x, y - 6, 5, nSeeds, null);
+        }
+      });
+      for (const x of holeXs(0)) newPlant(at(x, 29), 1);
+    } else if (o.layout === 'escalera') {
+      waterTop = H - 17;
+      const n = Math.max(3, Math.min(5, Math.round(o.levels || 4)));
+      const gap = Math.floor((waterTop - 30) / n), th = n >= 5 ? 10 : 12;
+      const shelves = [];
+      for (let k = 0; k < n; k++) {
+        const y = 26 + k * gap, left = k % 2 === 0;
+        const x0 = left ? 5 : 48, x1 = left ? 112 : 155, hx = left ? 90 : 70;
+        slab(x0, y, x1 - x0 + 1, th, [hx]);
+        if (left) supRect(1, y + th, 62, y + th + 1); else supRect(98, y + th, W - 2, y + th + 1);
+        shelves.push({ y, left, x0, x1, hx, tip: left ? [hx + 2, x1] : [x0, hx - 2] });
+      }
+      const mode = o.capMode || 'debajo';
+      for (let k = 0; k < n; k++) {
+        const sh = shelves[k];
+        if (mode === 'encima') {
+          if (k < n - 1) { const [a, b] = sh.tip; for (const x of [a + 4, b - 6]) capsule(x, sh.y - 5, 4, nSeeds, null); }
+        } else if (k > 0) {
+          const ab = shelves[k - 1], [a, b] = ab.tip;
+          const xs = mode === 'borde' ? (ab.left ? [b - 3, b + 9] : [a + 3, a - 9]) : [Math.round((a + b) / 2) - 6, Math.round((a + b) / 2) + 6];
+          for (const x of xs) capsule(x, sh.y - 6, 5, nSeeds, null);
+        }
+      }
+      newPlant(at(shelves[0].hx, shelves[0].y - 1), 1);
+      newPlant(at(shelves[0].hx - 16, shelves[0].y - 1), 1);
+    } else if (o.layout === 'ciclo') {
+      waterTop = H - 28;
+      const gy = 150;
+      for (let x = 1; x < W - 1; x++) if (x % 9 > 1) supRect(x, gy, x, gy + 1);
+      for (let k = 0; k < 9; k++) capsule(16 + k * 16, gy - 7, 6, nSeeds, null);
+      const stones = [{ cx: 52, cy: 74, rx: 26, ry: 13, holes: [44, 60], pins: [38, 66] }, { cx: 110, cy: 70, rx: 23, ry: 15, holes: [102, 118], pins: [96, 124] }];
+      for (const st of stones) {
+        const b = blob(st.cx, st.cy, st.rx, st.ry, st.holes);
+        for (const px of st.pins) {
+          let top = 0; for (const i of b.cells) { const x = i % W; if (x === px || x === px + 1) top = Math.max(top, (i / W) | 0); }
+          supRect(px, top + 1, px + 1, gy - 1);
+        }
+        for (const hx of st.holes) {
+          let top = H; for (const i of b.cells) { if (Math.abs((i % W) - hx) <= 3) top = Math.min(top, (i / W) | 0); }
+          newPlant(at(hx, top - 1), 1);
+        }
+      }
+    } else { // columna
+      waterTop = H - 17;
+      const ys = [26, 66, 106, 146], x0 = 52, w = 56, h = 24;
+      for (const y of ys) {
+        const b = slab(x0, y, w, h, []);
+        const hl = hole(b, 80, y, y + h - 1);
+        capsule(80, y + 12, 4, 1, hl);
+        b.cells = b.cells.filter(i => type[i] === STONE && body[i] === b.id);
+        supRect(1, y + h, x0 + 4, y + h + 1); supRect(x0 + w - 5, y + h, W - 2, y + h + 1);
+      }
+      newPlant(at(80, 25), 1);
+    }
+    for (const b of bodies) updBox(b);
+  }
+
+  // ---------- agua: distancia por el aire, para que las raíces la busquen ----------
+  const isWater = i => ((i / W) | 0) >= waterTop;
+  const wdist = new Int32Array(N), queue = new Int32Array(N);
+  let wdirty = true;
+  const passable = t => t === AIR || t === ROOT || t === DROOT || t === PLANT || t === SEED;
+  function waterField() {
+    wdist.fill(1 << 29); let qh = 0, qt = 0;
+    for (let i = waterTop * W; i < (H - 1) * W; i++) if (passable(type[i])) { wdist[i] = 0; queue[qt++] = i; }
+    while (qh < qt) {
+      const c = queue[qh++], d = wdist[c] + 1;
+      const n1 = c + 1, n2 = c - 1, n3 = c + W, n4 = c - W;
+      if (wdist[n1] > d && passable(type[n1])) { wdist[n1] = d; queue[qt++] = n1; }
+      if (wdist[n2] > d && passable(type[n2])) { wdist[n2] = d; queue[qt++] = n2; }
+      if (wdist[n3] > d && passable(type[n3])) { wdist[n3] = d; queue[qt++] = n3; }
+      if (wdist[n4] > d && passable(type[n4])) { wdist[n4] = d; queue[qt++] = n4; }
+    }
+    wdirty = false;
+  }
+
+  // ---------- plantas ----------
+  function newPlant(i, gen, sp, ext) {
+    if (type[i] !== AIR && type[i] !== SEED) return null;
+    if (type[i - W] !== AIR) return null;
+    type[i] = AIR;
+    const p = { id: plants.length, sp: sp || MAIN, base: i, x: i % W, alive: true, age: 0, energy: 1.5, gen, roots: [], contact: [], tips: [i],
+      waterRoots: 0, height: 0, stem: [], light: 1, top: i - W, lv: rnd(), born: week, died: -1 };
+    if (ext) { p.ext = true; tot.germExt++; }
+    plants.push(p); tot.plantsEver++; tot.germinated++; tot.germBy[p.sp] = (tot.germBy[p.sp] || 0) + 1;
+    if (gen > tot.maxGen) tot.maxGen = gen;
+    { const yy = (i / W) | 0; if (yy > tot.maxDepth) tot.maxDepth = yy; }
+    placeRoot(i, p);
+    return p;
+  }
+  function nearSolid(i) {
+    for (const d of [1, -1, W, -W]) for (let k = 1; k <= 3; k++) {
+      const t = type[i + d * k];
+      if (t === STONE || t === CAP) return true;
+      if (t === GLASS || t === SUP) break;
+    }
+    return false;
+  }
+  function placeRoot(i, p) {
+    type[i] = ROOT; owner[i] = p.id; thick[i] = 0.2; p.roots.push(i);
+    if (nearSolid(i)) p.contact.push(i);
+    if (isWater(i)) { p.waterRoots++; if (!p.wet) { p.wet = true; tot.plantsWet++; } }
+  }
+  const canRoot = t => t === AIR || t === DROOT;
+  const soft = t => t === AIR || t === DROOT || t === ROOT || t === PLANT || t === SEED;
+  function chooseNext(c) {
+    const x = c % W, y = (c / W) | 0;
+    let hanging = true;
+    for (let dy = -1; dy <= 1 && hanging; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const t = type[c + dy * W + dx]; if (t === STONE || t === CAP || t === SUP || t === GLASS) { hanging = false; break; }
+    }
+    const cand = [], wts = []; let tw = 0;
+    const d0 = wdist[c];
+    const tryAdd = (dx, dy, w) => {
+      const nx = x + dx, ny = y + dy; if (nx < 1 || nx > W - 2 || ny < 1 || ny > H - 2) return;
+      const n = ny * W + nx; const tn = type[n];
+      if (!canRoot(tn) && tn !== ROOT) return;
+      if (dx !== 0 && dy !== 0 && !soft(type[c + dx]) && !soft(type[c + dy * W])) return;
+      if (tn === ROOT) w *= 0.4; // puede abrirse paso entre otras raíces
+      if (d0 < (1 << 28)) { const dd = wdist[n] - d0; w *= dd < 0 ? 6 : dd > 0 ? 0.15 : 1; }
+      cand.push(n); wts.push(w); tw += w;
+    };
+    if (hanging) { tryAdd(0, 1, 10); tryAdd(-1, 1, 0.6); tryAdd(1, 1, 0.6); }
+    else { tryAdd(0, 1, 6); tryAdd(-1, 1, 3); tryAdd(1, 1, 3); tryAdd(-1, 0, 1.4); tryAdd(1, 0, 1.4); tryAdd(-1, -1, 0.2); tryAdd(1, -1, 0.2); tryAdd(0, -1, 0.1); }
+    if (!cand.length) return -1;
+    let r = rnd() * tw; for (let k = 0; k < cand.length; k++) { r -= wts[k]; if (r <= 0) return cand[k]; }
+    return cand[cand.length - 1];
+  }
+  const hardOf = i => type[i] === STONE ? MAT[mat[i]].hard : 0.6;
+  // Con presiones de 0.2 a 1 MPa una raíz no agrieta piedra sana ni vidrio: solo rompe los puentes
+  // de las líneas de orificios (lineTick). Aquí solo queda el vigor, que decide qué tan rápido engrosa.
+  function vigor(p) { return Math.min(1, p.energy / 1.5) * (0.4 + 0.6 * Math.min(1, p.light * SEASON)) * FT[p.sp] * (week < boostUntil ? 1.4 : 1) * (saltG > 0 ? 1 - 0.7 * saltStress() : 1); }
+  function frontRoot(p) {
+    let best = -1, bd = 1 << 30;
+    for (let k = 0; k < 6; k++) {
+      const c = p.roots[Math.floor(rnd() * p.roots.length)];
+      if (c == null || type[c] !== ROOT || owner[c] !== p.id) continue;
+      const d = wdist[c] + (rnd() * 6 | 0);
+      if (d < bd) { bd = d; best = c; }
+    }
+    return best;
+  }
+  function growTips(p, steps) {
+    if (p.roots.length > 2000) return;
+    for (let k = 0; k < p.tips.length; k++) {
+      let tip = p.tips[k];
+      if (type[tip] !== ROOT) { tip = frontRoot(p); if (tip < 0) continue; }
+      for (let st = 0; st < steps; st++) {
+        if (isWater(tip) && rnd() < 0.7) break;
+        const n = chooseNext(tip);
+        if (n < 0) {
+          // una punta atorada a veces rebrota desde otra parte de la raíz
+          if (rnd() < 0.3) { const c = frontRoot(p); if (c >= 0) tip = c; }
+          break;
+        }
+        if (type[n] === ROOT) { tip = n; continue; }
+        placeRoot(n, p); tip = n;
+      }
+      p.tips[k] = tip;
+    }
+    const maxTips = p.waterRoots > 0 ? 2 : 3;
+    if (p.tips.length < maxTips && rnd() < (p.waterRoots > 0 ? 0.08 : 0.25)) {
+      const c = frontRoot(p);
+      if (c >= 0) p.tips.push(c);
+    }
+  }
+  function press(p) {
+    // solo el engrosamiento que se ve en el dibujo
+    if (p.waterRoots <= 0) return;
+    const vig = vigor(p), by = (p.base / W) | 0;
+    for (const c of p.contact) {
+      if (type[c] !== ROOT || owner[c] !== p.id) continue;
+      const near = Math.max(0.1, 1 - Math.abs(((c / W) | 0) - by) / 60);
+      thick[c] = Math.min(3.5 * near + 0.3, thick[c] + 0.077 * par(p.sp, 'thickRate') * vig * near * (week < (p.hormUntil || 0) ? 2.5 : 1));
+    }
+  }
+  // ---------- líneas de orificios: la raíz engrosa, aprieta y rompe puentes ----------
+  function lineTick() {
+    const dt = 4 / 52;
+    for (const h of holes) {
+      if (!h.intact || !h.line) continue;
+      const L = h.line;
+      // de las plantas con raíz en el orificio, cuenta la más cercana (la que puede engrosar ahí)
+      const depth = p => L.y - ((p.base / W) | 0);
+      let q = null;
+      for (const c of h.cells) if (type[c] === ROOT) { const pl = plants[owner[c]]; if (pl && pl.alive && (!q || depth(pl) < depth(q))) q = pl; }
+      if (q) {
+        // la misma planta manda raíces por los orificios vecinos de la línea, cada vez más lejos
+        if (L.first < 0 || L.firstBy !== q.id) { L.first = week; L.firstBy = q.id; }
+        const hw = Math.floor(Math.min(60, 15 + 15 * (week - L.first) / 52) / L.s), vg = vigor(q);
+        for (let i = Math.max(0, L.i0 - hw); i <= Math.min(L.n - 1, L.i0 + hw); i++) {
+          const ow = L.own[i] >= 0 ? plants[L.own[i]] : null;
+          if (ow === q || (ow && ow.alive && depth(ow) <= depth(q) + 3)) continue;
+          if (i === L.i0 || rnd() < 0.15 * Math.max(0.2, vg)) { L.own[i] = q.id; L.D[i] = 0.8; }
+        }
+      }
+      let active = false, gen = 0;
+      for (let i = 0; i < L.n; i++) {
+        const ow = L.own[i] >= 0 ? plants[L.own[i]] : null;
+        if (!ow) { L.F[i] = 0; continue; }
+        if (!ow.alive) { L.F[i] = 0; L.own[i] = -1; L.D[i] = 0; continue; }
+        // la raíz engrosa más cerca del tronco: a 6 cm de la base casi no engrosa
+        const taper = Math.max(0.1, 1 - (L.y - ((ow.base / W) | 0)) / 60);
+        if (ow.waterRoots > 0) L.D[i] = Math.min(SPECIES[ow.sp].dmax * taper, L.D[i] + par(ow.sp, 'thickRate') * vigor(ow) * dt * (week < (ow.hormUntil || 0) ? 2.5 : 1));
+        // presión: crece cuando la raíz ya llenó el orificio, con tope en la presión sostenida
+        const pr = par(ow.sp, 'pSust') * Math.max(0, Math.min(1, (L.D[i] - L.d) / 0.5));
+        L.F[i] = pr * L.d;
+        if (pr > 0) { active = true; if (ow.gen > gen) gen = ow.gen; }
+      }
+      if (q) { const tv = Math.min(3.5, L.D[L.i0]); for (const c of h.cells) if (type[c] === ROOT && thick[c] < tv) thick[c] = tv; }
+      if (active || L.broken > 0 || L.weak || week < 8) { lineFail(h, gen); L.weak = false; }
+    }
+  }
+  function lineFail(h, gen) {
+    const L = h.line, n = L.n;
+    for (let it = 0; it <= n + 1; it++) {
+      let nInt = 0; for (let j = 0; j <= n; j++) if (L.ok[j]) nInt++;
+      if (!nInt) break;
+      // el peso propio de la losa se reparte entre los puentes que quedan
+      const sw = SIGW * LINE / nInt;
+      L.load.fill(0);
+      let last = -1, acc = 0;
+      for (let j = 0; j <= n; j++) {
+        if (L.ok[j]) {
+          if (last < 0) L.load[j] += acc; else { L.load[last] += 0.5 * acc; L.load[j] += 0.5 * acc; }
+          last = j; acc = 0;
+        }
+        if (j < n) acc += L.F[j];
+      }
+      if (last >= 0) L.load[last] += acc;
+      let any = false;
+      for (let j = 0; j <= n; j++) if (L.ok[j] && L.load[j] + sw >= L.R[j]) { L.ok[j] = 0; L.broken++; any = true; }
+      if (!any) break;
+    }
+    if (L.broken >= n + 1) {
+      for (let i = 0; i < n; i++) { const ow = L.own[i] >= 0 ? plants[L.own[i]] : null; if (ow && ow.alive && L.F[i] > 0 && !ow.broke) { ow.broke = true; tot.plantsBroke++; } }
+      breakHole(h, gen || null);
+    }
+  }
+  function lightAt(p) { return lightCell(p.top, p); }
+  // luz en una celda: rayo hacia arriba (55 %) y hacia los lados (45 %); las hojas de otras plantas dan sombra
+  function lightCell(i0, p) {
+    const x = i0 % W, y = (i0 / W) | 0;
+    const tr = t => (t === STONE || t === SUP) ? 0 : t === PLANT ? 0.8 : (t === CAP || t === ROOT || t === DROOT) ? 0.85 : 1;
+    let up = 1; for (let yy = y - 1; yy > 0 && up > 0.01; yy--) { const i = yy * W + x; up *= holeOf[i] >= 0 && holes[holeOf[i]].intact ? 0.5 : tr(type[i]); }
+    for (const q of plants) if (q.alive && q !== p && q.height > 6 && ((q.top / W) | 0) < y - 2 && Math.abs(q.x - x) <= 6) up *= 0.65;
+    let lf = 1; for (let xx = x - 1; xx > 0 && lf > 0.01; xx--) lf *= tr(type[y * W + xx]);
+    let rt = 1; for (let xx = x + 1; xx < W - 1 && rt > 0.01; xx++) rt *= tr(type[y * W + xx]);
+    return (o.lightFrom === 'lados' ? 0.2 + 0.8 * (0.2 * up + 0.4 * lf + 0.4 * rt) : 0.2 + 0.8 * (0.55 * up + 0.225 * lf + 0.225 * rt)) * shade[x];
+  }
+  function growStem(p) {
+    const n = p.base - W * (p.height + 1);
+    if (n < W || type[n] !== AIR) return;
+    type[n] = PLANT; owner[n] = p.id; p.stem.push(n); p.height++; p.top = n; p.energy -= 0.02;
+  }
+  function kill(p, why) {
+    if (!p.alive) return;
+    p.alive = false; p.died = week; p.why = why || '?';
+    for (const c of p.roots) if (type[c] === ROOT && owner[c] === p.id) type[c] = DROOT;
+    for (const c of p.stem) if (type[c] === PLANT && owner[c] === p.id) { type[c] = AIR; owner[c] = -1; }
+    p.contact = []; p.tips = [];
+  }
+  function plantStep(p) {
+    p.age++;
+    if (p.age > par(p.sp, 'longevity') * 52 * (0.75 + 0.5 * p.lv)) { kill(p, 'vejez'); return; }
+    if (type[p.base] !== ROOT || owner[p.base] !== p.id) { kill(p, 'base'); return; }
+    if (p.waterRoots <= 0) {
+      p.energy -= 0.025;
+      growTips(p, 8);
+      if (p.energy <= 0) kill(p, 'sed');
+      return;
+    }
+    p.energy += 0.1 * Math.min(1.1, p.light * SEASON) * FT[p.sp] * (week < boostUntil ? 1.5 : 1) - 0.016 - 0.00002 * p.roots.length;
+    const ss = saltG > 0 ? saltStress() : 0;
+    if (ss > 0) p.energy -= 0.1 * ss;   // el agua salada quema las raíces que la beben
+    if (p.energy > 3) p.energy = 3;
+    if (p.energy <= 0) { kill(p, ss > 0.3 ? 'sal' : 'hambre'); if (ss > 0.3) tot.saltKilled++; return; }
+    if (p.energy > 0.6 && p.height < 45 && (week & 1) === 0) growStem(p);
+    if ((week & 1) === 0) growTips(p, 1);
+    if ((week & 3) === 0) press(p);
+    if (week % 26 === 0) {
+      p.roots = p.roots.filter(c => type[c] === ROOT && owner[c] === p.id);
+      p.contact = p.roots.filter(nearSolid);
+    }
+    if (o.selfSeed > 0 && p.age > 52 && p.energy > 1.8 && rnd() < 0.01 * o.selfSeed) {
+      const x = Math.max(2, Math.min(W - 3, p.x + Math.round((rnd() - 0.5) * 18)));
+      releaseSeed(x, (p.top / W) | 0, p.gen, false, week, p.sp);
+    }
+  }
+
+  // ---------- grietas, orificios que ceden, cápsulas, semillas ----------
+  function markCause(b, gen) { if (b && gen != null && gen > b.cause) b.cause = gen; }
+  function crackCell(n, gen) {
+    const b = bodies[body[n]];
+    type[n] = AIR; body[n] = -1; dmg[n] = 0; changed = true;
+    if (b) { b.dirty = true; markCause(b, gen); }
+  }
+  function crack(n, src, gen) {
+    if (type[n] !== STONE) return;
+    const hard = hardOf(n);
+    let dx = Math.sign((n % W) - (src % W)), dy = Math.sign(((n / W) | 0) - ((src / W) | 0));
+    if (!dx && !dy) dx = rnd() < 0.5 ? -1 : 1;
+    crackCell(n, gen);
+    let e = 4 * (1 - hard), cur = n;
+    for (let k = 0; k < 60 && e > 0.05; k++) {
+      let tw = 0; const ws = [];
+      for (const [a, b] of [[dx, dy], [dx - dy, dy + dx], [dx + dy, dy - dx]]) {
+        const j = cur + Math.sign(b) * W + Math.sign(a); const w = type[j] === STONE ? Math.pow(1.3 - str[j], 2) : 0; ws.push([j, w]); tw += w;
+      }
+      if (tw <= 0) break;
+      let best = -1, r = rnd() * tw; for (const [j, w] of ws) { r -= w; if (r <= 0) { best = j; break; } }
+      if (best < 0) break;
+      dmg[best] += e;
+      if (dmg[best] >= 1) { crackCell(best, gen); cur = best; e *= 0.9; } else break;
+    }
+  }
+  function breakHole(h, gen) {
+    if (!h.intact) return;
+    h.intact = false; tot.holesBroken++; changed = true; wake();
+    for (const i of h.cells) if (holeOf[i] === h.id) holeOf[i] = -1;
+    const b = bodies[h.body]; if (b) { b.dirty = true; markCause(b, gen); }
+    // la grieta que parte la piedra a lo largo del orificio
+    for (const i of h.cells) for (const d of [1, -1]) { const n = i + d; if (type[n] === STONE && rnd() < 0.15) crackCell(n, gen); }
+    const c0 = h.cells[0] || 0;
+    events.push({ k: 'hole', x: c0 % W, y: (c0 / W) | 0, w: week });
+  }
+  function breakCap(id, causeGen, byRoot) {
+    const c = caps[id]; if (!c || !c.intact) return;
+    c.intact = false; tot.capsBroken++; changed = true;
+    for (const i of c.cells) if (type[i] === CAP && capOf[i] === id) { type[i] = AIR; capOf[i] = -1; }
+    const seeds = [];
+    for (let y = c.cy - c.r; y <= c.cy + c.r; y++) for (let x = c.cx - c.r; x <= c.cx + c.r; x++) {
+      const i = at(x, y); if (type[i] === SEED && capOf[i] === id) { type[i] = AIR; capOf[i] = -1; seeds.push([x, y]); }
+    }
+    tot.seedsOut += seeds.length;
+    // las semillas de cápsula se sellaron en la semana 0
+    seeds.forEach(([x, y], k) => releaseSeed(x, y, Math.max(1, causeGen) + 1, !byRoot, 0, c.mix[k % c.mix.length]));
+    events.push({ k: 'cap', x: c.cx, y: c.cy, w: week });
+  }
+  const blocksSeed = t => t === GLASS || t === SUP || t === STONE || t === CAP;
+  function releaseSeed(x, y, gen, burst, born, sp, ext) {
+    let vx = burst ? (rnd() * 6 - 3) : 0;
+    for (let k = 0; k < H; k++) {
+      if (Math.abs(vx) > 0.3) { const nx = x + Math.sign(vx); if (nx > 0 && nx < W - 1 && !blocksSeed(type[at(nx, y)])) x = nx; else vx = 0; vx *= 0.8; }
+      else if (rnd() < 0.12) { const nx = x + (rnd() < 0.5 ? -1 : 1); if (nx > 0 && nx < W - 1 && !blocksSeed(type[at(nx, y)])) x = nx; }
+      if (y + 1 >= waterTop) { tot.drowned++; return; }
+      if (blocksSeed(type[at(x, y + 1)])) {
+        const i = at(x, y);
+        if (type[i] === AIR || type[i] === DROOT) { type[i] = SEED; capOf[i] = -1; landed.push({ i, wait: 2 + Math.floor(rnd() * 8), gen, born: born || 0, sp: sp || MAIN, ext: !!ext }); }
+        return;
+      }
+      y++;
+    }
+  }
+  function germinate() {
+    for (let k = landed.length - 1; k >= 0; k--) {
+      const L = landed[k];
+      if (type[L.i] !== SEED) { landed.splice(k, 1); tot.crushed++; continue; }
+      if (--L.wait > 0) continue;
+      // la semilla pierde viabilidad con los años que esperó (más rápido con calor)
+      const v = par(L.sp, 'germ') * viabSp(L.sp, week - L.born);
+      if (SPECIES[L.sp].lightGerm) {
+        // la higuera no germina a oscuras ni bajo hojas: queda latente, sigue envejeciendo, y vuelve a probar
+        const lf = Math.min(1, Math.max(0, (lightCell(L.i, null) - 0.2) / 0.8) * SEASON / 0.5);
+        if (rnd() > lf) {
+          if (v < 0.005) { landed.splice(k, 1); type[L.i] = AIR; tot.dud++; tot.darkDud++; continue; }
+          L.wait = 13; if (!L.dormant) { L.dormant = true; tot.dormant++; } continue;
+        }
+      }
+      landed.splice(k, 1);
+      type[L.i] = AIR;
+      let vs = v; const lx = L.i % W, ly = (L.i / W) | 0;
+      for (const sl of salt) if (sl.until > week && Math.abs(sl.x - lx) <= 18 && Math.abs(sl.y - ly) <= 18) vs *= 0.2; // la sal casi no deja germinar
+      if (saltG > 0) vs *= Math.max(0, 1 - Math.max(0, salinity() - 1) / 4);    // y con el agua salada, menos aún: nada desde 5 g/L
+      if (rnd() < vs) newPlant(L.i, L.gen, L.sp, L.ext); else tot.dud++;
+    }
+  }
+
+  // ---------- cuerpos de piedra: partirse, apoyarse, caer ----------
+  function updBox(b) { let my = 0, sx = 0; for (const i of b.cells) { const y = (i / W) | 0; if (y > my) my = y; sx += i % W; } b.maxY = my; b.comX = sx / Math.max(1, b.cells.length); }
+  const liveHole = (i) => holeOf[i] >= 0 && holes[holeOf[i]].intact;
+  function member(n, b) { return (type[n] === STONE && body[n] === b.id) || (liveHole(n) && holes[holeOf[n]].body === b.id); }
+  function splitBody(b) {
+    b.dirty = false;
+    b.cells = b.cells.filter(i => type[i] === STONE && body[i] === b.id);
+    const hs = b.holes.filter(id => holes[id].intact && holes[id].body === b.id);
+    if (!b.cells.length) { b.alive = false; for (const id of hs) breakHole(holes[id], null); b.holes = []; return; }
+    stampN++;
+    const comps = [];
+    const seeds0 = b.cells;
+    for (const c0 of seeds0) {
+      if (stamp[c0] === stampN) continue;
+      const comp = { cells: [], holes: new Set() }, q = [c0]; stamp[c0] = stampN;
+      for (let h = 0; h < q.length; h++) {
+        const c = q[h];
+        if (type[c] === STONE) comp.cells.push(c); else comp.holes.add(holeOf[c]);
+        for (let dd = 0; dd < 4; dd++) {
+          const n = c + (dd === 0 ? 1 : dd === 1 ? -1 : dd === 2 ? W : -W);
+          if (stamp[n] !== stampN && member(n, b)) { stamp[n] = stampN; q.push(n); }
+        }
+      }
+      comps.push(comp);
+    }
+    comps.sort((a, c) => c.cells.length - a.cells.length);
+    b.cells = comps[0].cells; b.holes = [...comps[0].holes]; updBox(b);
+    for (let k = 1; k < comps.length; k++) {
+      // las migajas de menos de 6 mm² se vuelven polvo, para que no traben a las piezas grandes
+      if (comps[k].cells.length < 6 && !comps[k].holes.size) { for (const i of comps[k].cells) { type[i] = AIR; body[i] = -1; } continue; }
+      const nb = newBody(); nb.cause = b.cause; nb.cells = comps[k].cells; nb.holes = [...comps[k].holes];
+      for (const i of nb.cells) body[i] = nb.id;
+      for (const id of nb.holes) holes[id].body = nb.id;
+      updBox(nb);
+    }
+  }
+  const blocking = t => t === GLASS || t === SUP || t === CAP || t === STONE;
+  function crush(j) {
+    const t = type[j];
+    if (t === ROOT || t === PLANT) {
+      const q = plants[owner[j]];
+      if (q && q.alive) {
+        if (t === ROOT) { if (isWater(j)) q.waterRoots--; if (j === q.base) kill(q, 'aplastada'); }
+        else kill(q, 'aplastada');
+      }
+      owner[j] = -1;
+    }
+  }
+  function ownCap(n, b) { if (type[n] !== CAP) return false; const c = caps[capOf[n]]; return c && c.hole >= 0 && holes[c.hole].intact && holes[c.hole].body === b.id; }
+  function canMove(b, off) {
+    const ok = (n) => {
+      if (member(n, b) || ownCap(n, b)) return true;
+      if (blocking(type[n])) return false;
+      if (liveHole(n)) return false; // el orificio de otra piedra cuenta como piedra
+      return true;
+    };
+    for (const i of b.cells) if (!ok(i + off)) return false;
+    for (const id of b.holes) { const h = holes[id]; if (!h.intact) continue; for (const i of h.cells) if (!ok(i + off)) return false; for (const cid of h.caps) { const c = caps[cid]; if (c.intact) for (const i of c.cells) if (!ok(i + off)) return false; } }
+    return true;
+  }
+  const tmpS = [], tmpD = [], tmpM = [];
+  function moveBody(b, off) {
+    const dy = Math.round(off / W), dx = off - dy * W;
+    const cs = b.cells, n = cs.length;
+    const hs = b.holes.map(id => holes[id]).filter(h => h.intact);
+    const cps = []; for (const h of hs) for (const cid of h.caps) if (caps[cid].intact) cps.push(caps[cid]);
+    // 1. levantar todo
+    for (let k = 0; k < n; k++) { const i = cs[k]; tmpS[k] = str[i]; tmpD[k] = dmg[i]; tmpM[k] = mat[i]; type[i] = AIR; body[i] = -1; }
+    for (const h of hs) for (const i of h.cells) { const t = type[i]; if (t !== AIR && t !== CAP && t !== SEED) { crush(i); type[i] = AIR; } holeOf[i] = -1; }
+    const capSeeds = [];
+    for (const c of cps) {
+      const sd = [];
+      for (let y = c.cy - c.r; y <= c.cy + c.r; y++) for (let x = c.cx - c.r; x <= c.cx + c.r; x++) { const i = at(x, y); if (type[i] === SEED && capOf[i] === c.id) { sd.push(i); type[i] = AIR; capOf[i] = -1; } }
+      for (const i of c.cells) { type[i] = AIR; capOf[i] = -1; }
+      capSeeds.push(sd);
+    }
+    for (const h of hs) for (const i of h.cells) if (type[i] === SEED) { type[i] = AIR; }
+    // 2. dejar todo en su nuevo lugar
+    for (let k = 0; k < n; k++) { const j = cs[k] + off; crush(j); type[j] = STONE; body[j] = b.id; str[j] = tmpS[k]; dmg[j] = tmpD[k]; mat[j] = tmpM[k]; cs[k] = j; }
+    for (const h of hs) for (let k = 0; k < h.cells.length; k++) { const j = h.cells[k] + off; if (type[j] !== STONE) { crush(j); type[j] = AIR; } holeOf[j] = h.id; h.cells[k] = j; }
+    cps.forEach((c, ci) => {
+      for (let k = 0; k < c.cells.length; k++) { const j = c.cells[k] + off; type[j] = CAP; capOf[j] = c.id; c.cells[k] = j; }
+      for (const i of capSeeds[ci]) { const j = i + off; type[j] = SEED; capOf[j] = c.id; }
+      c.cx += dx; c.cy += dy;
+    });
+  }
+  // ---------- volcarse: girar sobre el borde del apoyo ----------
+  const srcKind = new Int8Array(N), srcRef = new Int32Array(N);
+  function comY(b) { let sy = 0; for (const i of b.cells) sy += (i / W) | 0; return sy / Math.max(1, b.cells.length); }
+  function rotateBody(b, px, py, a) {
+    const ca = Math.cos(a), sa = Math.sin(a);
+    const src = [];
+    const add = (i, k, ref) => { if (srcKind[i]) return; srcKind[i] = k; srcRef[i] = ref; src.push(i); };
+    const hs = b.holes.map(id => holes[id]).filter(h => h.intact);
+    const cps = []; for (const h of hs) for (const cid of h.caps) if (caps[cid].intact) cps.push(caps[cid]);
+    for (const c of cps) {
+      for (const i of c.cells) add(i, 3, c.id);
+      for (let y = c.cy - c.r; y <= c.cy + c.r; y++) for (let x = c.cx - c.r; x <= c.cx + c.r; x++) { const i = at(x, y); if (type[i] === SEED && capOf[i] === c.id) add(i, 4, c.id); }
+    }
+    for (let k = 0; k < b.cells.length; k++) add(b.cells[k], 1, k);
+    for (const h of hs) for (const i of h.cells) add(i, 2, h.id);
+    let x0 = 1e9, x1 = -1, y0 = 1e9, y1 = -1;
+    for (const i of src) { const x = i % W, y = (i / W) | 0; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    let tx0 = 1e9, tx1 = -1e9, ty0 = 1e9, ty1 = -1e9;
+    for (const [cx, cy] of [[x0, y0], [x1 + 1, y0], [x0, y1 + 1], [x1 + 1, y1 + 1]]) {
+      const rx = px + (cx - px) * ca - (cy - py) * sa, ry = py + (cx - px) * sa + (cy - py) * ca;
+      tx0 = Math.min(tx0, rx); tx1 = Math.max(tx1, rx); ty0 = Math.min(ty0, ry); ty1 = Math.max(ty1, ry);
+    }
+    const tg = [], tk = [], ts = [];
+    let fail = false;
+    for (let ty = Math.floor(ty0) - 1; ty <= Math.ceil(ty1) + 1 && !fail; ty++) for (let tx = Math.floor(tx0) - 1; tx <= Math.ceil(tx1) + 1; tx++) {
+      const sx = Math.round(px + (tx + 0.5 - px) * ca + (ty + 0.5 - py) * sa - 0.5);
+      const sy = Math.round(py - (tx + 0.5 - px) * sa + (ty + 0.5 - py) * ca - 0.5);
+      if (sx < 1 || sx > W - 2 || sy < 1 || sy > H - 2) continue;
+      const si = sy * W + sx, k = srcKind[si]; if (!k) continue;
+      if (tx < 1 || tx > W - 2 || ty < 1 || ty > H - 2) { fail = true; break; }
+      const ti = ty * W + tx;
+      if (!srcKind[ti] && (k === 1 || k === 3) && (blocking(type[ti]) || liveHole(ti))) { fail = true; break; }
+      tg.push(ti); tk.push(k); ts.push(si);
+    }
+    if (fail || !tg.length) { for (const i of src) srcKind[i] = 0; return false; }
+    const pS = [], pD = [], pM = [], pR = [];
+    for (let j = 0; j < tg.length; j++) { const si = ts[j]; pS[j] = str[si]; pD[j] = dmg[si]; pM[j] = mat[si]; pR[j] = srcRef[si]; }
+    for (const i of src) {
+      const k = srcKind[i];
+      if (k === 1) { type[i] = AIR; body[i] = -1; }
+      else if (k === 2) { const t = type[i]; if (t === ROOT || t === DROOT || t === PLANT) crush(i); if (t !== STONE && t !== CAP) type[i] = AIR; holeOf[i] = -1; }
+      else { type[i] = AIR; capOf[i] = -1; holeOf[i] = -1; }
+    }
+    for (const i of src) srcKind[i] = 0;
+    b.cells = []; for (const h of hs) h.cells = []; for (const c of cps) c.cells = [];
+    for (let j = 0; j < tg.length; j++) if (tk[j] === 2) { const ti = tg[j]; if (type[ti] !== STONE && type[ti] !== CAP) { crush(ti); type[ti] = AIR; } holeOf[ti] = pR[j]; holes[pR[j]].cells.push(ti); }
+    for (let j = 0; j < tg.length; j++) {
+      const ti = tg[j], k = tk[j];
+      if (k === 1) { crush(ti); type[ti] = STONE; body[ti] = b.id; str[ti] = pS[j]; dmg[ti] = pD[j]; mat[ti] = pM[j]; holeOf[ti] = -1; b.cells.push(ti); }
+      else if (k === 3) { crush(ti); type[ti] = CAP; capOf[ti] = pR[j]; holeOf[ti] = caps[pR[j]].hole; caps[pR[j]].cells.push(ti); }
+      else if (k === 4) { type[ti] = SEED; capOf[ti] = pR[j]; }
+    }
+    for (const c of cps) { const rx = px + (c.cx + 0.5 - px) * ca - (c.cy + 0.5 - py) * sa - 0.5, ry = py + (c.cx + 0.5 - px) * sa + (c.cy + 0.5 - py) * ca - 0.5; c.cx = Math.round(rx); c.cy = Math.round(ry); }
+    for (const h of hs) h.cells = [...new Set(h.cells)];
+    updBox(b); b.dirty = true;
+    return true;
+  }
+  function impact(b, d) {
+    updBox(b);
+    if (b.cause > lastCause) lastCause = b.cause;
+    if (d < 3) return;
+    const mass = b.cells.length, E = mass * d;
+    if (mass >= 15) { tot.falls++; events.push({ k: 'fall', x: Math.round(b.comX), y: b.maxY, w: week, m: mass, d }); }
+    const capHit = new Set(), stoneHit = [];
+    for (const i of b.cells) { const n = i + W; if (type[n] === CAP && !ownCap(n, b)) capHit.add(capOf[n]); else if (type[n] === STONE && body[n] !== b.id) stoneHit.push(n); }
+    const thr = 200 * Math.pow(10, 3 * (1 - o.capFrag));
+    for (const id of capHit) if (E / capHit.size >= thr * (0.7 + 0.6 * rnd())) breakCap(id, b.cause, false);
+    // embedded capsules feel the shock too
+    for (const id of b.holes) for (const cid of holes[id].caps) if (caps[cid].intact && E * 0.25 >= thr * (0.7 + 0.6 * rnd())) breakCap(cid, b.cause, false);
+    let hard = 0; const sN = Math.min(30, mass); for (let k = 0; k < sN; k++) hard += hardOf(b.cells[Math.floor(rnd() * mass)]); hard /= sN;
+    if (mass > 12 && rnd() < 1 - Math.exp(-d * (1 - hard) / 30)) {
+      const c = b.cells[Math.floor(rnd() * mass)];
+      const dirs = [1, -1, W, -W, W + 1, W - 1, -W + 1, -W - 1];
+      const dd = dirs[Math.floor(rnd() * dirs.length)];
+      crack(c, c - dd, null); crack(c + dd, c, null);
+      for (const id of b.holes) if (rnd() < 0.5) breakHole(holes[id], null);
+    }
+    // el golpe puede romper algunos puentes de las líneas de la losa que recibe la caída
+    for (const bid of new Set(stoneHit.map(n => body[n]))) {
+      const hb = bodies[bid]; if (!hb) continue;
+      for (const id of hb.holes) {
+        const L = holes[id].intact ? holes[id].line : null; if (!L) continue;
+        for (let j = 0; j <= L.n; j++) if (L.ok[j] && rnd() < Math.min(0.3, E * 2e-6 / L.R[j])) { L.ok[j] = 0; L.broken++; }
+      }
+    }
+    for (let k = 0; k < Math.min(8, stoneHit.length); k++) {
+      const n = stoneHit[Math.floor(rnd() * stoneHit.length)];
+      dmg[n] += 0.00004 * E * (1 - hardOf(n)) / str[n];
+      if (dmg[n] >= 1) crack(n, n - W, null);
+    }
+    changed = true;
+  }
+  // una pieza que se mueve muchas veces sin bajar (se mece en su lugar) se queda quieta
+  function stabilize(b) {
+    const y0b = comY(b), r = stabilize1(b);
+    if (r) { const y1 = comY(b); if (y1 > (b.bestY == null ? y0b : b.bestY) + 0.3) { b.bestY = y1; b.stall = 0; } else b.stall = (b.stall || 0) + 1; }
+    return r;
+  }
+  function wake() { for (const b of bodies) { b.stall = 0; b.bestY = null; } }
+  function stabilize1(b) {
+    let contacts = 0, minX = 1e9, maxX = -1, sx = 0;
+    for (const i of b.cells) {
+      const x = i % W; sx += x;
+      const n = i + W, t = type[n];
+      const sup = t === GLASS || t === SUP || (t === CAP && !ownCap(n, b)) || (t === STONE && body[n] !== b.id) || (liveHole(n) && holes[holeOf[n]].body !== b.id);
+      if (sup) { contacts++; if (x < minX) minX = x; if (x > maxX) maxX = x; }
+    }
+    const com = sx / b.cells.length;
+    if (!contacts) {
+      let d = 0; while (d < H && canMove(b, W)) { moveBody(b, W); d++; }
+      if (d > 0) { impact(b, d + Math.round(b.tipDrop || 0)); b.tipDrop = 0; b.tilt = 0; return true; }
+      return false;
+    }
+    if ((b.stall || 0) <= 40 && (com < minX - 0.5 || com > maxX + 0.5)) {
+      const dir = com > maxX ? 1 : -1, px = dir > 0 ? maxX + 1 : minX;
+      let py = 0; for (const i of b.cells) { const x = i % W; if (x === (dir > 0 ? maxX : minX)) py = Math.max(py, ((i / W) | 0) + 1); }
+      const y0 = comY(b);
+      if ((b.tilt || 0) > 0.55) {
+        // demasiado inclinada: resbala del borde
+        if (canMove(b, dir + W)) { moveBody(b, dir + W); updBox(b); b.tipDrop = (b.tipDrop || 0) + 1; return true; }
+        if (canMove(b, dir)) { moveBody(b, dir); updBox(b); return true; }
+      }
+      if (rotateBody(b, px, py, dir * 0.12) || rotateBody(b, px, py, dir * 0.05)) { b.tipDrop = (b.tipDrop || 0) + comY(b) - y0; b.tilt = (b.tilt || 0) + 0.1; return true; }
+    }
+    if ((b.tipDrop || 0) > 2) { impact(b, Math.round(b.tipDrop)); }
+    b.tipDrop = 0; b.tilt = 0;
+    // una pieza que queda apoyada sobre una cápsula suelta la carga con su peso: puede romperla
+    let broke = false;
+    if (b.cells.length >= 40) for (const i of b.cells) for (const n of [i + W, i + W - 1, i + W + 1, i + 1, i - 1]) {
+      if (type[n] !== CAP || ownCap(n, b)) continue;
+      const c = caps[capOf[n]]; if (!c || !c.intact || c.loadBy === b.id) continue;
+      c.loadBy = b.id;
+      if (rnd() < 1 - Math.exp(-b.cells.length / (400 * (1.2 - o.capFrag)))) { breakCap(c.id, b.cause, false); broke = true; }
+    }
+    return broke;
+  }
+  function capSupported(c) {
+    for (const i of c.cells) {
+      const n = i + W; if (capOf[n] === c.id && type[n] === CAP) continue;
+      const t = type[n];
+      if (t === GLASS || t === SUP || t === STONE || liveHole(n)) return true;
+      if (t === CAP && capOf[n] !== c.id) { const o2 = caps[capOf[n]]; if (o2 && (o2.cy > c.cy || o2.hole >= 0)) return true; }
+    }
+    return false;
+  }
+  function capFree(c, off) {
+    for (const i of c.cells) { const n = i + off; if (type[n] === CAP && capOf[n] === c.id) continue; const t = type[n]; if (t === GLASS || t === SUP || t === STONE || t === CAP || liveHole(n)) return false; }
+    return true;
+  }
+  function shiftCap(c, off) {
+    const sd = [];
+    for (let y = c.cy - c.r; y <= c.cy + c.r; y++) for (let x = c.cx - c.r; x <= c.cx + c.r; x++) { const i = at(x, y); if (type[i] === SEED && capOf[i] === c.id) { sd.push(i); type[i] = AIR; capOf[i] = -1; } }
+    for (const i of c.cells) { type[i] = AIR; capOf[i] = -1; }
+    for (let k = 0; k < c.cells.length; k++) { const j = c.cells[k] + off; crush(j); type[j] = CAP; capOf[j] = c.id; c.cells[k] = j; }
+    for (const i of sd) { const j = i + off; type[j] = SEED; capOf[j] = c.id; }
+    c.cy += Math.round(off / W); c.cx += off - Math.round(off / W) * W;
+  }
+  function dropCaps() {
+    let moved = false;
+    for (const c of caps) {
+      if (!c.intact || c.hole >= 0) continue;
+      let d = 0;
+      for (let g = 0; g < 2 * H; g++) {
+        // cae si nada la sostiene; si está sobre una pendiente, rueda
+        let off = 0;
+        if (!capSupported(c) && capFree(c, W)) off = W;
+        else { const a = capFree(c, W + 1), b2 = capFree(c, W - 1); if (a || b2) off = a && b2 ? (rnd() < 0.5 ? W + 1 : W - 1) : a ? W + 1 : W - 1; }
+        // en una pendiente suave (desde unos 25°) también rueda
+        for (const k of [2, 3]) {
+          if (off) break;
+          const a = capFree(c, 1) && capFree(c, W + k), b2 = capFree(c, -1) && capFree(c, W - k);
+          if (a || b2) off = a && b2 ? (rnd() < 0.5 ? W + k : W - k) : a ? W + k : W - k;
+        }
+        if (!off) break;
+        shiftCap(c, off); d++;
+      }
+      // la caída se suma hasta que la cápsula queda quieta; entonces se decide si se rompió
+      if (d > 0) { moved = true; c.fallAcc = (c.fallAcc || 0) + d; }
+    }
+    return moved;
+  }
+  function settle() {
+    for (let k = 0; k < bodies.length; k++) if (bodies[k].alive && bodies[k].dirty) splitBody(bodies[k]);
+    let moved = false;
+    for (let pass = 0; pass < 60; pass++) {
+      moved = false;
+      const order = bodies.filter(b => b.alive && b.cells.length).sort((a, b) => b.maxY - a.maxY);
+      for (const b of order) if (stabilize(b)) moved = true;
+      for (let k = 0; k < bodies.length; k++) if (bodies[k].alive && bodies[k].dirty) { splitBody(bodies[k]); moved = true; }
+      if (dropCaps()) moved = true;
+      if (!moved) break;
+    }
+    // si algo seguía resbalando o girando, sigue la semana que entra
+    changed = moved;
+    if (!moved) for (const c of caps) if (c.intact && c.fallAcc) {
+      const d = c.fallAcc; c.fallAcc = 0; tot.capsFell++;
+      if (d >= 4 && rnd() < 1 - Math.exp(-d * o.capFrag / 20)) breakCap(c.id, lastCause, false);
+    }
+  }
+
+  // ---------- ampolletas de afuera ----------
+  function landPoint(x) {
+    for (let y = 6; y < H - 2; y++) {
+      if (y + 1 >= waterTop) return { x, y, water: true };
+      const t = type[at(x, y + 1)];
+      if (t === STONE || t === SUP || t === GLASS || t === CAP) return { x, y, water: false };
+    }
+    return { x, y: H - 2, water: true };
+  }
+  function hurtRoots(lp, r, dmgE) {
+    for (const p of plants) {
+      if (!p.alive) continue;
+      let near = false;
+      for (const c of p.roots) { if (type[c] !== ROOT) continue; const dx = (c % W) - lp.x, dy = ((c / W) | 0) - lp.y; if (dx * dx + dy * dy <= r * r) { near = true; break; } }
+      if (!near && lp.water) near = p.waterRoots > 0 && dmgE > 1; // la sal en el agua alcanza a las raíces sumergidas
+      if (near) { p.energy -= lp.water ? dmgE * 0.4 : dmgE; tot.chem++; if (p.energy <= 0) kill(p, 'químico'); }
+    }
+  }
+  function fireAmpoule(kind) {
+    const x = Math.max(4, Math.min(W - 5, RACK[rackI++ % RACK.length] + Math.round((rnd() - 0.5) * 6)));
+    const lp = landPoint(x);
+    tot.ext++; tot.extBy[kind] = (tot.extBy[kind] || 0) + 1;
+    events.push({ k: 'ext', t: kind, x, y: lp.y, w: week });
+    if (kind === 'semillas') {
+      const n = Math.max(1, Math.round(o.seedsPerCap));
+      let g = 1; for (const p of plants) if (p.alive && p.gen > g) g = p.gen;
+      const nP = o.capMix === 'mezcla' && n >= 2 ? Math.max(1, Math.round(n * 0.3)) : 0;
+      for (let k = 0; k < n; k++) releaseSeed(x + Math.round((rnd() - 0.5) * 4), 7, g, true, week, k < nP ? PARTNER : MAIN, true);
+    } else if (kind === 'nutrientes') {
+      boostUntil = week + 26; // medio año con más vigor
+    } else if (kind === 'acido') {
+      if (!lp.water) {
+        // el ácido disuelve la caliza donde cae y debilita los puentes de las líneas cercanas
+        for (let dy = 1; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) { const i = at(lp.x + dx, lp.y + dy); if (type[i] === STONE && Math.abs(dx) + dy <= 4 && rnd() < 0.7) crackCell(i, null); }
+        for (const h of holes) {
+          if (!h.intact || !h.line || !h.cells.length) continue;
+          const c0 = h.cells[0], hx = c0 % W, hy = (c0 / W) | 0;
+          if (Math.abs(hx - lp.x) <= 25 && hy >= lp.y - 2 && hy <= lp.y + 20) { const L = h.line; for (let j = 0; j <= L.n; j++) L.R[j] *= 0.7; L.weak = true; }
+        }
+      }
+      hurtRoots(lp, 15, 0.6);
+    } else if (kind === 'inundar') {
+      // Saturar: agua de más. Sube el nivel para siempre: las raíces llegan antes, la sal se diluye, lo bajo se ahoga
+      setWater(Math.max(waterTop0 - 24, waterTop - 6));
+    } else if (kind === 'secante') {
+      // Privar: un polímero que atrapa agua. Baja el nivel: raíces en seco y la sal más concentrada
+      setWater(Math.min(H - 4, waterTop + 6));
+    } else if (kind === 'tinta') {
+      // Ocultar: tinta en el vidrio. Una franja queda en sombra para siempre, para las plantas y para quien mira
+      for (let xx = Math.max(1, lp.x - 18); xx <= Math.min(W - 2, lp.x + 18); xx++) shade[xx] = Math.min(shade[xx], 0.35);
+    } else if (kind === 'resina') {
+      // Fijar la junta: resina en las líneas cercanas. Esa losa ya casi no se parte
+      for (const h of holes) {
+        if (!h.intact || !h.line || !h.cells.length) continue;
+        const c0 = h.cells[0], hx = c0 % W, hy = (c0 / W) | 0;
+        if (Math.abs(hx - lp.x) <= 25 && hy >= lp.y - 2 && hy <= lp.y + 20) { const L = h.line; for (let j = 0; j <= L.n; j++) L.R[j] *= 3; }
+      }
+    } else if (kind === 'hormona') {
+      // Exagerar: hormona de enraizamiento. La planta más cercana engrosa sus raíces 2.5 veces durante un año
+      let best = null, bd = 1e9;
+      for (const p of plants) { if (!p.alive) continue; const d = Math.abs(p.x - lp.x) + Math.abs(((p.base / W) | 0) - lp.y); if (d < bd) { bd = d; best = p; } }
+      if (best) best.hormUntil = week + 52;
+    } else if (kind === 'composta') {
+      // Correr con lo que sobra: composta de las raíces muertas. Más muertas, más semanas de vigor para todas
+      let dead = 0; for (let i = 0; i < N; i++) if (type[i] === DROOT) dead++;
+      boostUntil = Math.max(boostUntil, week) + Math.min(52, 6 + Math.round(dead / 30));
+    } else if (kind === 'sal') {
+      saltG += o.saltG;
+      hurtRoots(lp, 22, 1.3);
+      salt.push({ x: lp.x, y: lp.y, until: week + 104 });
+      for (let k = landed.length - 1; k >= 0; k--) { const L = landed[k], lx = L.i % W, ly = (L.i / W) | 0; if (Math.abs(lx - lp.x) <= 22 && Math.abs(ly - lp.y) <= 22) { type[L.i] = AIR; landed.splice(k, 1); tot.dud++; } }
+    }
+  }
+  function setWater(nt) {
+    if (nt === waterTop) return;
+    waterTop = nt; wdirty = true; changed = true;
+    for (const p of plants) {
+      if (!p.alive) continue;
+      let n = 0; for (const c of p.roots) if (type[c] === ROOT && isWater(c)) n++;
+      p.waterRoots = n;
+      if (((p.base / W) | 0) >= waterTop) kill(p, 'ahogada');
+    }
+    for (let k = landed.length - 1; k >= 0; k--) if (((landed[k].i / W) | 0) >= waterTop) { type[landed[k].i] = AIR; landed.splice(k, 1); tot.drowned++; }
+  }
+  function urnaBuy(kind, human) {
+    if (!URNA || !ALLK.includes(kind) || ust.stock[kind] <= 0 || ending === 'apaga' || ending === 'quitada') return null;
+    const price = ust.price, id = ++ust.n;
+    ust.money += price; ust.fund += price; ust.stock[kind]--;
+    let claim = null;
+    if (!human) { const r = rnd(); if (r >= o.uSilent) claim = r < o.uSilent + o.uLie ? KINDS.filter(t => t !== kind)[Math.floor(rnd() * 2)] : kind; }
+    const rec = { id, w: week, price, kind, claim, who: human ? 'Tú' : `Persona ${id}`, human: !!human };
+    buys.push(rec);
+    fireAmpoule(kind);
+    events[events.length - 1].buy = id;
+    ust.price = price * 2; ust.lastChange = week; if (ust.price > ust.maxPrice) ust.maxPrice = ust.price;
+    priceLog.push([week, ust.price]);
+    return rec;
+  }
+  function urnaReveal() {
+    const fresh = buys.filter(b => b.w > ust.revealedUpTo || (ust.revealedUpTo === 0 && b.w === 0));
+    ust.revealedUpTo = week; ust.reveals++; ust.nextReveal = week + Math.round(o.uReveal * 52.18);
+    const c = { semillas: 0, sal: 0, agua: 0 }; let said = 0, lies = 0;
+    for (const b of fresh) { b.open = true; c[b.kind] = (c[b.kind] || 0) + 1; if (b.claim != null) { said++; if (b.claim !== b.kind) lies++; } }
+    uLog.push({ w: week, k: 'urna', n: fresh.length, c, said, lies });
+  }
+  function urnaTick() {
+    if (ending === 'apaga' || ending === 'quitada') return;
+    // la renta: si el fondo no alcanza, quitan la urna y con ella la caja
+    if (RENTW > 0) {
+      ust.fund -= RENTW; ust.rentPaid += RENTW;
+      if (ust.fund < 0) { ust.fund = 0; ending = 'quitada'; endWeek = week; uLog.push({ w: week, k: 'quitada' }); fundLog.push([week, 0]); return; }
+      if (week % 4 === 0) fundLog.push([week, ust.fund]);
+    }
+    let A = 0; for (const p of plants) if (p.alive) A++;
+    const danger = A === 0 ? 1 : A <= 2 ? 0.5 : 0;
+    const evict = Math.max(0, Math.min(1, (3 - monthsLeft()) / 3));   // quien quiere que siga también paga para que no la quiten
+    const n = poisson(o.uVisitors);
+    for (let i = 0; i < n; i++) {
+      const r = rnd();
+      const side = r < o.uSiga ? 'S' : r < o.uSiga + o.uMuera ? 'M' : 'G';
+      // quien quiere que siga paga más cuando la ve morir; quien quiere que muera, cuando la ve llena
+      const urg = side === 'S' ? (1 + 2 * danger) * (1 + evict) : side === 'M' ? 1 + 0.5 * Math.min(1, A / 8) : 0.5;
+      if (o.uWtp * Math.exp(o.uTail * gauss()) * urg < ust.price) continue;
+      const kind = side === 'S' ? 'semillas' : side === 'M' ? 'sal' : 'agua';
+      if (ust.stock[kind] > 0) urnaBuy(kind, false);
+    }
+    if (week - ust.lastChange >= QUIET && ust.price > o.uP0) { ust.price = Math.max(o.uP0, ust.price / 2); ust.lastChange = week; priceLog.push([week, ust.price]); }
+    if (week >= ust.nextReveal) urnaReveal();
+  }
+  function externalTick() {
+    if (URNA) { urnaTick(); return; }
+    for (const r of rules) {
+      if (r.t === 'ninguna' || r.f <= 0 || r.left <= 0) continue;
+      if (rnd() < r.f / 52.18) { r.left--; fireAmpoule(r.t); }
+    }
+  }
+  const seedsComing = () => URNA ? (ust.stock.semillas > 0 && salinity() < 5) : rules.some(r => r.t === 'semillas' && r.f > 0 && r.left > 0);
+
+  // ---------- una semana ----------
+  function step() {
+    if (ending === 'quitada') return;
+    week++;
+    SEASON = seasonAt(week);
+    externalTick();
+    if (o.rust > 0 && (week & 3) === 0) for (const i of supCells) if (type[i] === SUP && life[i] < week) { type[i] = AIR; changed = true; }
+    if ((week & 3) === 1) for (const p of plants) if (p.alive) p.light = lightAt(p);
+    for (let k = 0; k < plants.length; k++) if (plants[k].alive) plantStep(plants[k]);
+    if ((week & 3) === 2) lineTick();
+    germinate();
+    if (!changed) for (const b of bodies) if (b.alive && b.dirty) { changed = true; break; }
+    if (changed) { settle(); wdirty = true; }
+    if (wdirty || week % 13 === 0) waterField();
+    if (week % 52 === 0) for (let k = 0; k < 60; k++) { const i = Math.floor(rnd() * N); if (type[i] === DROOT && rnd() < 0.3) type[i] = AIR; }
+    let alive = 0; for (const p of plants) if (p.alive) alive++;
+    if (week % 4 === 0) hist.push(alive);
+    if (!ending) {
+      if (ending === 'quitada') { /* la quitaron */ }
+      else if (alive === 0 && landed.length === 0 && !seedsComing()) { ending = 'apaga'; endWeek = week; }
+      else if (alive >= 30) { ending = 'llena'; endWeek = week; }
+    }
+  }
+  function stats() {
+    let alive = 0, gen = 0; for (const p of plants) if (p.alive) { alive++; if (p.gen > gen) gen = p.gen; }
+    let lineMax = 0; for (const h of holes) if (h.intact && h.line) lineMax = Math.max(lineMax, h.line.broken / (h.line.n + 1));
+    return { week, years: week / 52, alive, waiting: landed.length, capsLeft: caps.filter(c => c.intact).length, caps: caps.length,
+      gens: tot.maxGen, genNow: gen, pieces: bodies.filter(b => b.alive && b.cells.length).length, ...tot, ending, endWeek,
+      lineMax, season: SEASON, boost: week < boostUntil, rules: rules.map(r => ({ t: r.t, f: r.f, left: r.left })), seedV: viab(week), seedV2: o.capMix === 'mezcla' ? viabSp(PARTNER, week) : null, partner: PARTNER, ratio: designRatio(), fT,
+      salinity: salinity(), saltStress: saltStress(), waterDelta: waterTop0 - waterTop, ink: shade.reduce((a, v) => a + (v < 1 ? 1 : 0), 0) / W, urna: URNA ? { price: ust.price, money: ust.money, n: ust.n, stock: Object.assign({}, ust.stock), nextReveal: ust.nextReveal, reveals: ust.reveals, maxPrice: ust.maxPrice, fund: ust.fund, rent: o.rent, monthsLeft: monthsLeft(), rentPaid: ust.rentPaid } : null };
+  }
+
+  build();
+  waterTop0 = waterTop;
+  waterField();
+  return { RACK, W, H, N, AIR, GLASS, SUP, STONE, ROOT, DROOT, PLANT, SEED, CAP, type, mat, dmg, str, thick, owner, life, holeOf, capOf, holes, plants, caps, events, bodies, hist,
+    get waterTop() { return waterTop; }, get week() { return week; }, step, stats, MAT, opt: o,
+    buys, priceLog, uLog, fundLog, urnaBuy, shade, OPS, fire: fireAmpoule, get salinity() { return salinity(); } };
+}
+
+// Operation glyphs from the Actionary (operations.ramos-saavedra.com), drawn in currentColor.
+// Compact form: first line is the viewBox, then one shape per line.
+// r rect · c circle · l line · pg polygon · py polyline · ph path; f fill, s stroke, sw stroke-width, fo fill-opacity, da dash, p points; "c" means currentColor.
+const GLYPH_SRC = {
+'Seed And Leave': `-1 -1 44 82
+r x=2.05 y=14.05 w=1.89 h=1.89 f=c fo=0.4
+r x=8.05 y=14.05 w=1.89 h=1.89 f=c fo=0.4
+r x=14.05 y=14.05 w=1.89 h=1.89 f=c fo=0.4
+r x=20.05 y=14.05 w=1.89 h=1.89 f=c fo=0.4
+r x=26.05 y=14.05 w=1.89 h=1.89 f=c fo=0.4
+r x=32.05 y=14.05 w=1.89 h=1.89 f=c fo=0.4
+r x=38.05 y=14.05 w=1.89 h=1.89 f=c fo=0.4
+r x=2.05 y=24.05 w=1.89 h=1.89 f=c fo=0.4
+r x=8.05 y=24.05 w=1.89 h=1.89 f=c fo=0.4
+r x=14.05 y=24.05 w=1.89 h=1.89 f=c fo=0.4
+r x=20.05 y=24.05 w=1.89 h=1.89 f=c fo=0.4
+r x=26.05 y=24.05 w=1.89 h=1.89 f=c fo=0.4
+r x=32.05 y=24.05 w=1.89 h=1.89 f=c fo=0.4
+r x=38.05 y=24.05 w=1.89 h=1.89 f=c fo=0.4
+c cx=21 cy=5 r=2.3 f=c
+pg p=21,17.66,23.57,22.11,18.43,22.11 f=c
+l x1=21 y1=32 x2=21 y2=37.4 s=c sw=0.6
+pg p=21,38.6,19.8,36.52,22.2,36.52 f=c
+r x=2.05 y=44.05 w=1.89 h=1.89 f=c fo=0.4
+r x=8.05 y=44.05 w=1.89 h=1.89 f=c fo=0.4
+r x=14.05 y=44.05 w=1.89 h=1.89 f=c fo=0.4
+r x=20.05 y=44.05 w=1.89 h=1.89 f=c fo=0.4
+r x=26.05 y=44.05 w=1.89 h=1.89 f=c fo=0.4
+r x=32.05 y=44.05 w=1.89 h=1.89 f=c fo=0.4
+r x=38.05 y=44.05 w=1.89 h=1.89 f=c fo=0.4
+r x=2.05 y=54.05 w=1.89 h=1.89 f=c fo=0.4
+r x=8.05 y=54.05 w=1.89 h=1.89 f=c fo=0.4
+r x=14.05 y=54.05 w=1.89 h=1.89 f=c fo=0.4
+r x=20.05 y=54.05 w=1.89 h=1.89 f=c fo=0.4
+r x=26.05 y=54.05 w=1.89 h=1.89 f=c fo=0.4
+r x=32.05 y=54.05 w=1.89 h=1.89 f=c fo=0.4
+r x=38.05 y=54.05 w=1.89 h=1.89 f=c fo=0.4
+pg p=21,47.66,23.57,52.11,18.43,52.11 f=c
+c cx=3 cy=75 r=2.3 f=c
+l x1=21 y1=68 x2=21 y2=62.6 s=c sw=0.6
+pg p=21,61.4,19.8,63.48,22.2,63.48 f=c
+l x1=25.4 y1=63.4 x2=28.6 y2=66.6 s=c sw=0.8
+l x1=25.4 y1=66.6 x2=28.6 y2=63.4 s=c sw=0.8`,
+'Ratchet': `-1 -1 62 62
+r x=1.5 y=1.4 w=3 h=7.2 f=c
+r x=7.5 y=1.4 w=3 h=7.2 f=c
+r x=13.5 y=1.4 w=3 h=7.2 f=c
+r x=19.5 y=1.4 w=3 h=7.2 f=c
+r x=25.5 y=1.4 w=3 h=7.2 f=c
+r x=1.5 y=11.4 w=3 h=7.2 f=c
+r x=7.5 y=11.4 w=3 h=7.2 f=c
+r x=13.5 y=11.4 w=3 h=7.2 f=c
+r x=19.5 y=11.4 w=3 h=7.2 f=c
+l x1=45 y1=12.6 x2=45 y2=18 s=c sw=0.6
+pg p=45,11.4,46.2,13.48,43.8,13.48 f=c
+l x1=55 y1=13 x2=59 y2=17 s=c sw=0.8
+l x1=55 y1=17 x2=59 y2=13 s=c sw=0.8
+r x=1.5 y=21.4 w=3 h=7.2 f=c
+r x=7.5 y=21.4 w=3 h=7.2 f=c
+r x=13.5 y=21.4 w=3 h=7.2 f=c
+r x=1.5 y=31.4 w=3 h=7.2 f=c
+r x=7.5 y=31.4 w=3 h=7.2 f=c
+r x=1.5 y=41.4 w=3 h=7.2 f=c
+l x1=0 y1=54.1 x2=6 y2=54.1 s=c sw=0.6
+l x1=0 y1=55.9 x2=6 y2=55.9 s=c sw=0.6
+l x1=6 y1=54.1 x2=12 y2=54.1 s=c sw=0.6
+l x1=6 y1=55.9 x2=12 y2=55.9 s=c sw=0.6
+l x1=12 y1=54.1 x2=18 y2=54.1 s=c sw=0.6
+l x1=12 y1=55.9 x2=18 y2=55.9 s=c sw=0.6
+l x1=18 y1=54.1 x2=24 y2=54.1 s=c sw=0.6
+l x1=18 y1=55.9 x2=24 y2=55.9 s=c sw=0.6
+l x1=24 y1=54.1 x2=30 y2=54.1 s=c sw=0.6
+l x1=24 y1=55.9 x2=30 y2=55.9 s=c sw=0.6`,
+'Rehearse': `-1 -1 44 52
+ph d=M6.00,5.00 Q3.00,5.00 3.00,10.00 f=none s=c sw=0.6
+l x1=6 y1=5 x2=12 y2=5 s=c sw=0.6 da=1,1
+l x1=12 y1=5 x2=18 y2=5 s=c sw=0.6 da=1,1
+l x1=18 y1=5 x2=24 y2=5 s=c sw=0.6 da=1,1
+l x1=24 y1=5 x2=30 y2=5 s=c sw=0.6 da=1,1
+l x1=30 y1=5 x2=36 y2=5 s=c sw=0.6 da=1,1
+ph d=M36.00,5.00 Q39.00,5.00 39.00,10.00 f=none s=c sw=0.6
+l x1=3 y1=10 x2=3 y2=20 s=c sw=0.6 da=1.2,1.3
+r x=12.9 y=12.9 w=4.2 h=4.2 f=c
+r x=18.9 y=12.9 w=4.2 h=4.2 f=c
+r x=24.9 y=12.9 w=4.2 h=4.2 f=c
+l x1=39 y1=10 x2=39 y2=20 s=c sw=0.6 da=1.2,1.3
+ph d=M3.00,20.00 Q3.00,25.00 6.00,25.00 f=none s=c sw=0.6
+l x1=6 y1=25 x2=12 y2=25 s=c sw=0.6 da=1,1
+l x1=12 y1=25 x2=18 y2=25 s=c sw=0.6 da=1,1
+l x1=18 y1=25 x2=24 y2=25 s=c sw=0.6 da=1,1
+l x1=24 y1=25 x2=30 y2=25 s=c sw=0.6 da=1,1
+l x1=30 y1=25 x2=36 y2=25 s=c sw=0.6 da=1,1
+ph d=M39.00,20.00 Q39.00,25.00 36.00,25.00 f=none s=c sw=0.6
+l x1=21 y1=32 x2=21 y2=37.4 s=c sw=0.6
+pg p=21,38.6,19.8,36.52,22.2,36.52 f=c
+r x=12.9 y=42.9 w=4.2 h=4.2 f=c
+r x=18.9 y=42.9 w=4.2 h=4.2 f=c
+r x=24.9 y=42.9 w=4.2 h=4.2 f=c`,
+'Deprive': `-1 -1 44 72
+c cx=3 cy=5 r=2.3 f=c
+c cx=15 cy=5 r=2.3 f=c
+c cx=27 cy=5 r=2.3 f=c
+c cx=39 cy=5 r=2.3 f=c
+pg p=3,13,0.7,17,5.3,17 f=c
+pg p=15,13,12.7,17,17.3,17 f=c
+pg p=27,13,24.7,17,29.3,17 f=c
+pg p=39,13,36.7,17,41.3,17 f=c
+r x=0.9 y=22.9 w=4.2 h=4.2 f=c
+r x=12.9 y=22.9 w=4.2 h=4.2 f=c
+r x=24.9 y=22.9 w=4.2 h=4.2 f=c
+r x=36.9 y=22.9 w=4.2 h=4.2 f=c
+l x1=21 y1=32 x2=21 y2=37.4 s=c sw=0.6
+pg p=21,38.6,19.8,36.52,22.2,36.52 f=c
+c cx=3 cy=45 r=2.3 f=c
+c cx=15 cy=45 r=2.3 f=c
+c cx=27 cy=45 r=2.3 f=c
+c cx=39 cy=45 r=2.3 f=c
+r x=0.9 y=62.9 w=4.2 h=4.2 f=c
+r x=12.9 y=62.9 w=4.2 h=4.2 f=c
+r x=24.9 y=62.9 w=4.2 h=4.2 f=c
+r x=36.9 y=62.9 w=4.2 h=4.2 f=c`,
+'Conceal': `-1 -1 44 32
+c cx=3 cy=5 r=2.3 f=c
+pg p=15,3,12.7,7,17.3,7 f=c
+r x=24.9 y=2.9 w=4.2 h=4.2 f=c
+l x1=15 y1=12 x2=15 y2=17.4 s=c sw=0.6
+pg p=15,18.6,13.8,16.52,16.2,16.52 f=c
+c cx=3 cy=25 r=2.3 f=c
+r x=11.97 y=19.97 w=18.06 h=10.06 f=c fo=1
+r x=36.9 y=22.9 w=4.2 h=4.2 f=c`,
+'Freeze The Joint': `-1 -1 44 72
+pg p=3,3,0.7,7,5.3,7 f=c
+c cx=15 cy=5 r=2.3 f=c
+r x=24.9 y=2.9 w=4.2 h=4.2 f=c
+pg p=39,2.4,41.6,5,39,7.6,36.4,5 f=c
+l x1=6 y1=10 x2=12 y2=20 s=c sw=0.6
+l x1=30 y1=20 x2=36 y2=10 s=c sw=0.6
+l x1=12 y1=20 x2=18 y2=30 s=c sw=0.6
+l x1=24 y1=30 x2=30 y2=20 s=c sw=0.6
+r x=18.8 y=32.8 w=4.4 h=4.4 f=none s=c sw=0.6
+r x=19.8 y=33.8 w=2.4 h=2.4 f=c
+l x1=12 y1=50 x2=18 y2=40 s=c sw=0.6
+l x1=24 y1=40 x2=30 y2=50 s=c sw=0.6
+l x1=6 y1=60 x2=12 y2=50 s=c sw=0.6
+l x1=30 y1=50 x2=36 y2=60 s=c sw=0.6
+pg p=3,62.4,5.6,65,3,67.6,0.4,65 f=c
+c cx=15 cy=65 r=2 f=none s=c sw=0.6
+r x=25 y=63 w=4 h=4 f=none s=c sw=0.6
+pg p=39,63,36.7,67,41.3,67 f=c`,
+'Exaggerate': `-1 -1 44 82
+r x=7.11 y=3.11 w=3.78 h=3.78 f=c
+pg p=24,2.4,26.86,7.34,21.14,7.34 f=c
+c cx=39 cy=5 r=1.61 f=c
+r x=7.11 y=26.11 w=3.78 h=3.78 f=c
+pg p=24,23.84,28.58,31.74,19.42,31.74 f=c
+c cx=39 cy=28 r=1.61 f=c
+r x=7.11 y=53.11 w=3.78 h=3.78 f=c
+pg p=24,49.02,30.58,60.38,17.42,60.38 f=c
+c cx=39 cy=55 r=1.61 f=c
+l x1=24 y1=13.5 x2=24 y2=18.9 s=c sw=0.6
+pg p=24,20.1,22.8,18.02,25.2,18.02 f=c
+l x1=24 y1=38 x2=24 y2=43.4 s=c sw=0.6
+pg p=24,44.6,22.8,42.52,25.2,42.52 f=c
+l x1=0 y1=69.1 x2=42 y2=69.1 s=c sw=0.6
+l x1=0 y1=70.9 x2=42 y2=70.9 s=c sw=0.6`,
+'Run On Leftovers': `-1 -1 38 52
+py p=5.7,1,3.3,1,3.3,9,5.7,9 f=none s=c sw=0.6
+c cx=9 cy=5 r=2.3 f=c
+py p=12.3,1,14.7,1,14.7,9,12.3,9 f=none s=c sw=0.6
+l x1=18 y1=5 x2=22.4 y2=5 s=c sw=0.6
+pg p=24,5,21.92,6.2,21.92,3.8 f=c
+r x=24.9 y=2.9 w=4.2 h=4.2 f=c
+l x1=9 y1=12 x2=9 y2=17.4 s=c sw=0.6
+pg p=9,18.6,7.8,16.52,10.2,16.52 f=c
+c cx=9 cy=25 r=0.75 f=c
+c cx=21 cy=25 r=0.75 f=c
+c cx=33 cy=25 r=0.75 f=c
+l x1=9 y1=32 x2=9 y2=37.4 s=c sw=0.6
+pg p=9,38.6,7.8,36.52,10.2,36.52 f=c
+py p=5.7,41,3.3,41,3.3,49,5.7,49 f=none s=c sw=0.6
+c cx=9 cy=45 r=2 f=none s=c sw=0.6
+py p=12.3,41,14.7,41,14.7,49,12.3,49 f=none s=c sw=0.6
+l x1=18 y1=45 x2=22.4 y2=45 s=c sw=0.6
+pg p=24,45,21.92,46.2,21.92,43.8 f=c
+pg p=27,43,24.7,47,29.3,47 f=c`,
+};
+// Saturate and Dissolve And Rebuild repeat a few motifs, so they are built in code.
+(function () {
+  const L = [];
+  const frame = (x0, x1, y0, y1, step, out) => {
+    for (let x = x0; x <= x1; x += step) { out.push(`r x=${x - 0.3} y=${y0 - 0.3} w=0.6 h=0.6 f=c`, `r x=${x - 0.3} y=${y1 - 0.3} w=0.6 h=0.6 f=c`); }
+    out.push(`l x1=${x0} y1=${y0} x2=${x1} y2=${y0} s=c sw=0.6`, `l x1=${x0} y1=${y1} x2=${x1} y2=${y1} s=c sw=0.6`, `l x1=${x0} y1=${y0} x2=${x0} y2=${y1} s=c sw=0.6`, `l x1=${x1} y1=${y0} x2=${x1} y2=${y1} s=c sw=0.6`);
+    for (let y = y0 + 10; y < y1; y += 10) out.push(`r x=${x0 - 0.3} y=${y - 0.3} w=0.6 h=0.6 f=c`, `r x=${x1 - 0.3} y=${y - 0.3} w=0.6 h=0.6 f=c`);
+  };
+  const quad = (cx, cy, out) => { for (const [dx, dy] of [[-1.3, -1.3], [1.3, -1.3], [-1.3, 1.3], [1.3, 1.3]]) out.push(`c cx=${(cx + dx).toFixed(1)} cy=${(cy + dy).toFixed(1)} r=0.7 f=c`); };
+  const sat = ['-1 -1 56 52']; frame(3, 39, 5, 35, 6, sat);
+  for (const y of [15, 25]) for (const x of [9, 15, 21, 27, 33]) quad(x, y, sat);
+  for (const x of [45, 51]) quad(x, 35, sat);
+  for (const x of [39, 45, 51]) quad(x, 45, sat);
+  GLYPH_SRC['Saturate'] = sat.join('\n');
+  const dis = ['-1 -1 32 92']; frame(3, 27, 5, 25, 6, dis);
+  for (const x of [6.9, 12.9, 18.9]) dis.push(`r x=${x} y=12.9 w=4.2 h=4.2 f=c`);
+  dis.push('l x1=15 y1=32 x2=15 y2=37.4 s=c sw=0.6', 'pg p=15,38.6,13.8,36.52,16.2,36.52 f=c');
+  for (const [cx, up] of [[3, 1], [9, 0], [15, 1], [21, 0]]) { const p = up ? [[0, 43.6], [-1.4, 46.2], [1.4, 46.2]] : [[0, 46.4], [-1.4, 43.8], [1.4, 43.8]]; for (const [dx, y] of p) dis.push(`c cx=${cx + dx} cy=${y} r=0.7 f=c`); }
+  dis.push('l x1=15 y1=52 x2=15 y2=57.4 s=c sw=0.6', 'pg p=15,58.6,13.8,56.52,16.2,56.52 f=c');
+  for (const [cx, cy] of [[15, 65], [9, 75], [21, 75], [3, 85], [15, 85], [27, 85]]) dis.push(`c cx=${cx} cy=${cy} r=0.75 f=c`);
+  GLYPH_SRC['Dissolve And Rebuild'] = dis.join('\n');
+})();
+const GLYPH_TAG = { r: 'rect', c: 'circle', l: 'line', pg: 'polygon', py: 'polyline', ph: 'path' };
+const GLYPH_ATTR = { w: 'width', h: 'height', f: 'fill', s: 'stroke', sw: 'stroke-width', fo: 'fill-opacity', da: 'stroke-dasharray', p: 'points' };
+// k thickens the strokes when the glyph is drawn small
+function glyphSVG(op, cls, k) {
+  const src = GLYPH_SRC[op]; if (!src) return '';
+  const [vb, ...rows] = src.split('\n');
+  const body = rows.map(row => {
+    const toks = row.split(' '), tag = GLYPH_TAG[toks.shift()], attrs = [];
+    for (const t of toks) { if (t.includes('=')) attrs.push(t.split('=')); else attrs[attrs.length - 1][1] += ' ' + t; }
+    return `<${tag} ${attrs.map(([a, v]) => `${GLYPH_ATTR[a] || a}="${v === 'c' ? 'currentColor' : a === 'sw' && k ? +v * k : v}"`).join(' ')}/>`;
+  }).join('');
+  return `<svg class="${cls || 'glyph'}" viewBox="${vb}" aria-hidden="true" focusable="false">${body}</svg>`;
+}
+
+</script>
+<script>
+const MATS = [[0, 'Bath (Monks Park)', 1.4], [1, 'Caen-type limestone', 0.9], [5, 'Alabaster', 0.8], [2, 'Portland', 3.4], [3, 'St Bees sandstone', 4.2], [4, 'Carrara marble', 7.0]];
+const SIG = { 0: 1.4, 1: 0.9, 2: 3.4, 3: 4.2, 4: 7.0, 5: 0.8 };
+const HALF = [0.5, 1, 2, 3, 5, 8, 12, 20, 25, 30, 50, 100];
+const PLANTS = {
+  ficus: { pSust: 0.3, thickRate: 1, longevity: 12, seedHalf: 8, seedsPerCap: 16, germ: 0.4 },
+  robinia: { pSust: 0.35, thickRate: 1, longevity: 15, seedHalf: 25, seedsPerCap: 6, germ: 0.25 },
+  chicharo: { pSust: 0.5, thickRate: 4, longevity: 0.5, seedHalf: 20, seedsPerCap: 2, germ: 0.85, holeD: 1, bridge: 0.5 },
+};
+const G_STONE = 'Stone and slab', G_PLANT = 'Plant', G_SEED = 'Seeds and capsules', G_OUT = 'Outside', G_OTHER = 'Other';
+const BREAK_OPTS = [['ninguna', 'nothing'], ['semillas', 'seeds (like the capsule)'], ['nutrientes', 'nutrients'], ['acido', 'weak acid'], ['sal', 'salt'], ['inundar', 'extra water'], ['secante', 'desiccant'], ['tinta', 'ink on the glass'], ['resina', 'resin'], ['hormona', 'rooting hormone'], ['composta', 'compost']];
+const yrs1 = v => `${v} ${+v === 1 ? 'year' : 'years'}`;
+const PARAMS = [
+  { g: G_STONE, k: 'material', label: 'Stone', type: 'select', opts: MATS.map(([v, t, s]) => [v, `${t} · ${s} MPa`]), hint: 'Estimated tensile strength once wet. Bath is the softest stone with a working quarry in the UK. Alabaster dissolves and deforms over the years, and the model leaves that out.' },
+  { g: G_STONE, k: 'prep', label: 'Slab preparation', type: 'select', opts: [['orificios', 'Holes only'], ['ranuras', 'Holes and V-grooves'], ['junta', 'Cut and rejoined with lime']], hint: 'Grooves on both faces leave half the stone in each bridge. The joint swaps the stone for a weak bond.' },
+  { g: G_STONE, k: 'holeD', label: 'Hole diameter', min: 1, max: 6, step: 1, fmt: v => `${v} mm`, hint: 'A wide hole pushes harder, because the force is pressure times diameter, but the root takes longer to fill it.' },
+  { g: G_STONE, k: 'bridge', label: 'Stone between holes', min: 0.5, max: 20, step: 0.5, fmt: v => `${(+v).toFixed(1)} mm`, hint: 'What is left between two holes in the line. With a joint, it is the stretch of joint between holes.' },
+  { g: G_STONE, k: 'joint', label: 'Lime joint strength', min: 0.03, max: 0.3, step: 0.01, fmt: v => `${(+v).toFixed(2)} MPa`, hint: 'Only with the cut slab. If it is very low, the slab falls under its own weight.', only: 'junta' },
+  { g: G_PLANT, k: 'plant', label: 'Plant', type: 'select', opts: [['ficus', 'Indian laurel fig (Ficus)'], ['robinia', 'Robinia'], ['chicharo', 'Pea']], hint: 'Sets the values below for that plant. They change its life span, its seed and the temperature it likes.' },
+  { g: G_PLANT, k: 'pSust', label: 'Sustained root pressure', min: 0.1, max: 1, step: 0.05, fmt: v => `${(+v).toFixed(2)} MPa`, hint: 'Measured: 0.2 to 0.4 over years. Above that, woody roots flatten. Short peaks reach 1.' },
+  { g: G_PLANT, k: 'thickRate', label: 'Root thickening', min: 0.25, max: 4, step: 0.25, fmt: v => `${(+v).toFixed(2)} mm/year`, hint: 'The figure still to be measured. The best guess for a small woody plant is 0.5 to 2 mm a year.' },
+  { g: G_PLANT, k: 'longevity', label: 'Life of a plant', min: 0.5, max: 25, step: 0.5, fmt: v => yrs1(v), hint: 'More life, more years of pushing.' },
+  { g: G_PLANT, k: 'temp', label: 'Box temperature', min: 14, max: 28, step: 1, fmt: v => `${v} °C`, hint: 'The fig wants more than 20 °C. Each degree above 21 °C takes about 11% off the life of the seed.' },
+  { g: G_SEED, k: 'seedHalf', label: 'Seed half-life at 20 °C', type: 'stops', stops: HALF, fmt: v => yrs1(v), hint: 'Years in which the dry, sealed seed loses half its germination. Fig: about 8 (2 to 30). Robinia: about 25 (10 to 100). Estimated, not yet measured.' },
+  { g: G_SEED, k: 'capMix', label: 'Capsule contents', type: 'select', opts: [['misma', 'Only the chosen plant'], ['mezcla', 'Mixed with Robinia (or with fig)']], hint: 'In the mix, 3 seeds in 10 are of the other species, with their own values. It is what the seed report proposes.' },
+  { g: G_SEED, k: 'seedsPerCap', label: 'Seeds per capsule', min: 1, max: 20, step: 1, fmt: v => `${v}`, hint: 'Fig seeds are 1 mm: dozens fit in a 1 ml ampoule.' },
+  { g: G_SEED, k: 'germ', label: 'Fresh seed germination', min: 0.05, max: 1, step: 0.05, fmt: v => `${Math.round(v * 100)}%`, hint: 'Figs on stone: 30 to 40%. With a small cavity of sand, more.' },
+  { g: G_SEED, k: 'capFrag', label: 'Capsule fragility', min: 0, max: 1, step: 0.05, fmt: v => `${Math.round(v * 100)}%`, hint: 'Roots can\'t break glass: only a fall breaks the capsules. The drop test will tell what this value is.' },
+  { g: G_OUT, k: 'lightMode', label: 'Light', type: 'select', opts: [['led', 'LED lamp on a timer'], ['londres', 'Natural London light, north-facing window']], hint: 'In London, winter light can drop to an eighth of summer light. The box starts on 1 April.' },
+  { g: G_OUT, k: 'outside', label: 'Who breaks the ampoules', type: 'select', opts: [['urna', 'The urn: anyone pays and chooses in secret'], ['reglas', 'Rules: donations and indices'], ['ninguno', 'Nobody']], hint: 'With the urn, who paid and how much is public. What they chose is known when the urn opens.' },
+  { g: G_OUT, k: 'uVisitors', label: 'People who think about it each week', min: 0, max: 200, step: 5, fmt: v => `${v}`, hint: 'People who see the box and wonder whether to pay.', when: c => c.outside === 'urna' },
+  { g: G_OUT, k: 'uWtp', label: 'What a typical person would pay', min: 1, max: 50, step: 1, fmt: v => `£${v}`, hint: 'A few would pay much more. Someone who wants it to live pays up to three times as much when they see it dying.', when: c => c.outside === 'urna' },
+  { g: G_OUT, k: 'uSiga', label: 'Want it to live', min: 0, max: 1, step: 0.05, fmt: v => `${Math.round(v * 100)}%`, hint: 'They choose seeds.', when: c => c.outside === 'urna' },
+  { g: G_OUT, k: 'uMuera', label: 'Want it to die', min: 0, max: 1, step: 0.05, fmt: v => `${Math.round(v * 100)}%`, hint: 'They choose salt. The rest pay for the gesture and choose water.', when: c => c.outside === 'urna' },
+  { g: G_OUT, k: 'uP0', label: 'Starting price', type: 'stops', stops: [1, 5, 10, 20, 50, 100, 250, 500], fmt: v => `£${v}`, hint: 'It doubles with each purchase.', when: c => c.outside === 'urna' },
+  { g: G_OUT, k: 'uQuiet', label: 'Halves after', type: 'stops', stops: [3, 6, 12, 24, 36, 100000], fmt: v => +v >= 100000 ? 'never halves' : `${v} months with no purchases`, hint: 'Without this rule, the urn freezes within a few years.', when: c => c.outside === 'urna' },
+  { g: G_OUT, k: 'uReveal', label: 'The urn opens every', min: 1, max: 10, step: 1, fmt: v => yrs1(v), hint: 'Whatever is bought after an opening stays secret until the next one.', when: c => c.outside === 'urna' },
+  { g: G_OUT, k: 'uSeeds', label: 'Seed ampoules', min: 5, max: 80, step: 5, fmt: v => `${v}`, hint: 'When they run out, nobody can revive the box. With 30 against 20 of salt, each side wins equally often when it is the majority.', when: c => c.outside === 'urna' },
+  { g: G_OUT, k: 'uSalt', label: 'Salt ampoules', min: 0, max: 50, step: 5, fmt: v => `${v}`, hint: 'All of them together, at 0.13 g each, would take the water to 5.2 g/L.', when: c => c.outside === 'urna' },
+  { g: G_OUT, k: 'uOps', label: 'Ampoules of each other operation', min: 0, max: 20, step: 1, fmt: v => `${v}`, hint: 'Extra water, desiccant, ink, resin, hormone, compost and acid. In the simulation only you break these; the invented public chooses between the usual three.', when: c => c.outside === 'urna' },
+  { g: G_OUT, k: 'uWater', label: 'Water ampoules', min: 0, max: 50, step: 5, fmt: v => `${v}`, hint: 'For people who pay only for the gesture.', when: c => c.outside === 'urna' },
+  { g: G_OUT, k: 'rent', label: 'Rent for the space', type: 'stops', stops: [0, 50, 100, 200, 400, 800], fmt: v => +v === 0 ? 'no rent' : `£${v} a month`, hint: 'Paid from what the urn raises. If the fund runs out, the box is removed.', when: c => c.outside === 'urna' },
+  { g: G_OUT, k: 'fund0', label: 'Starting fund', type: 'stops', stops: [0, 300, 600, 1200, 2400, 6000], fmt: v => `£${(+v).toLocaleString('en-GB')}`, hint: 'What you put in before opening the box.', when: c => c.outside === 'urna' && c.rent > 0 },
+  { g: G_OUT, k: 'saltG', label: 'Salt in each ampoule', type: 'stops', stops: [0.05, 0.09, 0.13, 0.18, 0.36, 0.72], fmt: v => `${v} g`, hint: 'In half a litre of water. With 0.13 g, a public split in two leaves half the boxes alive.', when: c => c.outside !== 'ninguno' },
+  { g: G_OUT, when: c => c.outside === 'reglas', k: 'r1t', label: 'Donations: every £1,000 breaks one of', type: 'select', opts: BREAK_OPTS, hint: 'The ampoules hang from a rail under the lid: 15 per rule.' },
+  { g: G_OUT, when: c => c.outside === 'reglas', k: 'r1f', label: 'Donations a year', min: 0, max: 6, step: 0.5, fmt: v => +v === 0 ? 'none' : `£${(v * 1000).toLocaleString('en-GB')}`, hint: 'Every £1,000 breaks one ampoule of this rule.' },
+  { g: G_OUT, when: c => c.outside === 'reglas', k: 'r2t', label: 'If the index gets worse, break one of', type: 'select', opts: BREAK_OPTS, hint: 'An environmental index, such as the air or the river, or one chosen by people in the neighbourhood.' },
+  { g: G_OUT, when: c => c.outside === 'reglas', k: 'r2f', label: 'Times it gets worse each year', min: 0, max: 6, step: 0.5, fmt: v => +v === 0 ? 'never' : `${v}`, hint: 'On average; the exact moment is random.' },
+  { g: G_OUT, when: c => c.outside === 'reglas', k: 'r3t', label: 'If the index gets better, break one of', type: 'select', opts: BREAK_OPTS, hint: 'The same idea the other way round.' },
+  { g: G_OUT, when: c => c.outside === 'reglas', k: 'r3f', label: 'Times it gets better each year', min: 0, max: 6, step: 0.5, fmt: v => +v === 0 ? 'never' : `${v}`, hint: 'On average; the exact moment is random.' },
+  { g: G_OTHER, k: 'selfSeed', label: 'Plants set seed', min: 0, max: 3, step: 0.5, fmt: v => +v === 0 ? 'no' : `× ${(+v).toFixed(1)}`, hint: 'Figs don\'t set seed in the UK: the wasp that pollinates them isn\'t here. With "no", the capsules are the only source.' },
+  { g: G_OTHER, k: 'rust', label: 'Supports that rust', min: 0, max: 40, step: 1, fmt: v => +v === 0 ? 'no' : `~${v} years`, hint: 'Metal supports give way over time, as in #17.' },
+];
+const LAYOUTS = {
+  pisosR: { name: 'Redesigned floors', engine: { layout: 'pisos', capMode: 'encima' }, defaults: { rust: 0 } },
+  linea: { name: 'One line per slab', engine: { layout: 'linea' }, defaults: { rust: 0 } },
+  pisos: { name: 'Original floors', engine: { layout: 'pisos', capMode: 'debajo' }, defaults: { rust: 0 } },
+  ciclo: { name: 'Cycle', engine: { layout: 'ciclo' }, defaults: { rust: 0 } },
+  columna: { name: 'Column', engine: { layout: 'columna' }, defaults: { seedsPerCap: 1, rust: 20 } },
+};
+const engineCfg = c => Object.assign({}, c, LAYOUTS[c.layout].engine, c.outside === 'reglas' ? {} : { r1f: 0, r2f: 0, r3f: 0 });
+const SWEEP = [
+  { k: 'holeD', values: [1, 2, 3, 4, 5, 6] },
+  { k: 'bridge', values: [0.5, 1, 1.5, 2, 3, 5] },
+  { k: 'seedHalf', values: [1, 2, 5, 8, 12, 30] },
+  { k: 'capMix', values: ['misma', 'mezcla'] },
+  { k: 'lightMode', values: ['led', 'londres'] },
+  { k: 'r1f', values: [0, 0.5, 1, 2, 4, 6] },
+  { k: 'r2f', values: [0, 0.5, 1, 2, 4, 6] },
+  { k: 'r3f', values: [0, 0.5, 1, 2, 4, 6] },
+  { k: 'uSiga', values: [0.15, 0.3, 0.45, 0.55, 0.65, 0.8] },
+  { k: 'saltG', values: [0.05, 0.09, 0.18, 0.36, 0.72] },
+  { k: 'uQuiet', values: [3, 6, 12, 24, 36, 100000] },
+  { k: 'temp', values: [15, 18, 20, 22, 24, 27] },
+  { k: 'thickRate', values: [0.25, 0.5, 1, 1.5, 2, 3] },
+  { k: 'pSust', values: [0.15, 0.2, 0.3, 0.4, 0.6, 1] },
+  { k: 'longevity', values: [4, 8, 12, 16, 20, 25] },
+  { k: 'material', values: [5, 1, 0, 2, 3, 4] },
+  { k: 'joint', values: [0.04, 0.06, 0.1, 0.15, 0.2, 0.3] },
+  { k: 'seedsPerCap', values: [2, 4, 8, 12, 16, 20] },
+  { k: 'germ', values: [0.1, 0.2, 0.3, 0.4, 0.6, 0.8] },
+  { k: 'capFrag', values: [0.1, 0.3, 0.5, 0.65, 0.8, 0.95] },
+];
+
+const cfg = { layout: 'pisosR', material: 0, prep: 'ranuras', holeD: 3, bridge: 1, joint: 0.12, plant: 'ficus', pSust: 0.3, thickRate: 1, longevity: 12, temp: 21,
+  seedHalf: 8, seedsPerCap: 16, germ: 0.4, capFrag: 0.5, capMix: 'mezcla', lightMode: 'led', r1t: 'semillas', r1f: 0.5, r2t: 'acido', r2f: 0.5, r3t: 'nutrientes', r3f: 0.5, selfSeed: 0, rust: 0, seed: 7919,
+  outside: 'urna', uVisitors: 40, uWtp: 4, uSiga: 0.45, uMuera: 0.35, uP0: 20, uQuiet: 12, uReveal: 5, uPerType: 20, uSeeds: 30, uSalt: 20, uWater: 20, uOps: 10, saltG: 0.13, rent: 100, fund0: 1200 };
+let sim, playing = true, autoPaused = false;
+const $ = id => document.getElementById(id);
+const DEF_HALF = { ficus: 8, robinia: 25, chicharo: 20 };
+const erf = x => { const t = 1 / (1 + 0.3275911 * Math.abs(x)); const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return x >= 0 ? y : -y; };
+const PHI = z => 0.5 * (1 + erf(z / Math.SQRT2));
+const isNum = p => p.type !== 'select' || typeof p.opts[0][0] === 'number';
+const readVal = (p, el) => p.type === 'stops' ? p.stops[+el.value] : isNum(p) ? +el.value : el.value;
+
+// ---------- settings ----------
+const SHORT = { material: { 0: 'Bath', 1: 'Caen type', 2: 'Portland', 3: 'St Bees', 4: 'Marble', 5: 'Alabaster' }, lightMode: { led: 'LED', londres: 'London' }, capMix: { misma: 'one species', mezcla: 'mix' } };
+function fmtOf(p, v) { return p.type === 'select' ? p.opts.find(o => String(o[0]) === String(v))[1] : p.fmt(v); }
+function fmtShort(p, v) { return SHORT[p.k] ? SHORT[p.k][v] : fmtOf(p, v); }
+const groups = [...new Set(PARAMS.map(p => p.g))];
+$('params').innerHTML = groups.map(g => `<div class="group"><h3>${g}</h3><div class="params">${PARAMS.filter(p => p.g === g).map(p => {
+  const ctl = p.type === 'select'
+    ? `<select id="p-${p.k}">${p.opts.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select>`
+    : p.type === 'stops' ? `<input type="range" id="p-${p.k}" min="0" max="${p.stops.length - 1}" step="1">`
+    : `<input type="range" id="p-${p.k}" min="${p.min}" max="${p.max}" step="${p.step}">`;
+  return `<div class="prm" id="w-${p.k}"><label for="p-${p.k}">${p.label}${p.type === 'select' ? '' : `<output id="o-${p.k}"></output>`}</label>${ctl}<small>${p.hint}</small></div>`;
+}).join('')}</div>${g === G_STONE ? '<p class="calc" id="calcStone"></p>' : g === G_SEED ? '<p class="calc" id="calcSeed"></p>' : g === G_OUT ? '<p class="calc" id="calcOut"></p>' : ''}</div>`).join('');
+function nearestStop(p, v) { let bi = 0; p.stops.forEach((s, i) => { if (Math.abs(s - v) < Math.abs(p.stops[bi] - v)) bi = i; }); return bi; }
+function calcNotes() {
+  const sig = cfg.prep === 'junta' ? cfg.joint : SIG[cfg.material], g = cfg.prep === 'ranuras' ? 0.5 : 1, d = Math.max(1, Math.round(cfg.holeD));
+  const r = cfg.pSust * d / (sig * g * cfg.bridge), n = Math.max(1, Math.floor((150 - 2 - d) / (d + cfg.bridge)) + 1);
+  const el = $('calcStone');
+  const heavy = cfg.prep === 'junta' && cfg.joint * cfg.bridge * 0.8 < 0.02 * 150 / (n + 1);
+  if (heavy) { el.className = 'calc bad'; el.textContent = `The joint is so weak that the slab can't hold its own weight: it falls by itself at the start.`; }
+  else {
+    el.className = 'calc ' + (r >= 1 ? 'good' : 'bad');
+    el.textContent = `Root against bridge: ${r.toFixed(2)}. A root that fills its hole pushes ${r.toFixed(2)} times what a bridge can resist. ` +
+      (r >= 1 ? 'Two full neighbouring holes are enough to open the first bridge, and the crack runs.' : cfg.prep === 'junta' ? 'Below 1, the joint only gives way at its weakest stretches.' : 'Below 1, the line only gives way where the stone has a weak vein.') + ` The line has ${n} holes in 15 cm.`;
+  }
+  const tf = Math.pow(10, -0.0329 * (cfg.temp - 20) - 0.000478 * (cfg.temp * cfg.temp - 400));
+  const vOf = (h20, y) => Math.min(1, PHI(1.645 - 1.708 * y / (h20 * tf)) / 0.95);
+  const pct = x => { x *= 100; return x >= 10 ? `${Math.round(x)}%` : x >= 1 ? `${x.toFixed(1)}%` : 'under 1%'; };
+  const line = (h20, who) => `${who} keeps ${pct(vOf(h20, 3))} of its germination after 3 years, ${pct(vOf(h20, 6))} after 6 and ${pct(vOf(h20, 12))} after 12.`;
+  const partner = cfg.plant === 'robinia' ? 'ficus' : 'robinia', NAMES = { ficus: 'the fig', robinia: 'Robinia', chicharo: 'the pea' };
+  $('calcSeed').className = 'calc';
+  $('calcSeed').textContent = `At ${cfg.temp} °C, ${line(cfg.seedHalf, 'a sealed seed')}` + (cfg.capMix === 'mezcla' ? ` In the mix, ${line(DEF_HALF[partner], NAMES[partner])}` : '') + ' The seed hardly dies during a plateau and then drops fast.';
+  $('w-joint').classList.toggle('off', cfg.prep !== 'junta');
+  for (const p of PARAMS) if (p.when) $(`w-${p.k}`).hidden = !p.when(cfg);
+  const co = $('calcOut');
+  if (cfg.outside === 'urna') co.textContent = `Live: an ampoule of ${cfg.seedsPerCap} seeds falls from the rail and they germinate where they land. Die: salt; it harms the roots where it falls and drains into the water, where it stays for good, because the box is closed. From 1.5 g/L the plants that drink from it suffer, and from 5 g/L nothing germinates. Each ampoule adds ${(cfg.saltG / 0.5).toFixed(2)} g/L. Nothing: plain water. The price doubles with each purchase and ${cfg.uQuiet >= 100000 ? 'never halves' : 'halves after ' + cfg.uQuiet + ' months with no purchases'}.` + (cfg.rent > 0 ? ` Everything paid goes into a fund that pays £${cfg.rent} rent a month; if the fund runs out, the box is removed.` : '');
+  else if (cfg.outside === 'reglas') co.textContent = 'Seeds: they fall from the rail and germinate where they land. Nutrients: half a year of extra vigour for every plant. Weak acid: dissolves the limestone where it falls, weakens nearby lines of holes and harms roots. Salt: harms roots where it falls and drains into the water, where it builds up: the box is closed and the salt never leaves.';
+  else co.textContent = 'Nobody breaks ampoules from outside: the box depends only on its own capsules.';
+  $('buyBox').hidden = cfg.outside !== 'urna'; $('urnaBox').hidden = cfg.outside !== 'urna';
+}
+function syncInputs() {
+  for (const p of PARAMS) {
+    const el = $(`p-${p.k}`); el.value = p.type === 'stops' ? nearestStop(p, cfg[p.k]) : cfg[p.k];
+    const out = $(`o-${p.k}`); if (out) out.textContent = p.fmt(cfg[p.k]);
+  }
+  document.querySelectorAll('#layoutSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.l === cfg.layout ? 'true' : 'false'));
+  calcNotes();
+}
+for (const p of PARAMS) {
+  const el = $(`p-${p.k}`);
+  el.addEventListener('input', () => { const out = $(`o-${p.k}`); if (out) out.textContent = p.fmt(readVal(p, el)); });
+  el.addEventListener('change', () => {
+    cfg[p.k] = readVal(p, el);
+    if (p.k === 'plant') Object.assign(cfg, cfg.plant === 'chicharo' ? PLANTS.chicharo : Object.assign({}, PLANTS[cfg.plant], cfg.holeD <= 1 ? { holeD: 3, bridge: 1 } : {}));
+    if (p.k === 'prep') { if (cfg.prep === 'junta') { cfg.bridge = 12; cfg.holeD = Math.max(cfg.holeD, 5); } else cfg.bridge = Math.min(cfg.bridge, 2); }
+    syncInputs(); restart();
+  });
+}
+$('layoutSeg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  cfg.layout = b.dataset.l; Object.assign(cfg, LAYOUTS[cfg.layout].defaults); syncInputs(); restart();
+});
+$('sweepKey').innerHTML = SWEEP.map(s => `<option value="${s.k}">${PARAMS.find(p => p.k === s.k).label}</option>`).join('');
+
+// ---------- drawing ----------
+const box = $('box'), bctx = box.getContext('2d');
+const off = document.createElement('canvas'); off.width = 160; off.height = 200;
+const octx = off.getContext('2d'); const img = octx.createImageData(160, 200);
+const MATCOL = [[214, 194, 146], [230, 218, 184], [222, 219, 204], [178, 98, 74], [229, 229, 223], [238, 233, 216]];
+const CRACKC = [184, 67, 44];
+const EXTC = { semillas: '120,84,40', nutrientes: '79,140,52', acido: '214,170,30', sal: '170,176,182', agua: '63,127,166', inundar: '47,108,156', secante: '170,130,70', tinta: '43,47,58', resina: '200,120,30', hormona: '150,70,130', composta: '91,70,48' };
+let AIRC = [246, 245, 240], WATC = [207, 224, 236];
+// with the urn, an ampoule's colour only shows when the urn opens, or with "see what nobody sees"
+const buyOf = e => e.buy && sim.buys ? sim.buys[e.buy - 1] : null;
+const shown = b => !b || b.open || b.human || ($('peek') && $('peek').checked);
+function extCol(e) { const b = buyOf(e); return shown(b) ? (EXTC[e.t] || '90,120,150') : '150,160,170'; }
+function hexRGB(h) { h = h.trim(); if (h.startsWith('#')) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; } return null; }
+function readTheme() {
+  const cs = getComputedStyle(document.documentElement);
+  AIRC = hexRGB(cs.getPropertyValue('--box-air')) || AIRC; WATC = hexRGB(cs.getPropertyValue('--box-water')) || WATC;
+  const m = MATCOL[cfg.material]; $('lgStone').style.background = `rgb(${m})`; $('lgHole').style.background = `rgb(${m.map((v, j) => Math.round(v * 0.45 + AIRC[j] * 0.55))})`;
+  $('lgWater').style.background = `rgb(${WATC})`;
+}
+const mq = matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', readTheme);
+new MutationObserver(readTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+function sizeCanvas() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1), w = box.clientWidth || 480;
+  box.width = Math.round(w * dpr); box.height = Math.round(w * 1.25 * dpr);
+  const ln = $('line'); ln.width = Math.round((ln.clientWidth || w) * dpr); ln.height = Math.round(76 * dpr);
+}
+if (window.ResizeObserver) new ResizeObserver(sizeCanvas).observe(box);
+sizeCanvas();
+
+function drawBox() {
+  const S = sim, { W, H, type, mat, dmg, str, thick, holeOf, holes, life } = S, d = img.data, wt = S.waterTop, wk = S.week;
+  const hc = MATCOL[cfg.material].map((v, j) => v * 0.45 + AIRC[j] * 0.55);
+  for (let i = 0; i < W * H; i++) {
+    const t = type[i], y = (i / W) | 0; let c, k = 1;
+    switch (t) {
+      case 0: { const h = holeOf[i] >= 0 ? holes[holeOf[i]] : null; if (h && h.intact) { const f = h.line ? 0.85 * h.line.broken / (h.line.n + 1) : 0; c = f > 0 ? hc.map((v, j) => v + (CRACKC[j] - v) * f) : hc; } else c = y >= wt ? WATC : AIRC; break; }
+      case 1: c = [150, 186, 200]; break;
+      case 2: { const f = life[i] > 1e11 ? 0 : Math.min(1, wk / life[i]); c = [107 + 70 * f * f, 107 - 20 * f * f, 102 - 50 * f * f]; break; }
+      case 3: c = MATCOL[mat[i]]; k = (1 - 0.45 * Math.min(1, dmg[i])) * (0.9 + 0.1 * Math.min(1.2, str[i]) / 1.2); break;
+      case 4: { const f = Math.min(1, thick[i] / 3); c = [196 - 70 * f, 82 - 40 * f, 56 - 30 * f]; break; }
+      case 5: c = [112, 100, 88]; break;
+      case 6: c = [86, 140, 58]; break;
+      case 7: c = [58, 36, 18]; break;
+      case 8: c = [126, 195, 224]; break;
+      default: c = AIRC;
+    }
+    const o = i * 4; d[o] = c[0] * k; d[o + 1] = c[1] * k; d[o + 2] = c[2] * k; d[o + 3] = 255;
+  }
+  octx.putImageData(img, 0, 0);
+  const cw = box.width, ch = box.height, s = cw / W;
+  bctx.imageSmoothingEnabled = false;
+  bctx.clearRect(0, 0, cw, ch);
+  bctx.drawImage(off, 0, 0, cw, ch);
+  // leaves
+  const tt = performance.now() / 1000;
+  for (const p of S.plants) {
+    if (!p.alive || p.height < 3) continue;
+    const x = (p.x + 0.5) * s, y = (((p.top / W) | 0) + 0.5) * s;
+    const vig = Math.min(1, p.energy / 2.2), n = 2 + Math.round(vig * 4);
+    bctx.strokeStyle = p.sp === 'robinia' ? 'rgba(150,160,48,0.95)' : p.sp === 'chicharo' ? 'rgba(96,150,90,0.95)' : 'rgba(78,128,52,0.95)'; bctx.lineWidth = Math.max(1.5, s * 0.9); bctx.lineCap = 'round';
+    for (let k = 0; k < n; k++) {
+      const side = k % 2 ? 1 : -1, len = (7 + 9 * vig) * s * (0.7 + 0.3 * ((p.id * 7 + k * 13) % 10) / 10), lift = (k / n) * 6 * s;
+      const dx = REDUCED ? 0 : (Math.sin(tt * 0.9 + p.id * 1.7) * 0.6 + Math.sin(tt * 2.3 + p.id) * 0.25) * (0.35 + vig) * len * 0.12;
+      bctx.beginPath(); bctx.moveTo(x, y + lift);
+      bctx.quadraticCurveTo(x + side * len * 0.55 + dx * 0.5, y + lift - len * 0.45, x + side * len + dx, y + lift + len * 0.25);
+      bctx.stroke();
+    }
+  }
+  // with London light, the box darkens with the daylight of the season
+  if (cfg.lightMode === 'londres') { const st = sim.stats(); bctx.fillStyle = `rgba(20,24,30,${(0.32 * Math.max(0, 1 - st.season)).toFixed(3)})`; bctx.fillRect(0, 0, cw, ch); }
+  // if it was removed, the box goes dark
+  if (sim.stats().ending === 'quitada') { bctx.fillStyle = 'rgba(20,24,30,0.62)'; bctx.fillRect(0, 0, cw, ch); bctx.fillStyle = '#f2f3ef'; bctx.font = `600 ${Math.round(14 * s / 3)}px "IBM Plex Mono", monospace`; bctx.textAlign = 'center'; bctx.fillText('removed: not enough for the rent', cw / 2, ch / 2); bctx.textAlign = 'left'; }
+  if (!REDUCED) { const tw = performance.now() / 1000; bctx.fillStyle = 'rgba(40,70,100,0.28)'; for (let xx = 0; xx < W; xx++) if (type[wt * W + xx] === 0 && holeOf[wt * W + xx] < 0) { const dy = Math.sin(xx * 0.45 + tw * 1.1) * 0.35 + Math.sin(xx * 0.17 - tw * 0.6) * 0.25; bctx.fillRect(xx * s, (wt + dy) * s, s + 0.5, Math.max(1, s * 0.45)); } }
+  // the salt crust at the waterline shows how much salt there is; it says nothing of who put it there
+  { const sal = sim.salinity; if (sal > 0.05) { const hh = Math.min(5, 0.35 + 0.8 * sal) * s, yy = wt * s; for (let x = 1; x < W - 1; x++) { const j = (Math.sin(x * 1.7) + Math.sin(x * 0.43)) * 0.18 * hh; bctx.fillStyle = 'rgb(214,219,226)'; bctx.fillRect(x * s, yy - hh - j, s + 0.5, hh + j); if ((x * 7) % 5 < 2) { bctx.fillStyle = 'rgb(160,168,178)'; bctx.fillRect(x * s, yy - hh - j, s * 0.6, s * 0.6); } } } }
+  // ink on the glass: what is in shade can't be seen from outside either
+  if (S.shade) { bctx.fillStyle = 'rgba(28,32,42,0.72)'; for (let x = 0; x < W; x++) if (S.shade[x] < 1) bctx.fillRect(x * s, 0, s + 0.5, ch); }
+  // the rail of ampoules under the lid
+  if (cfg.outside === 'urna') { const st = sim.stats(); const left = Object.values(st.urna.stock).reduce((a, b) => a + b, 0), step = Math.min(2.55, 150 / Math.max(1, left));
+    for (let k = 0; k < left; k++) { const x0 = (5 + k * step) * s, y0 = 2.2 * s; bctx.fillStyle = 'rgb(150,160,170)'; bctx.fillRect(x0 + 0.5 * s, y0 + 1.2 * s, Math.max(1, Math.min(1.4, step - 0.8)) * s, 2.6 * s); bctx.strokeStyle = 'rgba(126,195,224,0.95)'; bctx.lineWidth = Math.max(1, 0.35 * s); bctx.strokeRect(x0, y0, Math.max(1.2, Math.min(2.4, step - 0.2)) * s, 4.4 * s); } }
+  if (cfg.outside === 'reglas') { const st = sim.stats(); st.rules.forEach((r, gi) => {
+      if (r.t === 'ninguna') return;
+      for (let k = 0; k < r.left; k++) {
+        const x0 = (6 + gi * 52 + k * 3.1) * s, y0 = 2.2 * s;
+        bctx.fillStyle = `rgb(${EXTC[r.t]})`; bctx.fillRect(x0 + 0.5 * s, y0 + 1.2 * s, 1.4 * s, 2.6 * s);
+        bctx.strokeStyle = 'rgba(126,195,224,0.95)'; bctx.lineWidth = Math.max(1, 0.35 * s); bctx.strokeRect(x0, y0, 2.4 * s, 4.4 * s);
+      }
+    }); }
+  // what just happened
+  for (let k = S.events.length - 1; k >= 0; k--) {
+    const e = S.events[k], age = wk - e.w; if (age > 10) break;
+    const a = 1 - age / 10, r = (4 + age * 1.5) * s;
+    bctx.strokeStyle = e.k === 'ext' ? `rgba(${extCol(e)},${a})` : e.k === 'cap' ? `rgba(184,67,44,${a})` : e.k === 'hole' ? `rgba(167,116,18,${a})` : `rgba(35,40,42,${a * 0.7})`;
+    bctx.lineWidth = 2 * s * 0.6; bctx.beginPath(); bctx.arc((e.x + 0.5) * s, (e.y + 0.5) * s, r, 0, Math.PI * 2); bctx.stroke();
+  }
+}
+
+function drawLine() {
+  const c = $('line'), x = c.getContext('2d'), w = c.width, h = c.height, dpr = w / (c.clientWidth || 480);
+  const cs = getComputedStyle(document.documentElement);
+  const ink = cs.getPropertyValue('--ink').trim(), muted = cs.getPropertyValue('--muted').trim(), life = cs.getPropertyValue('--life').trim(), crack = cs.getPropertyValue('--crack').trim(), line = cs.getPropertyValue('--line').trim();
+  x.clearRect(0, 0, w, h);
+  const yrs = Math.max(10, Math.ceil(sim.week / 52 / 5) * 5), pad = 4 * dpr, top = 12 * dpr, bot = h - 16 * dpr;
+  const X = wk => pad + (w - 2 * pad) * wk / (yrs * 52);
+  const hist = sim.hist, maxA = Math.max(4, ...hist);
+  x.strokeStyle = line; x.lineWidth = 1 * dpr; x.beginPath(); x.moveTo(pad, bot + 0.5); x.lineTo(w - pad, bot + 0.5); x.stroke();
+  x.fillStyle = muted; x.font = `${10.5 * dpr}px "IBM Plex Mono", monospace`;
+  for (let yv = 0; yv <= yrs; yv += 5) { const px = X(yv * 52); x.fillRect(px, bot, 1 * dpr, 4 * dpr); x.fillText(`${yv}`, Math.min(px + 2 * dpr, w - 18 * dpr), h - 3 * dpr); }
+  x.fillText(`living plants · max ${maxA}`, pad, 9 * dpr);
+  if (hist.length > 1) {
+    x.beginPath(); x.moveTo(X(0), bot);
+    hist.forEach((v, k) => x.lineTo(X((k + 1) * 4), bot - (bot - top) * v / maxA));
+    x.lineTo(X(hist.length * 4), bot); x.closePath();
+    x.globalAlpha = 0.22; x.fillStyle = life; x.fill(); x.globalAlpha = 1;
+    x.beginPath(); hist.forEach((v, k) => { const px = X((k + 1) * 4), py = bot - (bot - top) * v / maxA; k ? x.lineTo(px, py) : x.moveTo(px, py); });
+    x.strokeStyle = life; x.lineWidth = 1.6 * dpr; x.stroke();
+  }
+  for (const e of sim.events) {
+    if (e.k === 'fall') continue;
+    if (e.k === 'ext') { x.fillStyle = `rgb(${extCol(e)})`; x.fillRect(X(e.w) - 1.25 * dpr, bot - 7 * dpr, 2.5 * dpr, 7 * dpr); continue; }
+    x.fillStyle = e.k === 'cap' ? crack : cs.getPropertyValue('--sun').trim();
+    x.fillRect(X(e.w) - 0.75 * dpr, top - 2 * dpr, 1.5 * dpr, 6 * dpr);
+  }
+  x.fillStyle = ink; x.fillRect(X(sim.week), top - 4 * dpr, 1 * dpr, bot - top + 4 * dpr);
+}
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const fmtV = v => `${v >= 0.1 ? Math.round(v * 100) : v >= 0.01 ? (v * 100).toFixed(1) : '<1'}%`;
+function readout() {
+  const s = sim.stats();
+  const items = [
+    [`${Math.floor(s.years)}`, `year · ${MONTHS.at(Math.floor(((s.week % 52.18) / 52.18) * 12 + 3) % 12)}${cfg.lightMode === 'londres' ? ` · light ${Math.round(s.season * 100)}%` : ''}`],
+    ...(cfg.outside === 'urna' ? [[`£${s.urna.price.toLocaleString('en-GB')}`, 'to break the next one'], [`${s.urna.n}`, 'urn ampoules broken'], ...(s.urna.rent > 0 ? [[`£${Math.round(s.urna.fund).toLocaleString('en-GB')}`, s.ending === 'quitada' ? 'fund: ran out' : `fund: rent for ${s.urna.monthsLeft < 24 ? Math.floor(s.urna.monthsLeft) + (Math.floor(s.urna.monthsLeft) === 1 ? ' month' : ' months') : (s.urna.monthsLeft / 12).toFixed(0) + ' years'}`]] : [])] : cfg.outside === 'reglas' ? [[`${s.ext}`, 'outside ampoules broken']] : []),
+    ...(s.waterDelta ? [[`${s.waterDelta > 0 ? '+' : ''}${s.waterDelta} mm`, 'water level']] : []),
+    ...(s.ink > 0 ? [[`${Math.round(s.ink * 100)}%`, 'of the glass inked']] : []),
+    ...(s.salinity > 0 ? [[`${s.salinity.toFixed(1)} g/L`, s.salinity >= 5 ? 'salt in the water: nothing germinates now' : s.salinity >= 1.5 ? 'salt in the water: the plants suffer' : 'salt in the water']] : []),
+    [`${s.gens}`, 'highest generation'],
+    [`${s.alive}`, 'living plants'],
+    [`${s.capsBroken}/${s.caps}`, 'capsules broken'],
+    [`${s.holesBroken}`, 'lines split'],
+    [`${Math.round(s.lineMax * 100)}%`, 'furthest crack'],
+    [s.seedV2 == null ? fmtV(s.seedV) : `${fmtV(s.seedV)} · ${fmtV(s.seedV2)}`, s.seedV2 == null ? 'strength of the sealed seed' : `seed strength: ${({ ficus: 'fig', robinia: 'Robinia', chicharo: 'pea' })[cfg.plant]} · ${s.partner === 'robinia' ? 'Robinia' : 'fig'}`],
+  ];
+  $('readout').innerHTML = items.map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('');
+  const st = $('status');
+  if (s.ending === 'quitada') { st.textContent = `Removed in year ${(s.endWeek / 52).toFixed(1)}: the money wasn't enough for the rent. ${s.alive === 0 ? 'Nothing was left alive' : `There ${s.alive === 1 ? 'was 1 living plant' : `were ${s.alive} living plants`}`}, and it reached generation ${s.gens}.`; st.className = 'status done'; }
+  else if (s.ending === 'apaga') { st.textContent = `It went out in year ${(s.endWeek / 52).toFixed(1)}: no plants or seeds are left. It reached generation ${s.gens}.`; st.className = 'status done'; }
+  else if (s.ending === 'llena') { st.textContent = `It filled the box in year ${(s.endWeek / 52).toFixed(1)}.`; st.className = 'status done'; }
+  else if (cfg.outside === 'urna' && s.alive === 0 && s.waiting === 0) { st.textContent = s.urna.stock.semillas > 0 ? 'No living plant or waiting seed is left. Only an ampoule of seeds can revive the box.' : 'No living plant is left, and there are no seed ampoules left either.'; st.className = 'status'; }
+  else { st.textContent = `Running. ${s.germinated} plants have sprouted. ${s.dud} seeds didn't germinate, ${s.drowned} fell in the water and ${s.crushed} were crushed.`; st.className = 'status'; }
+  return s;
+}
+
+function restart() { sim = makeSim(engineCfg(cfg)); autoPaused = false; uReset(); readTheme(); drawBox(); drawLine(); readout(); uUpdate(true); }
+$('restart').onclick = restart;
+$('another').onclick = () => { cfg.seed = 1 + Math.floor(Math.random() * 1e6); restart(); };
+$('play').onclick = () => { playing = !playing; $('play').textContent = playing ? 'Pause' : 'Play'; };
+$('spd').oninput = e => { $('spdOut').textContent = `${e.target.value} wk`; };
+
+let last = 0, lastIdle = 0;
+const REDUCED = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
+function loop(t) {
+  if (!playing && !REDUCED && !document.hidden && t - lastIdle > 70) { lastIdle = t; drawBox(); }
+  if (playing && t - last > 30) {
+    last = t;
+    const n = +$('spd').value;
+    const before = sim.stats().ending;
+    for (let k = 0; k < n; k++) sim.step();
+    drawBox(); drawLine();
+    const s = readout();
+    uUpdate(false);
+    if (s.ending && !before) { /* keep going a little to see the end */ }
+    if (s.ending && (s.ending === 'quitada' || sim.week - s.endWeek > 52) && !autoPaused) { playing = false; autoPaused = true; $('play').textContent = 'Play'; }
+  }
+  requestAnimationFrame(loop);
+}
+
+// ---------- the urn ----------
+// each ampoule is an operation from the compendium brought into the box
+const AMP = [
+  { k: 'semillas', name: 'Seeds', op: 'Seed And Leave', fx: 'they sprout where they fall', g: 'base' },
+  { k: 'sal', name: 'Salt', op: 'Ratchet', fx: 'stays in the water for good', g: 'base' },
+  { k: 'agua', name: 'Water', op: 'Rehearse', fx: 'the whole gesture, with no effect', g: 'base' },
+  { k: 'inundar', name: 'Extra water', op: 'Saturate', fx: 'raises the level: dilutes the salt, drowns what is low', g: 'ops' },
+  { k: 'secante', name: 'Desiccant', op: 'Deprive', fx: 'lowers the level: roots left dry, salt stronger', g: 'ops' },
+  { k: 'tinta', name: 'Ink', op: 'Conceal', fx: 'a strip of the glass in shade, for good', g: 'ops' },
+  { k: 'resina', name: 'Resin', op: 'Freeze The Joint', fx: 'glues the nearby lines: that slab won\'t split', g: 'ops' },
+  { k: 'hormona', name: 'Hormone', op: 'Exaggerate', fx: 'one plant thickens its roots 2.5 times as fast for a year', g: 'ops' },
+  { k: 'composta', name: 'Compost', op: 'Run On Leftovers', fx: 'vigour for all, by how much has died', g: 'ops' },
+  { k: 'acido', name: 'Acid', op: 'Dissolve And Rebuild', fx: 'dissolves the limestone where it falls, burns roots', g: 'ops' },
+];
+const AMPOF = Object.fromEntries(AMP.map(a => [a.k, a]));
+// how an ampoule shows once the urn opens: one shape per kind, in ink; sealed ones are grey dots
+const MARK = { semillas: 'dot', sal: 'square', agua: 'ring', inundar: 'target', secante: 'box', tinta: 'bar', resina: 'diamond', hormona: 'triangle', composta: 'plus', acido: 'cross' };
+function markSVG(kind) {
+  const m = MARK[kind], c = 'currentColor';
+  const sh = m === 'dot' ? `<circle cx="5" cy="5" r="4" fill="${c}"/>` : m === 'square' ? `<rect x="1.2" y="1.2" width="7.6" height="7.6" fill="${c}"/>` : m === 'ring' ? `<circle cx="5" cy="5" r="3.6" fill="none" stroke="${c}" stroke-width="1.5"/>`
+    : m === 'target' ? `<circle cx="5" cy="5" r="3.8" fill="none" stroke="${c}" stroke-width="1.2"/><circle cx="5" cy="5" r="1.4" fill="${c}"/>` : m === 'box' ? `<rect x="1.6" y="1.6" width="6.8" height="6.8" fill="none" stroke="${c}" stroke-width="1.4"/>`
+    : m === 'bar' ? `<rect x="3" y="0.6" width="4" height="8.8" fill="${c}"/>` : m === 'diamond' ? `<polygon points="5,0.6 9.4,5 5,9.4 0.6,5" fill="${c}"/>` : m === 'triangle' ? `<polygon points="5,0.8 9.4,9 0.6,9" fill="${c}"/>`
+    : m === 'plus' ? `<path d="M5 1v8M1 5h8" stroke="${c}" stroke-width="2"/>` : `<path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="${c}" stroke-width="1.8"/>`;
+  return `<svg class="mk" viewBox="0 0 10 10" aria-hidden="true">${sh}</svg>`;
+}
+function drawMark(x, cx, cy, kind, r, ink, soft, paper) {
+  const m = MARK[kind]; x.save(); x.fillStyle = kind ? ink : soft; x.strokeStyle = ink; x.lineWidth = 1.5; x.beginPath();
+  if (!kind) { x.arc(cx, cy, r * 0.85, 0, 7); x.fill(); }
+  else if (m === 'dot') { x.arc(cx, cy, r, 0, 7); x.fill(); }
+  else if (m === 'square') x.fillRect(cx - r * 0.9, cy - r * 0.9, r * 1.8, r * 1.8);
+  else if (m === 'ring' || m === 'target') { x.arc(cx, cy, r * 0.9, 0, 7); x.fillStyle = paper; x.fill(); x.stroke(); if (m === 'target') { x.beginPath(); x.fillStyle = ink; x.arc(cx, cy, r * 0.35, 0, 7); x.fill(); } }
+  else if (m === 'box') { x.fillStyle = paper; x.fillRect(cx - r * 0.85, cy - r * 0.85, r * 1.7, r * 1.7); x.strokeRect(cx - r * 0.85, cy - r * 0.85, r * 1.7, r * 1.7); }
+  else if (m === 'bar') x.fillRect(cx - r * 0.45, cy - r, r * 0.9, r * 2);
+  else if (m === 'diamond') { x.moveTo(cx, cy - r * 1.1); x.lineTo(cx + r * 1.1, cy); x.lineTo(cx, cy + r * 1.1); x.lineTo(cx - r * 1.1, cy); x.fill(); }
+  else if (m === 'triangle') { x.moveTo(cx, cy - r); x.lineTo(cx + r, cy + r * 0.8); x.lineTo(cx - r, cy + r * 0.8); x.fill(); }
+  else if (m === 'plus') { x.lineWidth = 2; x.moveTo(cx, cy - r); x.lineTo(cx, cy + r); x.moveTo(cx - r, cy); x.lineTo(cx + r, cy); x.stroke(); }
+  else { x.lineWidth = 1.8; x.moveTo(cx - r * 0.8, cy - r * 0.8); x.lineTo(cx + r * 0.8, cy + r * 0.8); x.moveTo(cx + r * 0.8, cy - r * 0.8); x.lineTo(cx - r * 0.8, cy + r * 0.8); x.stroke(); }
+  x.restore();
+}
+
+const KLAB = Object.fromEntries(AMP.map(a => [a.k, a.k === 'semillas' ? 'life' : a.k === 'sal' ? 'death' : a.k === 'agua' ? 'nothing' : a.name.toLowerCase()]));
+const KCHIP = Object.fromEntries(AMP.map(a => [a.k, a.name.toLowerCase()]));
+$('choices').innerHTML = '<span class="group-l">The usual three</span>' + AMP.filter(a => a.g === 'base').map((a, i) => `<label><input type="radio" name="pick" id="pick-${a.k}" value="${a.k}"${i === 0 ? ' checked' : ''}>${glyphSVG(a.op, 'glyph', 1.9)}<b>${a.name}</b><i>${a.op}</i><small>${a.fx}</small></label>`).join('') +
+  '<span class="group-l">Other operations</span>' + AMP.filter(a => a.g === 'ops').map(a => `<label><input type="radio" name="pick" id="pick-${a.k}" value="${a.k}">${glyphSVG(a.op, 'glyph', 1.9)}<b>${a.name}</b><i>${a.op}</i><small>${a.fx}</small></label>`).join('');
+let uSeen = -1, uLife = [], uWasAlive = true, uWasPeek = false;
+const whenU = w => { const y = Math.floor(w / 52.18), m = Math.min(11, Math.floor((w / 52.18 - y) * 12)); return `year ${y} · ${MONTHS[(m + 3) % 12]}`; };
+const money = v => '£' + Math.round(v).toLocaleString('en-GB');
+function uReset() { uSeen = -1; uLife = []; uWasAlive = true; $('ulog').innerHTML = ''; $('mine').textContent = 'Nobody else will see what you choose until the urn opens. All the ampoules look the same.'; }
+function uEntries() {
+  const out = [];
+  for (const b of sim.buys) {
+    const said = b.human ? '' : b.claim == null ? ' Doesn\'t say what they chose.' : ` Says they chose ${KLAB[b.claim]}.`;
+    let extra = '';
+    if (shown(b)) { extra = `<span class="chip ${b.kind}">${markSVG(b.kind)}${b.human ? 'you chose ' : ''}${KCHIP[b.kind]}</span>`; if (b.claim && b.claim !== b.kind) extra += '<span class="lied">lied</span>'; }
+    out.push({ w: b.w, o: 1, k: 'compra', html: `${b.human ? 'You pay' : `Person ${b.id} pays`} ${money(b.price)}.${said}${extra}` });
+  }
+  for (const u of sim.uLog) if (u.k === 'quitada') out.push({ w: u.w, o: 3, k: 'urna', html: 'The money for the rent ran out: the box is removed.' }); else out.push({ w: u.w, o: 2, k: 'urna', html: u.n ? `The urn opens. Of ${u.n} ${u.n === 1 ? 'ampoule' : 'ampoules'}: ${Object.entries(u.c).filter(([, v]) => v > 0).map(([k, v]) => `${v} ${KCHIP[k]}`).join(', ').replace(/, ([^,]*)$/, ' and $1') || 'none'}.${u.said ? ` Of ${u.said} ${u.said === 1 ? 'person' : 'people'} who said what they chose, ${u.lies} lied.` : ''}` : 'The urn opens. Nobody has paid since the last opening.' });
+  for (const l of uLife) out.push(l);
+  return out.sort((a, b) => b.w - a.w || b.o - a.o);
+}
+function uUpdate(force) {
+  if (cfg.outside !== 'urna') return;
+  const s = sim.stats(), alive = s.alive > 0 || s.waiting > 0;
+  if (alive !== uWasAlive && sim.week > 0) { uLife.push({ w: sim.week, o: 0, k: 'vida', html: alive ? 'Something sprouts again.' : (s.urna.stock.semillas > 0 ? 'Nothing is left alive in the box.' : 'Nothing is left alive, and there are no seed ampoules left.') }); uWasAlive = alive; force = true; }
+  const peek = $('peek').checked, sig = sim.buys.length * 1000 + sim.uLog.length * 10 + uLife.length + (peek ? 5e6 : 0);
+  if (force || sig !== uSeen) { $('ulog').innerHTML = uEntries().slice(0, 200).map(e => `<li class="k-${e.k}"><span class="when">${whenU(e.w)}</span><span class="txt">${e.html}</span></li>`).join(''); uSeen = sig; }
+  const btn = $('buyBtn'); btn.textContent = `Pay ${money(s.urna.price)} and break`; btn.disabled = s.ending === 'apaga' || s.ending === 'quitada';
+  const yrs = (s.urna.nextReveal - sim.week) / 52.18, mo = Math.max(0, Math.round(yrs * 12));
+  $('uNext').textContent = `${money(s.urna.money)} raised · ` + (s.ending === 'quitada' ? 'removed' : s.ending === 'apaga' ? 'the box went out' : `opens in ${yrs < 1 ? mo + (mo === 1 ? ' month' : ' months') : yrs.toFixed(1) + ' years'}`);
+  drawUPrice();
+}
+function drawUPrice() {
+  const c = $('uprice'), dpr = Math.min(2, window.devicePixelRatio || 1), cw = c.clientWidth || 400, chh = c.clientHeight || 150;
+  if (c.width !== Math.round(cw * dpr)) { c.width = Math.round(cw * dpr); c.height = Math.round(chh * dpr); }
+  const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, cw, chh);
+  const cs = getComputedStyle(document.documentElement), ink = cs.getPropertyValue('--ink').trim(), muted = cs.getPropertyValue('--muted').trim(), line = cs.getPropertyValue('--line').trim();
+  const soft = cs.getPropertyValue('--shadow').trim() || '#bdbdbd', paper = cs.getPropertyValue('--paper').trim();
+  const L = 50, R = 8, T = 8, B = 20, Wd = cw - L - R, Hd = chh - T - B;
+  const yrs = Math.max(10, Math.ceil(sim.week / 52 / 5) * 5), END = yrs * 52.18;
+  const st = sim.stats(), maxP = Math.max(st.urna.maxPrice, cfg.uP0 * 32, ...sim.fundLog.map(f => f[1]));
+  const lo = Math.log10(Math.max(1, cfg.uP0 / 2)), hi = Math.log10(maxP * 1.6);
+  const X = w => L + Wd * w / END, Y = v => T + Hd * (1 - (Math.log10(v) - lo) / (hi - lo));
+  x.font = '500 10.5px "IBM Plex Mono", monospace'; x.fillStyle = muted; x.strokeStyle = line; x.lineWidth = 1;
+  for (let e = Math.ceil(lo); e <= Math.floor(hi); e++) { const y = Y(Math.pow(10, e)); x.beginPath(); x.moveTo(L, y); x.lineTo(L + Wd, y); x.stroke(); x.textAlign = 'right'; x.textBaseline = 'middle'; x.fillText(money(Math.pow(10, e)), L - 6, y); }
+  x.textAlign = 'center'; x.textBaseline = 'top';
+  for (let yv = 0; yv <= yrs; yv += 5) x.fillText(yv === 0 ? 'year 0' : `${yv}`, Math.min(L + Wd - 8, Math.max(L + 12, X(yv * 52.18))), T + Hd + 5);
+  x.setLineDash([3, 3]); x.strokeStyle = muted; for (const u of sim.uLog) { x.beginPath(); x.moveTo(X(u.w), T); x.lineTo(X(u.w), T + Hd); x.stroke(); } x.setLineDash([]);
+  if (cfg.rent > 0 && sim.fundLog.length > 1) { const fc = cs.getPropertyValue('--life').trim(); x.strokeStyle = fc; x.globalAlpha = 0.85; x.lineWidth = 1.2; x.setLineDash([2, 2]); x.beginPath(); sim.fundLog.forEach(([w, f], i) => { const yy = Y(Math.max(Math.pow(10, lo), f)); i ? x.lineTo(X(w), yy) : x.moveTo(X(w), yy); }); x.stroke(); x.setLineDash([]); x.globalAlpha = 1; }
+  const pl = sim.priceLog; x.strokeStyle = ink; x.lineWidth = 1.5; x.beginPath(); let pv = pl[0]; x.moveTo(X(pv[0]), Y(pv[1]));
+  for (let i = 1; i < pl.length; i++) { x.lineTo(X(pl[i][0]), Y(pv[1])); x.lineTo(X(pl[i][0]), Y(pl[i][1])); pv = pl[i]; }
+  x.lineTo(X(sim.week), Y(pv[1])); x.stroke();
+  for (const b of sim.buys) { drawMark(x, X(b.w), Y(b.price), shown(b) ? b.kind : null, b.human ? 4.2 : 3.4, ink, soft, paper); if (b.human) { x.strokeStyle = ink; x.lineWidth = 1.2; x.beginPath(); x.arc(X(b.w), Y(b.price), 7, 0, Math.PI * 2); x.stroke(); } }
+  x.strokeStyle = muted; x.globalAlpha = 0.5; x.beginPath(); x.moveTo(X(sim.week), T); x.lineTo(X(sim.week), T + Hd); x.stroke(); x.globalAlpha = 1;
+}
+$('buyBtn').onclick = () => {
+  if (cfg.outside !== 'urna') return;
+  const kind = document.querySelector('input[name="pick"]:checked').value;
+  const rec = sim.urnaBuy(kind, true);
+  if (!rec) { $('mine').textContent = sim.stats().urna.stock[kind] <= 0 ? 'There are no ampoules of that type left.' : 'The box has gone out: there is nothing left to change.'; return; }
+  const mineN = sim.buys.filter(b => b.human).length;
+  $('mine').textContent = `You paid ${money(rec.price)}. ` + (mineN === 1 ? `Only you know that you chose ${KLAB[kind]}.` : `You have broken ${mineN}. Only you know what you chose each time.`);
+  drawBox(); drawLine(); readout(); uUpdate(true);
+};
+$('peek').onchange = () => { drawBox(); drawLine(); uUpdate(true); };
+
+// ---------- find the edge ----------
+const WORKER_SRC = makeSim.toString() + `
+onmessage = (e) => {
+  const { base, key, values, runs, years } = e.data;
+  const out = []; let done = 0; const total = values.length * runs;
+  for (let vi = 0; vi < values.length; vi++) {
+    const rows = [];
+    for (let r = 0; r < runs; r++) {
+      const sim = makeSim(Object.assign({}, base, { [key]: values[vi], seed: 1000 + r * 7919 }));
+      const maxW = years * 52; let s;
+      for (let w = 0; w < maxW; w++) { sim.step(); if (w % 13 === 12) { s = sim.stats(); if (s.ending) break; } }
+      s = sim.stats();
+      rows.push({ gens: s.gens, years: s.ending === 'apaga' ? s.endWeek / 52 : years, caps: s.capsBroken, end: s.ending });
+      done++; postMessage({ progress: done / total });
+    }
+    out.push(rows);
+  }
+  postMessage({ done: true, out });
+};`;
+let worker = null;
+function runSweep() {
+  const key = $('sweepKey').value, sw = SWEEP.find(s => s.k === key), runs = +$('sweepRuns').value, years = +$('sweepYears').value;
+  const base = engineCfg(cfg); delete base.seed;
+  $('sweepGo').disabled = true; $('sweepGo').textContent = 'Running…'; $('sweepBar').style.width = '0%';
+  $('sweepMsg').textContent = `${sw.values.length * runs} boxes of ${years} years, in ${LAYOUTS[cfg.layout].name.toLowerCase()}.`;
+  const finish = (out) => { $('sweepGo').disabled = false; $('sweepGo').textContent = 'Run boxes'; $('sweepBar').style.width = '100%'; showSweep(key, sw.values, out, years, runs); };
+  try {
+    if (worker) worker.terminate();
+    worker = new Worker(URL.createObjectURL(new Blob([WORKER_SRC], { type: 'text/javascript' })));
+    worker.onmessage = e => { if (e.data.progress != null) $('sweepBar').style.width = `${Math.round(e.data.progress * 100)}%`; if (e.data.done) finish(e.data.out); };
+    worker.onerror = () => { worker = null; sweepInline(base, key, sw.values, runs, years, finish); };
+    worker.postMessage({ base, key, values: sw.values, runs, years });
+  } catch (err) { sweepInline(base, key, sw.values, runs, years, finish); }
+}
+function sweepInline(base, key, values, runs, years, finish) {
+  const out = values.map(() => []); let vi = 0, r = 0;
+  const tick = () => {
+    const t0 = performance.now();
+    while (vi < values.length && performance.now() - t0 < 40) {
+      const sim2 = makeSim(Object.assign({}, base, { [key]: values[vi], seed: 1000 + r * 7919 }));
+      let s; for (let w = 0; w < years * 52; w++) { sim2.step(); if (w % 13 === 12) { s = sim2.stats(); if (s.ending) break; } }
+      s = sim2.stats(); out[vi].push({ gens: s.gens, years: s.ending === 'apaga' ? s.endWeek / 52 : years, caps: s.capsBroken, end: s.ending });
+      if (++r >= runs) { r = 0; vi++; }
+    }
+    $('sweepBar').style.width = `${Math.round(100 * (vi * runs + r) / (values.length * runs))}%`;
+    if (vi < values.length) setTimeout(tick, 0); else finish(out);
+  };
+  tick();
+}
+function showSweep(key, values, out, years, runs) {
+  const P = PARAMS.find(p => p.k === key), svg = $('chart');
+  const Wd = 720, Hd = 300, L = 46, R = 16, T = 26, B = 64, bw = Math.min(70, (Wd - L - R) / values.length * 0.62);
+  const step = (Wd - L - R) / values.length;
+  const median = a => { const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
+  let g = '';
+  for (let k = 0; k <= 4; k++) { const y = T + (Hd - T - B) * (1 - k / 4); g += `<line x1="${L}" x2="${Wd - R}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="1"/><text class="sv-ax" x="${L - 8}" y="${y + 4}" text-anchor="end">${k * 25}%</text>`; }
+  const means = [];
+  values.forEach((v, i) => {
+    const rows = out[i], n = rows.length, cx = L + step * (i + 0.5);
+    const cnt = [0, 0, 0, 0]; rows.forEach(r => cnt[Math.min(3, Math.max(1, r.gens) - 1)]++);
+    means.push(rows.reduce((a, r) => a + r.gens, 0) / n);
+    let y = Hd - B;
+    ['--g1', '--g2', '--g3', '--g4'].forEach((tok, k) => {
+      const hgt = (Hd - T - B) * cnt[k] / n; if (hgt <= 0) return;
+      y -= hgt; g += `<rect x="${cx - bw / 2}" y="${y}" width="${bw}" height="${hgt}" fill="var(${tok})"><title>${cnt[k]} of ${n}</title></rect>`;
+    });
+    const isCur = +cfg[key] === +v;
+    g += `<text class="sv-lab" x="${cx}" y="${Hd - B + 18}" text-anchor="middle">${fmtShort(P, v)}</text>`;
+    g += `<text class="sv-ax" x="${cx}" y="${Hd - B + 34}" text-anchor="middle">${median(rows.map(r => r.years)) >= years ? `${years}+ years` : `~${Math.round(median(rows.map(r => r.years)))} years`}</text>`;
+    if (isCur) g += `<text class="sv-ax" x="${cx}" y="${Hd - B + 50}" text-anchor="middle">(current)</text>`;
+    g += `<text class="sv-ax" x="${cx}" y="${T - 10}" text-anchor="middle">${means[i].toFixed(1)}</text>`;
+  });
+  svg.innerHTML = g; $('chartwrap').hidden = false; $('glegend').hidden = false;
+  let best = 0, bi = 0; for (let i = 1; i < means.length; i++) { const dlt = Math.abs(means[i] - means[i - 1]); if (dlt > best) { best = dlt; bi = i; } }
+  const v = $('verdict'); v.hidden = false;
+  if (best < 0.25) v.textContent = `This setting has no clear edge: the average generation stays between ${Math.min(...means).toFixed(1)} and ${Math.max(...means).toFixed(1)}. Try another setting or another layout.`;
+  else v.textContent = `The biggest jump is between ${fmtShort(P, values[bi - 1])} and ${fmtShort(P, values[bi])}: the average generation goes from ${means[bi - 1].toFixed(1)} to ${means[bi].toFixed(1)}. That is the edge for ${P.label.toLowerCase()}, with the other settings as they are.`;
+  $('sweepMsg').textContent = `${values.length * runs} boxes of ${years} years, in ${LAYOUTS[cfg.layout].name.toLowerCase()}. The same stones for each value, so the comparison is fair.`;
+}
+$('sweepGo').onclick = runSweep;
+
+// ---------- design comparison (40 boxes of 40 years each) ----------
+const CMP3 = {"stone": [{"label": "Bath, 5 mm, no grooves", "hist": [29, 7, 4, 0], "brk": 0.275, "fb": 6.2, "cur": false}, {"label": "Bath, 5 mm and grooves", "hist": [0, 21, 18, 1], "brk": 1, "fb": 6.1, "cur": false}, {"label": "Bath, 3 mm and grooves", "hist": [0, 10, 30, 0], "brk": 1, "fb": 3.6, "cur": true}, {"label": "Bath, cut and rejoined with lime", "hist": [0, 15, 25, 0], "brk": 1, "fb": 6.1, "cur": false}, {"label": "One line per slab, grooves", "hist": [5, 26, 9, 0], "brk": 1, "fb": 5.1, "cur": false}, {"label": "One line per slab, joint", "hist": [4, 24, 12, 0], "brk": 1, "fb": 5.2, "cur": false}, {"label": "Portland, 5 mm and grooves", "hist": [35, 4, 1, 0], "brk": 0.125, "fb": 6.8, "cur": false}, {"label": "Marble, 5 mm and grooves", "hist": [40, 0, 0, 0], "brk": 0, "fb": null, "cur": false}], "seed": [{"label": "Version 3: 1 year, no light", "hist": [7, 33, 0, 0], "brk": 1, "fb": 3.6, "cur": false}, {"label": "Fig 2 years (low), 3 mm", "hist": [22, 18, 0, 0], "brk": 1, "fb": 3.6, "cur": false}, {"label": "Fig 8 years, 5 mm", "hist": [0, 34, 6, 0], "brk": 1, "fb": 6.1, "cur": false}, {"label": "Fig 8 years (central), 3 mm", "hist": [0, 24, 16, 0], "brk": 1, "fb": 3.6, "cur": false}, {"label": "Fig 30 years (high), 3 mm", "hist": [0, 26, 14, 0], "brk": 1, "fb": 3.6, "cur": false}, {"label": "Fig 8 years, 3 mm, at 25 °C", "hist": [0, 36, 4, 0], "brk": 1, "fb": 3.6, "cur": false}, {"label": "Robinia alone, 3 mm", "hist": [0, 21, 17, 2], "brk": 1, "fb": 3.5, "cur": false}, {"label": "Mixed with Robinia, 3 mm", "hist": [0, 10, 30, 0], "brk": 1, "fb": 3.6, "cur": true}, {"label": "Mix, fig at 2 years", "hist": [0, 20, 20, 0], "brk": 1, "fb": 3.6, "cur": false}, {"label": "Mix, 5 mm", "hist": [0, 21, 18, 1], "brk": 1, "fb": 6.1, "cur": false}]};
+function drawCmp(svg, rows) {
+  const VW = 800, L = 262, R = 150, T = 30, rowH = 40, bw = VW - L - R;
+  svg.setAttribute('viewBox', `0 0 ${VW} ${T + rows.length * rowH + 6}`);
+  let g = `<text class="sv-ax" x="${L}" y="16">highest generation, 40 boxes</text><text class="sv-ax" x="${VW - R + 14}" y="16">split · year</text>`;
+  rows.forEach((r, i) => {
+    const y = T + i * rowH, n = r.hist.reduce((a, b) => a + b, 0); let x = L;
+    g += `<text class="sv-lab" x="${L - 10}" y="${y + 19}" text-anchor="end"${r.cur ? '' : ' style="font-weight:500"'}>${r.label}</text>`;
+    ['--g1', '--g2', '--g3', '--g4'].forEach((tok, k) => { const w = bw * r.hist[k] / n; if (w > 0) { g += `<rect x="${x}" y="${y + 4}" width="${w}" height="${rowH - 14}" fill="var(${tok})"><title>${r.hist[k]} of ${n}</title></rect>`; x += w; } });
+    if (r.cur) g += `<rect x="${L - 2}" y="${y + 2}" width="${bw + 4}" height="${rowH - 10}" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
+    g += `<text class="sv-lab" x="${VW - R + 14}" y="${y + 19}">${Math.round(r.brk * 100)}%</text><text class="sv-ax" x="${VW - R + 62}" y="${y + 19}">${r.fb == null ? 'never' : `year ${(+r.fb).toFixed(1)}`}</text>`;
+  });
+  svg.innerHTML = g;
+}
+drawCmp($('cmpStone'), CMP3.stone); drawCmp($('cmpSeed'), CMP3.seed);
+
+// ---------- light and outside rules (80 boxes of 40 years each) ----------
+const EXT = [{"label":"LED light, no rules","hist":[0,24,56,0],"alive":0,"fb":3.5,"life":20.9,"lines":6.2,"cur":false},{"label":"London light, no rules","hist":[0,37,42,1],"alive":0,"fb":4.8,"life":21.9,"lines":4.9,"cur":false},{"label":"Seeds, 1 every 2 years","hist":[0,36,44,0],"alive":0.662,"fb":3.8,"life":40,"lines":7.7,"cur":false},{"label":"Seeds, 1 a year","hist":[0,42,38,0],"alive":0.112,"fb":3.8,"life":31,"lines":7.4,"cur":false},{"label":"Nutrients, 1 a year","hist":[0,30,49,1],"alive":0,"fb":3.2,"life":20.8,"lines":6,"cur":false},{"label":"Acid, 1 a year","hist":[0,26,52,2],"alive":0,"fb":3.5,"life":21.4,"lines":6,"cur":false},{"label":"Acid, 3 a year","hist":[0,49,30,1],"alive":0,"fb":3.3,"life":19.6,"lines":5.6,"cur":false},{"label":"Salt, 1 a year","hist":[0,55,25,0],"alive":0,"fb":3.6,"life":17.7,"lines":4.1,"cur":false},{"label":"Salt, 3 a year","hist":[49,31,0,0],"alive":0,"fb":3.9,"life":4.3,"lines":0.6,"cur":false},{"label":"Default rules, LED","hist":[0,37,41,2],"alive":0.712,"fb":3.4,"life":40,"lines":7.8,"cur":true},{"label":"Default rules, London","hist":[0,46,34,0],"alive":0.725,"fb":4.5,"life":40,"lines":6.8,"cur":false}];
+function drawExt(svg, rows) {
+  const VW = 800, L = 262, R = 180, T = 30, rowH = 40, bw = VW - L - R;
+  svg.setAttribute('viewBox', `0 0 ${VW} ${T + rows.length * rowH + 6}`);
+  let g = `<text class="sv-ax" x="${L}" y="16">highest generation, 80 boxes</text><text class="sv-ax" x="${VW - R + 14}" y="16">alive at 40 · 1st slab</text>`;
+  rows.forEach((r, i) => {
+    const y = T + i * rowH, n = r.hist.reduce((a, b) => a + b, 0); let x = L;
+    g += `<text class="sv-lab" x="${L - 10}" y="${y + 19}" text-anchor="end"${r.cur ? '' : ' style="font-weight:500"'}>${r.label}</text>`;
+    ['--g1', '--g2', '--g3', '--g4'].forEach((tok, k) => { const w = bw * r.hist[k] / n; if (w > 0) { g += `<rect x="${x}" y="${y + 4}" width="${w}" height="${rowH - 14}" fill="var(${tok})"><title>${r.hist[k]} of ${n}</title></rect>`; x += w; } });
+    if (r.cur) g += `<rect x="${L - 2}" y="${y + 2}" width="${bw + 4}" height="${rowH - 10}" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
+    g += `<text class="sv-lab" x="${VW - R + 14}" y="${y + 19}">${Math.round(r.alive * 100)}%</text><text class="sv-ax" x="${VW - R + 70}" y="${y + 19}">year ${(+r.fb).toFixed(1)}</text>`;
+  });
+  svg.innerHTML = g;
+}
+drawExt($('cmpExt'), EXT);
+
+// ---------- the urn: 40 boxes of 40 years per row ----------
+const URNA_RES = [{"label":"Nobody outside","C":{"viva":0,"sal":0,"agotada":0,"sola":40},"life":21.3,"plants":19,"money":0},{"label":"Base public, no rent","C":{"viva":24,"sal":1,"agotada":0,"sola":15,"quitada":0},"life":40,"plants":43,"money":57580},{"label":"Half and half, no rent","C":{"viva":23,"sal":0,"agotada":0,"sola":17,"quitada":0},"life":40,"plants":41,"money":58860},{"label":"More want it to live, no rent","C":{"viva":30,"sal":0,"agotada":3,"sola":7,"quitada":0},"life":40,"plants":58,"money":53740},{"label":"More want it to die, no rent","C":{"viva":8,"sal":17,"agotada":0,"sola":15,"quitada":0},"life":33,"plants":28,"money":57580},{"label":"Only 20 of seeds, no rent","C":{"viva":19,"sal":1,"agotada":17,"sola":3,"quitada":0},"life":39.9,"plants":43,"money":55020},{"label":"Rent of £50 a month","C":{"viva":24,"sal":1,"agotada":0,"sola":15,"quitada":0},"life":40,"plants":43,"money":57580,"gap":true},{"label":"Rent of £100 a month","C":{"viva":11,"sal":0,"agotada":0,"sola":7,"quitada":22},"life":20.2,"plants":35,"money":23020,"cur":true},{"label":"Rent of £200 a month","C":{"viva":0,"sal":0,"agotada":0,"sola":0,"quitada":40},"life":1.5,"plants":11,"money":2540},{"label":"£100, 10 people a week","C":{"viva":0,"sal":0,"agotada":0,"sola":0,"quitada":40},"life":2.5,"plants":11,"money":1900},{"label":"£100, 160 people a week","C":{"viva":25,"sal":0,"agotada":0,"sola":15,"quitada":0},"life":40,"plants":44,"money":119020},{"label":"£100, more want it to live","C":{"viva":9,"sal":0,"agotada":2,"sola":3,"quitada":26},"life":17.5,"plants":37,"money":19820},{"label":"£100, price halves every 6 months","C":{"viva":0,"sal":34,"agotada":5,"sola":0,"quitada":1},"life":26.6,"plants":39,"money":69740},{"label":"£100, starting fund of £6,000","C":{"viva":23,"sal":1,"agotada":0,"sola":15,"quitada":1},"life":40,"plants":43,"money":57580}];
+function drawUrnaCmp(svg, rows) {
+  const VW = 860, L = 280, R = 210, T = 30, rowH = 32, bw = VW - L - R;
+  svg.setAttribute('viewBox', `0 0 ${VW} ${T + rows.length * rowH + 6}`);
+  let g = `<text class="sv-ax" x="${L}" y="16">state at 40 years, of 40 boxes</text><text class="sv-ax" x="${VW - R + 14}" y="16">life</text><text class="sv-ax" x="${VW - R + 64}" y="16">plants</text><text class="sv-ax" x="${VW - R + 128}" y="16">raised</text>`;
+  rows.forEach((r, i) => {
+    const y = T + i * rowH, parts = [['viva', '--u-alive'], ['sal', '--u-salt'], ['agotada', '--u-dry'], ['sola', '--g1'], ['quitada', '--ink']], n = parts.reduce((a, [k]) => a + (r.C[k] || 0), 0); let x = L;
+    if (r.gap) { g += `<line x1="0" x2="${VW}" y1="${y - 2}" y2="${y - 2}" stroke="var(--line)"/>`; }
+    g += `<text class="sv-lab" x="${L - 10}" y="${y + 15}" text-anchor="end"${r.cur ? '' : ' style="font-weight:500"'}>${r.label}</text>`;
+    for (const [k, tk] of parts) { const v = r.C[k] || 0, w = bw * v / n; if (w > 0) { g += `<rect x="${x}" y="${y + 3}" width="${w}" height="${rowH - 11}" fill="var(${tk})"><title>${v} of ${n}</title></rect>`; x += w; } }
+    if (r.cur) g += `<rect x="${L - 2}" y="${y + 1}" width="${bw + 4}" height="${rowH - 7}" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
+    g += `<text class="sv-lab" x="${VW - R + 14}" y="${y + 15}">${r.life >= 40 ? '40+' : r.life.toFixed(0)}</text><text class="sv-ax" x="${VW - R + 64}" y="${y + 15}">${r.plants}</text><text class="sv-ax" x="${VW - R + 128}" y="${y + 15}">£${Math.round(r.money).toLocaleString('en-GB')}</text>`;
+  });
+  svg.innerHTML = g;
+}
+drawUrnaCmp($('cmpUrna'), URNA_RES);
+const OPS_RES = [{"k":"agua","life":21.6,"plants":18,"fb":3.5961538461538463,"lines":6},{"k":"semillas","life":27.2,"plants":48,"fb":3.9038461538461537,"lines":7},{"k":"sal","life":18.6,"plants":16,"fb":3.5961538461538463,"lines":5},{"k":"resina","life":14.5,"plants":2,"fb":3.5961538461538463,"lines":0},{"k":"hormona","life":19.4,"plants":19,"fb":2.0576923076923075,"lines":6},{"k":"tinta","life":21.1,"plants":13,"fb":3.75,"lines":4},{"k":"inundar","life":21,"plants":17,"fb":3.5961538461538463,"lines":5},{"k":"secante","life":21,"plants":17,"fb":3.5961538461538463,"lines":6},{"k":"composta","life":20.2,"plants":18,"fb":3.3653846153846154,"lines":6},{"k":"acido","life":20.9,"plants":19,"fb":3.4423076923076925,"lines":6}];
+$('opsBody').innerHTML = OPS_RES.map(r => { const a = AMPOF[r.k]; return `<tr class="${r.k === 'agua' ? 'ctl' : r.k === 'resina' || r.k === 'hormona' ? 'hi' : ''}"><td><b>${a.name}</b><i>${a.op}</i></td><td>${a.fx}</td><td class="n">${r.life.toFixed(0)} years</td><td class="n">${r.plants}</td><td class="n">year ${r.fb.toFixed(1)}</td><td class="n">${r.lines}</td></tr>`; }).join('');
+const TIE = [{"seeds":20,"mitad":53,"siga":40,"muera":85},{"seeds":25,"mitad":58,"siga":75,"muera":80},{"seeds":30,"mitad":58,"siga":75,"muera":80},{"seeds":40,"mitad":58,"siga":78,"muera":80},{"seeds":50,"mitad":58,"siga":78,"muera":80},{"seeds":60,"mitad":58,"siga":78,"muera":80}];
+function drawTie(svg, pts) {
+  const VW = 760, VH = 300, L = 54, R = 20, T = 16, B = 40, W = VW - L - R, H = VH - T - B;
+  const xs = pts.map(p => p.seeds), x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const X = v => L + W * (v - x0) / (x1 - x0), Y = v => T + H * (1 - v / 100);
+  let g = '';
+  for (const v of [0, 25, 50, 75, 100]) g += `<line x1="${L}" x2="${L + W}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text class="sv-ax" x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${v}%</text>`;
+  for (const p of pts) g += `<text class="sv-ax" x="${X(p.seeds)}" y="${T + H + 18}" text-anchor="middle">${p.seeds}</text>`;
+  g += `<text class="sv-ax" x="${L + W / 2}" y="${VH - 4}" text-anchor="middle">seed ampoules on the rail (against 20 of salt)</text>`;
+  const line = (k, tok, dash) => { const d = pts.map((p, i) => `${i ? 'L' : 'M'}${X(p.seeds).toFixed(1)},${Y(p[k]).toFixed(1)}`).join(' '); return `<path d="${d}" fill="none" stroke="var(${tok})" stroke-width="2.5"${dash ? ' stroke-dasharray="5 4"' : ''}/>` + pts.map(p => `<circle cx="${X(p.seeds)}" cy="${Y(p[k])}" r="4" fill="var(${tok})"><title>${p.seeds} seeds: ${p[k]}%</title></circle>`).join(''); };
+  g += line('mitad', '--ink', true) + line('siga', '--u-alive') + line('muera', '--u-salt');
+  const tx = X(25); g += `<line x1="${tx}" x2="${tx}" y1="${T}" y2="${T + H}" stroke="var(--ink)" stroke-dasharray="2 3"/><text class="sv-lab" x="${tx + 6}" y="${T + 12}">tie from here</text>`;
+  svg.innerHTML = g;
+}
+drawTie($('cmpTie'), TIE);
+
+// ---------- map of the two unknowns ----------
+const MAP = {"TR": [0.25, 0.5, 0.75, 1, 1.5, 2, 3], "SH": [1, 2, 3, 5, 8, 12, 20, 30], "misma": [[{"g3": 0.0, "fb": 12.9}, {"g3": 0.0, "fb": 6.7}, {"g3": 0.0, "fb": 4.5}, {"g3": 0.0, "fb": 3.5}, {"g3": 0.0, "fb": 2.5}, {"g3": 0.0, "fb": 2.0}, {"g3": 0.0, "fb": 1.5}], [{"g3": 0.0, "fb": 12.9}, {"g3": 0.0, "fb": 6.7}, {"g3": 0.0, "fb": 4.5}, {"g3": 0.0, "fb": 3.5}, {"g3": 0.0, "fb": 2.5}, {"g3": 0.0, "fb": 2.0}, {"g3": 0.104, "fb": 1.5}], [{"g3": 0.0, "fb": 12.9}, {"g3": 0.0, "fb": 6.7}, {"g3": 0.0, "fb": 4.5}, {"g3": 0.0, "fb": 3.5}, {"g3": 0.062, "fb": 2.5}, {"g3": 0.167, "fb": 2.0}, {"g3": 0.229, "fb": 1.5}], [{"g3": 0.0, "fb": 12.9}, {"g3": 0.0, "fb": 6.7}, {"g3": 0.062, "fb": 4.5}, {"g3": 0.125, "fb": 3.5}, {"g3": 0.25, "fb": 2.5}, {"g3": 0.312, "fb": 2.0}, {"g3": 0.333, "fb": 1.5}], [{"g3": 0.0, "fb": 12.9}, {"g3": 0.083, "fb": 6.7}, {"g3": 0.292, "fb": 4.5}, {"g3": 0.292, "fb": 3.5}, {"g3": 0.396, "fb": 2.5}, {"g3": 0.417, "fb": 2.0}, {"g3": 0.333, "fb": 1.5}], [{"g3": 0.0, "fb": 12.9}, {"g3": 0.208, "fb": 6.7}, {"g3": 0.333, "fb": 4.5}, {"g3": 0.438, "fb": 3.5}, {"g3": 0.479, "fb": 2.5}, {"g3": 0.396, "fb": 2.0}, {"g3": 0.396, "fb": 1.5}], [{"g3": 0.0, "fb": 12.9}, {"g3": 0.458, "fb": 6.7}, {"g3": 0.5, "fb": 4.5}, {"g3": 0.396, "fb": 3.5}, {"g3": 0.5, "fb": 2.5}, {"g3": 0.354, "fb": 2.0}, {"g3": 0.438, "fb": 1.5}], [{"g3": 0.146, "fb": 12.9}, {"g3": 0.479, "fb": 6.7}, {"g3": 0.521, "fb": 4.5}, {"g3": 0.333, "fb": 3.5}, {"g3": 0.5, "fb": 2.5}, {"g3": 0.396, "fb": 2.0}, {"g3": 0.354, "fb": 1.5}]], "mezcla": [[{"g3": 0.146, "fb": 12.8}, {"g3": 0.479, "fb": 6.7}, {"g3": 0.5, "fb": 4.7}, {"g3": 0.458, "fb": 3.5}, {"g3": 0.5, "fb": 2.5}, {"g3": 0.604, "fb": 2.0}, {"g3": 0.312, "fb": 1.5}], [{"g3": 0.146, "fb": 12.8}, {"g3": 0.479, "fb": 6.7}, {"g3": 0.521, "fb": 4.7}, {"g3": 0.542, "fb": 3.5}, {"g3": 0.5, "fb": 2.5}, {"g3": 0.5, "fb": 2.0}, {"g3": 0.562, "fb": 1.5}], [{"g3": 0.146, "fb": 12.8}, {"g3": 0.479, "fb": 6.7}, {"g3": 0.479, "fb": 4.7}, {"g3": 0.5, "fb": 3.5}, {"g3": 0.5, "fb": 2.5}, {"g3": 0.583, "fb": 2.0}, {"g3": 0.5, "fb": 1.5}], [{"g3": 0.146, "fb": 12.8}, {"g3": 0.375, "fb": 6.7}, {"g3": 0.562, "fb": 4.7}, {"g3": 0.542, "fb": 3.5}, {"g3": 0.5, "fb": 2.5}, {"g3": 0.583, "fb": 2.0}, {"g3": 0.5, "fb": 1.5}], [{"g3": 0.104, "fb": 12.8}, {"g3": 0.479, "fb": 6.7}, {"g3": 0.542, "fb": 4.7}, {"g3": 0.708, "fb": 3.5}, {"g3": 0.562, "fb": 2.5}, {"g3": 0.708, "fb": 2.0}, {"g3": 0.521, "fb": 1.5}], [{"g3": 0.125, "fb": 12.8}, {"g3": 0.708, "fb": 6.7}, {"g3": 0.646, "fb": 4.7}, {"g3": 0.688, "fb": 3.5}, {"g3": 0.583, "fb": 2.5}, {"g3": 0.688, "fb": 2.0}, {"g3": 0.542, "fb": 1.5}], [{"g3": 0.167, "fb": 12.8}, {"g3": 0.667, "fb": 6.7}, {"g3": 0.729, "fb": 4.7}, {"g3": 0.75, "fb": 3.5}, {"g3": 0.646, "fb": 2.5}, {"g3": 0.646, "fb": 2.0}, {"g3": 0.604, "fb": 1.5}], [{"g3": 0.125, "fb": 12.8}, {"g3": 0.729, "fb": 6.7}, {"g3": 0.75, "fb": 4.7}, {"g3": 0.792, "fb": 3.5}, {"g3": 0.688, "fb": 2.5}, {"g3": 0.667, "fb": 2.0}, {"g3": 0.625, "fb": 1.5}]]};
+function drawMap(box, key) {
+  const TR = MAP.TR, SH = MAP.SH, cw = 44, chh = 30, L = 46, T = 8, B = 44, R = 8;
+  const W = L + TR.length * cw + R, H = T + SH.length * chh + B;
+  const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', `${box.querySelector('h3').textContent}: percentage of boxes that reach the third generation, by root thickening and seed life`);
+  const el = (n, a, txt) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+  const tip = document.createElement('div'); tip.className = 'tip'; tip.hidden = true; box.appendChild(tip);
+  const X = i => L + i * cw, Y = j => T + (SH.length - 1 - j) * chh;
+  SH.forEach((h, j) => el('text', { class: 'sv-ax', x: L - 8, y: Y(j) + chh / 2 + 4, 'text-anchor': 'end' }, `${h}`));
+  TR.forEach((t, i) => el('text', { class: 'sv-ax', x: X(i) + cw / 2, y: T + SH.length * chh + 16, 'text-anchor': 'middle' }, `${t}`));
+  el('text', { class: 'sv-ax', x: L + TR.length * cw / 2, y: H - 6, 'text-anchor': 'middle' }, 'root thickening (mm/year)');
+  el('text', { class: 'sv-ax', x: 10, y: T + SH.length * chh / 2, 'text-anchor': 'middle', transform: `rotate(-90 10 ${T + SH.length * chh / 2})` }, 'fig seed, half-life (years)');
+  MAP[key].forEach((row, j) => row.forEach((c, i) => {
+    const v = c.g3, pct = Math.round(v * 100);
+    const r = el('rect', { class: 'hm-cell', x: X(i) + 1, y: Y(j) + 1, width: cw - 2, height: chh - 2, rx: 3, tabindex: 0,
+      style: `fill: color-mix(in oklab, var(--h1) ${Math.round(v * 100)}%, var(--h0))`, 'aria-label': `${pct}%, root ${TR[i]} mm a year, seed ${SH[j]} years` });
+    el('text', { class: 'hm-val', x: X(i) + cw / 2, y: Y(j) + chh / 2 + 4, 'text-anchor': 'middle', style: `fill: var(${v > 0.5 ? '--paper' : '--ink'})` }, `${pct}`);
+    const show = (px, py) => {
+      tip.replaceChildren();
+      const b = document.createElement('b'); b.textContent = `${pct}%`; tip.appendChild(b);
+      for (const line of ['reach the third generation', `root ${TR[i]} mm/year · seed ${SH[j]} years`, c.fb == null ? 'no slab split' : `first slab, around year ${c.fb}`]) { const d = document.createElement('div'); d.textContent = line; tip.appendChild(d); }
+      tip.hidden = false;
+      const bw = box.clientWidth, tw = tip.offsetWidth; tip.style.left = `${Math.max(0, Math.min(bw - tw, px + 14))}px`; tip.style.top = `${py + 14}px`;
+    };
+    const pos = e => { const bb = box.getBoundingClientRect(); show(e.clientX - bb.left, e.clientY - bb.top); };
+    r.addEventListener('pointermove', pos); r.addEventListener('pointerleave', () => { tip.hidden = true; });
+    r.addEventListener('focus', () => { const bb = box.getBoundingClientRect(), rb = r.getBoundingClientRect(); show(rb.left - bb.left + rb.width / 2, rb.top - bb.top + rb.height / 2); });
+    r.addEventListener('blur', () => { tip.hidden = true; });
+  }));
+  // likely zone: root 0.5 to 2 mm/year, seed 2 to 30 years; ring on the central estimate
+  const i0 = TR.indexOf(0.5), i1 = TR.indexOf(2), j0 = SH.indexOf(2), j1 = SH.indexOf(30);
+  el('rect', { x: X(i0), y: Y(j1), width: (i1 - i0 + 1) * cw, height: (j1 - j0 + 1) * chh, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 1.5, 'stroke-dasharray': '4 3', 'pointer-events': 'none' });
+  const ic = TR.indexOf(1), jc = SH.indexOf(8);
+  el('rect', { x: X(ic) - 1, y: Y(jc) - 1, width: cw + 2, height: chh + 2, rx: 5, fill: 'none', stroke: 'var(--crack)', 'stroke-width': 2.5, 'pointer-events': 'none' });
+  box.appendChild(svg);
+}
+drawMap($('mapA'), 'misma'); drawMap($('mapB'), 'mezcla');
+
+syncInputs(); restart(); requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
