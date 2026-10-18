@@ -172,7 +172,8 @@ async function main() {
     const stripe = require('../lib/stripe.js');
     const open = started && pub.closedDay == null;
     const want = { open, kinds: pub.available.join(','), gifts: pub.closedDay != null };
-    const had = series.stripe || { open: false, kinds: base.kinds.map(k => k.key).join(','), gifts: false };
+    // stripe-setup leaves the ampoule links on and the gift link off
+    const had = series.stripe || { open: true, kinds: base.kinds.map(k => k.key).join(','), gifts: false };
     if (open && want.kinds !== had.kinds) for (const l of base.links) await stripe.setLinkKinds(l, cfg.kinds.filter(k => pub.available.includes(k.key))).catch(e => console.log('Could not change the menu of', l.id, e.message));
     if (want.open !== had.open) for (const l of base.links) await stripe.setActive(l, open).catch(e => console.log('Could not switch', l.id, e.message));
     if (base.reviveLink && want.gifts !== had.gifts) await stripe.setActive(base.reviveLink, want.gifts).catch(e => console.log('Could not switch the gift link', e.message));
