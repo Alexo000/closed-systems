@@ -7,5 +7,10 @@
    "fundStart": 30
   }
  ],
- "current": 1
+ "current": 1,
+ "stripe": {
+  "open": false,
+  "kinds": "seeds,salt,water,resin,hormone,ink",
+  "gifts": false
+ }
 }
