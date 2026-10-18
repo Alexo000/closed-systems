@@ -12,11 +12,11 @@
   "ink"
  ],
  "name": "Urna",
- "start": "2026-11-01T00:00:00Z",
+ "start": "2026-10-19T00:00:00Z",
  "started": false,
- "updated": "2026-10-18T10:00:04.980Z",
+ "updated": "2026-10-18T18:45:21.074Z",
  "today": 0,
- "date": "2026-11-01",
+ "date": "2026-10-19",
  "price": 1,
  "link": null,
  "kinds": [
@@ -73,7 +73,7 @@
  "actionary": "https://operations.ramos-saavedra.com/all/",
  "nextOpening": {
   "day": 261,
-  "date": "2027-07-20"
+  "date": "2027-07-07"
  },
  "rules": {
   "start": 1,
