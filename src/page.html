@@ -283,29 +283,46 @@ async function load() {
 const box = $('box'), bx = box.getContext('2d');
 let still = null, cls = null, waterCells = [], grainSpots = [], grains = [], nextGrain = 0;
 const hash = (x, y) => (((x * 73856093) ^ (y * 19349663)) >>> 0) % 1000 / 1000;
-function tones() {
-  const p = hexRGB(getVar('--paper') || '#ffffff'), k = hexRGB(getVar('--ink') || '#111111');
-  return t => p.map((v, j) => Math.round(v + (k[j] - v) * t));
+// Mostly grey, with just enough colour to tell things apart: warm stone, blue-grey water, rust roots, sage leaves, glassy capsules.
+const BOX_LIGHT = {
+  air: '#fbfbfa', water: '#dfe6ea', speck: '#bccad3', surface: '#8fa2ae', glass: '#a3b3b9',
+  support: ['#70757b', '#7c736a', '#896f5d', '#956a52'], stone: ['#e2dcd1', '#d9d2c5', '#cec6b7', '#c1b8a7'],
+  hole: ['#f7f5f1', '#dac6ba', '#b48f7e', '#7d4c3c'], root: ['#a37f6d', '#8d6656', '#744f41', '#5c3c31'], dead: ['#bdb8b2', '#aaa49e'],
+  stem: '#56634b', leaf: '#5f7353', leafR: '#7b7a4e', seed: '#4b3c2d', cap: ['#edf3f4', '#9db4bb'],
+  crust: '#f5f7f8', crustSpeck: '#a7b1b8', grain: '#b2a896', inkStain: 'rgba(28,32,46,0.9)', vial: '#9aa3a8', vialGlass: 'rgba(120,170,185,0.95)',
+};
+const BOX_DARK = {
+  air: '#161616', water: '#1d262c', speck: '#30404a', surface: '#506573', glass: '#5e6e74',
+  support: ['#8b9197', '#957f70', '#9f7860', '#a8714f'], stone: ['#3b362e', '#433d34', '#4b453b', '#544d42'],
+  hole: ['#131313', '#4b342c', '#704737', '#9c5c45'], root: ['#8e7264', '#a5826f', '#bb937e', '#d0a48d'], dead: ['#4b4744', '#5b5753'],
+  stem: '#a1b391', leaf: '#91a780', leafR: '#a9a571', seed: '#c3a889', cap: ['#22302f', '#6f8a91'],
+  crust: '#d9dee1', crustSpeck: '#6b757c', grain: '#6e6658', inkStain: 'rgba(4,5,9,0.92)', vial: '#6d777c', vialGlass: 'rgba(120,175,190,0.9)',
+};
+function boxColours() {
+  const p = hexRGB(getVar('--paper') || '#ffffff'), dark = (p[0] + p[1] + p[2]) / 3 < 128;
+  return dark ? BOX_DARK : BOX_LIGHT;
 }
+const shadeRGB = (hex, f) => hexRGB(hex).map(v => Math.max(0, Math.min(255, Math.round(v * f))));
 function prepareBox() {
-  const W = S.W, H = S.H, bin = atob(S.cells), mix = tones();
+  const W = S.W, H = S.H, bin = atob(S.cells), P = boxColours();
   cls = new Uint8Array(W * H); for (let i = 0; i < W * H; i++) cls[i] = bin.charCodeAt(i);
   still = document.createElement('canvas'); still.width = W; still.height = H;
   const sx = still.getContext('2d'), img = sx.createImageData(W, H);
   waterCells = []; grainSpots = [];
   for (let i = 0; i < W * H; i++) {
     const c = cls[i], x = i % W, y = (i / W) | 0, n = hash(x, y);
-    let t = 0.02;
-    if (c === 1) { t = 0.12; waterCells.push(i); }
-    else if (c === 2) t = 0.5;
-    else if (c >= 3 && c <= 6) t = 0.78 - 0.1 * (c - 3) - (n > 0.7 ? 0.08 : 0);
-    else if (c >= 10 && c <= 13) t = 0.22 + 0.05 * (c - 10) + (n > 0.82 ? 0.07 : n < 0.1 ? -0.04 : 0);
-    else if (c >= 14 && c <= 17) t = [0.04, 0.3, 0.58, 0.88][c - 14];
-    else if (c >= 20 && c <= 23) t = 0.6 + 0.13 * (c - 20);
-    else if (c === 24) t = (x + y) % 2 ? 0.28 : 0.38;
-    else if (c === 25 || c === 26) t = 1;
-    else if (c === 27) t = (x + y) % 2 ? 0.08 : 0.5;
-    const col = mix(t), o = i * 4; img.data[o] = col[0]; img.data[o + 1] = col[1]; img.data[o + 2] = col[2]; img.data[o + 3] = 255;
+    let col = hexRGB(P.air);
+    if (c === 1) { col = hexRGB(P.water); waterCells.push(i); }
+    else if (c === 2) col = hexRGB(P.glass);
+    else if (c >= 3 && c <= 6) col = shadeRGB(P.support[c - 3], n > 0.7 ? 0.9 : 1);
+    else if (c >= 10 && c <= 13) col = shadeRGB(P.stone[c - 10], n > 0.82 ? 0.92 : n < 0.1 ? 1.04 : 1);
+    else if (c >= 14 && c <= 17) col = hexRGB(P.hole[c - 14]);
+    else if (c >= 20 && c <= 23) col = hexRGB(P.root[c - 20]);
+    else if (c === 24) col = hexRGB(P.dead[(x + y) % 2]);
+    else if (c === 25) col = hexRGB(P.stem);
+    else if (c === 26) col = hexRGB(P.seed);
+    else if (c === 27) col = hexRGB(P.cap[(x + y) % 2]);
+    const o = i * 4; img.data[o] = col[0]; img.data[o + 1] = col[1]; img.data[o + 2] = col[2]; img.data[o + 3] = 255;
     // grains fall from the underside of stone next to a crack
     if (c >= 10 && c <= 13 && y + 1 < H && cls[i + W] === 0) {
       for (let dx = -3; dx <= 3; dx++) for (let dy = -3; dy <= 0; dy++) { const j = i + dy * W + dx; if (j >= 0 && cls[j] >= 15 && cls[j] <= 17) { grainSpots.push(i + W); dx = dy = 9; } }
@@ -321,22 +338,23 @@ function sizeBox() {
 }
 function drawBox(t, now) {
   if (!S || !still) return;
-  const W = S.W, H = S.H, cw = box.width, ch = box.height, s = cw / W, mix = tones(), rgb = a => `rgb(${a})`;
+  const W = S.W, H = S.H, cw = box.width, ch = box.height, s = cw / W, P = boxColours();
   const night = S.started && !S.closed && !lampOn(now), calm = !S.started ? 0 : night ? 0.25 : 1;
   bx.imageSmoothingEnabled = false; bx.clearRect(0, 0, cw, ch); bx.drawImage(still, 0, 0, cw, ch);
   // water: a slow drift of specks and a surface that never quite settles
   const ph = Math.floor(t * 0.8 * calm);
-  bx.fillStyle = rgb(mix(0.26));
+  bx.fillStyle = P.speck;
   for (const i of waterCells) { const x = i % W, y = (i / W) | 0; if ((((x + ph) * 7 + y * 13) % 23 + 23) % 23 === 0) bx.fillRect(x * s, y * s, s, s); }
-  bx.fillStyle = rgb(mix(0.5));
+  bx.fillStyle = P.surface;
   const wt = S.waterTop;
   for (let x = 0; x < W; x++) if (cls[wt * W + x] === 1) { const dy = (Math.sin(x * 0.45 + t * 1.1) * 0.35 + Math.sin(x * 0.17 - t * 0.6) * 0.25) * calm; bx.fillRect(x * s, (wt + dy) * s, s + 0.5, Math.max(1, s * 0.45)); }
   // salt crust at the waterline
   if (S.saltBand > 0) { const hh = [0, 1.2, 2.6, 4.4][S.saltBand] * s, yy = wt * s;
-    for (let x = 1; x < W - 1; x++) { const j = (Math.sin(x * 1.7) + Math.sin(x * 0.43)) * 0.18 * hh; bx.fillStyle = rgb(mix(0)); bx.fillRect(x * s, yy - hh - j, s + 0.5, hh + j); if ((x * 7) % 5 < 2) { bx.fillStyle = rgb(mix(0.45)); bx.fillRect(x * s, yy - hh - j, s * 0.6, s * 0.6); } } }
+    for (let x = 1; x < W - 1; x++) { const j = (Math.sin(x * 1.7) + Math.sin(x * 0.43)) * 0.18 * hh; bx.fillStyle = P.crust; bx.fillRect(x * s, yy - hh - j, s + 0.5, hh + j); if ((x * 7) % 5 < 2) { bx.fillStyle = P.crustSpeck; bx.fillRect(x * s, yy - hh - j, s * 0.6, s * 0.6); } } }
   // leaves, swaying a little; less at night
-  bx.strokeStyle = rgb(mix(1)); bx.lineWidth = Math.max(1.5, s * 0.8); bx.lineCap = 'round';
+  bx.lineWidth = Math.max(1.5, s * 0.8); bx.lineCap = 'round';
   for (const p of S.plants) {
+    bx.strokeStyle = p.sp === 'robinia' ? P.leafR : P.leaf;
     const px = (p.x + 0.5) * s, py = (p.y + 0.5) * s, n = 2 + Math.round(p.v * 4);
     const sway = reduced ? 0 : (Math.sin(t * 0.9 + p.id * 1.7) * 0.6 + Math.sin(t * 2.3 + p.id) * 0.25) * (0.35 + p.v) * calm;
     for (let k = 0; k < n; k++) {
@@ -346,7 +364,7 @@ function drawBox(t, now) {
   }
   // grains working loose from the cracks
   if (!reduced && S.started && !S.closed && grainSpots.length && t > nextGrain) { grains.push({ i: grainSpots[Math.floor(Math.random() * grainSpots.length)], y: 0, born: t }); nextGrain = t + 4 + Math.random() * 9; }
-  bx.fillStyle = rgb(mix(0.45));
+  bx.fillStyle = P.grain;
   grains = grains.filter(g => {
     const x = g.i % W, y0 = (g.i / W) | 0, y = y0 + g.y;
     const below = cls[(Math.floor(y) + 1) * W + x];
@@ -355,7 +373,10 @@ function drawBox(t, now) {
     return !g.rest || t - g.rest < 1.5;
   });
   // ink on the glass hides the box from you too
-  bx.fillStyle = rgb(mix(0.92)); for (const col of S.shade) bx.fillRect(col * s, 0, s + 0.5, ch);
+  // the rail under the lid: the ampoules still unbroken, all alike from outside
+  if (L && L.left > 0) { const n = L.left, step = Math.min(2.55, 150 / n);
+    for (let k = 0; k < n; k++) { const x0 = (5 + k * step) * s, y0 = 2.2 * s; bx.fillStyle = P.vial; bx.fillRect(x0 + 0.5 * s, y0 + 1.2 * s, Math.max(1, Math.min(1.4, step - 0.8)) * s, 2.6 * s); bx.strokeStyle = P.vialGlass; bx.lineWidth = Math.max(1, 0.35 * s); bx.strokeRect(x0, y0, Math.max(1.2, Math.min(2.4, step - 0.2)) * s, 4.4 * s); } }
+  bx.fillStyle = P.inkStain; for (const col of S.shade) bx.fillRect(col * s, 0, s + 0.5, ch);
   if (night) { bx.fillStyle = 'rgba(10,10,10,0.5)'; bx.fillRect(0, 0, cw, ch); }
   if (S.closed) { bx.fillStyle = 'rgba(10,10,10,0.62)'; bx.fillRect(0, 0, cw, ch); }
 }
