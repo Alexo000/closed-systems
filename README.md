@@ -20,9 +20,10 @@ Anyone can pay to break an ampoule inside the box. The payer chooses what it hol
 - **Salt in bands.** The page shows the salt in the water as fresh, salty, very salty or poisoned, never as a number, and the published state has no exact figure either.
 - **Openings.** Every 261 days, which is 5 years in the box, the urn opens: the choice, the secret and the break day of every ampoule that has already broken are published. Anyone can check them against the seals, and the page does it for you. Ampoules still waiting to break stay sealed until the next opening.
 - **Rent.** What is paid, minus the Stripe fee, goes into a fund. Every 30 days the fund pays the rent. It keeps 6 months of rent; the rest goes to building the physical box. If a month can't be paid, the urn closes, opens one last time and the box stays frozen.
+- **The next box.** Once a box closes, its page takes gifts (pay what you like, from £1) for the next one. When the gifts reach £30 after fees, the next box starts the following morning with another stone and another seed, and that money as its fund. The closed box is archived and can still be seen at `?box=1`, `?box=2` and so on. If the gifts never get there, Urna ends with that box.
 - **Donations.** If someone pays less than the day's price, through an old link, it counts as a donation and breaks no ampoule.
 - **Before the start date.** The daily step publishes the sealed box at day 0 and needs no key. The page says when it starts and the payment button stays off.
-- **Payments after closing.** If a payment is dated after the closing day (for example, if the daily step failed for a few days), it breaks no ampoule: it goes in the log as waiting for a refund, and the daily step prints which Stripe session to refund.
+- **Payments while closed.** If an ampoule payment comes in while a box is closed (for example, if the daily step failed for a few days), it breaks no ampoule: it goes in the log as waiting for a refund, and the daily step prints which Stripe session to refund.
 
 Everything is worked out from the ledger, so anyone can redo the sums.
 
@@ -46,16 +47,16 @@ The public page is one file, `src/page.html`, in the same family as Shubyrinth: 
 | `lib/core.js` | Price, fund, seals, encryption, rebuilding the box |
 | `lib/stripe.js` | The little of the Stripe API the urn needs, with no dependencies |
 | `scripts/tick.js` | The daily step |
-| `scripts/stripe-setup.js` | Creates the product and one payment link per step of the price ladder (85 links, £1 to £4,100) |
-| `scripts/demo.js` | A demo without Stripe, with an invented public |
+| `scripts/stripe-setup.js` | Creates the product, one payment link per step of the price ladder (85 links, £1 to £4,100) and the gift link for the next box |
+| `scripts/demo.js` | A demo without Stripe, with an invented public. `--revive` makes the rent high enough for boxes to close and come back |
 | `scripts/verify.js` | Checks the seals in any `ledger.json` |
 | `scripts/new-key.js` | Makes the key that encrypts the choices |
 | `scripts/build-pages.js` | Builds `docs/index.html` (the urn), `docs/simulator/` (in English) and `docs/simulator/es/` (in Spanish) |
 | `src/page.html` | The public page |
 | `src/glyphs.js` | The operation glyphs |
 | `src/simulator.html`, `src/simulator-es.html` | The simulator for The Cycle, in English and Spanish |
-| `docs/` | What GitHub Pages serves. The daily step writes `ledger.json` and `state.json` |
-| `private/ledger.enc.json` | The choices, encrypted. It is in the public repository, but can't be read without the key |
+| `docs/` | What GitHub Pages serves. The daily step writes `ledger.json`, `state.json`, `series.json` (every box so far) and `boxes/N/` for each closed box |
+| `private/ledger.enc.json` | The choices, encrypted. It is in the public repository, but can't be read without the key. Closed boxes keep theirs as `private/box-N.enc.json` |
 | `.github/workflows/tick.yml` | Runs the daily step at 05:07 UTC |
 
 Nothing to install: only Node 18 or newer.
@@ -65,7 +66,7 @@ Nothing to install: only Node 18 or newer.
 1. **Repository.** This one, `alexo000/closed-systems`, public.
 2. **Key.** Run `node scripts/new-key.js` and keep the result in two places: as the `URNA_KEY` secret on GitHub (Settings → Secrets and variables → Actions) and in your password manager. If it is lost, nobody can open the urn.
 3. **Stripe, in test mode.** Create a restricted key with these permissions: Products (write), Prices (write), Payment Links (write) and Checkout Sessions (read). Save it as the `STRIPE_SECRET_KEY` secret on GitHub.
-4. **Payment links.** On your computer, run `STRIPE_SECRET_KEY=sk_test_... node scripts/stripe-setup.js`. It writes the 85 links into `config.json`. Commit it.
+4. **Payment links.** On your computer, run `STRIPE_SECRET_KEY=sk_test_... node scripts/stripe-setup.js`. It writes the 85 links and the gift link into `config.json`. Commit it.
 5. **Settings.** In `config.json`, check the start date (`start`), the starting fund (`fund.start`), the rent (`fund.rent`) and the public address (`site`). Stripe sends people back there after paying.
 6. **Pages.** Run `node scripts/build-pages.js` and commit `docs/`. On GitHub, go to Settings → Pages → Deploy from a branch → `main` → `/docs`.
 7. **First step.** In the Actions tab, run "urna-daily-step" by hand. From then on it runs by itself every morning.

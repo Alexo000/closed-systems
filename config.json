@@ -81,10 +81,14 @@
     "monthDays": 30,
     "reserveMonths": 6
   },
+  "revive": {
+    "target": 30
+  },
   "stripe": {
     "feePct": 0.015,
     "feeFixed": 0.2,
     "currency": "gbp"
   },
-  "links": []
+  "links": [],
+  "reviveLink": null
 }

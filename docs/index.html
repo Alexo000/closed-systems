@@ -41,6 +41,9 @@ p { margin: 0; }
 header { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; border-bottom: 1px solid var(--ink); padding-bottom: 24px; }
 .steps { margin: 4px 0 0; padding-left: 22px; display: grid; gap: 4px; max-width: 60ch; }
 .steps li::marker { font: 500 12px var(--mono); }
+.archive { padding: 12px 14px; border: 1px solid var(--ink); font-size: 15px; }
+.archive a { font-weight: 600; }
+.boxes a { margin-right: 10px; }
 .thanks { padding: 12px 14px; background: var(--ink); color: var(--paper); font-size: 15px; box-shadow: 5px 5px 0 var(--soft); }
 
 /* the box and its vital signs */
@@ -133,7 +136,7 @@ footer a::after { content: " →"; }
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">Closed Systems · live</div>
+    <div class="eyebrow" id="eyebrow">Closed Systems · live</div>
     <h1>Urna</h1>
     <p class="lede">A sealed box of stone, roots, seeds and water. Anyone can pay to break an ampoule inside it and choose, in secret, what it holds.</p>
     <ol class="steps">
@@ -142,6 +145,8 @@ footer a::after { content: " →"; }
       <li>Come back. Every morning the box lives one more week.</li>
     </ol>
     <p class="thanks" id="thanks" hidden>Thank you. Your ampoule goes on the rail at the next daily step, early tomorrow UK time, and breaks on a secret day within the next 45 days. Your alias and the price will be in the log tomorrow.</p>
+    <p class="thanks" id="thanksGift" hidden>Thank you for your gift. It counts towards the next box at tomorrow's daily step.</p>
+    <p class="archive" id="archive" hidden></p>
   </header>
 
   <section class="bench" aria-label="The box">
@@ -155,6 +160,13 @@ footer a::after { content: " →"; }
       <div class="vitals" id="vitals" aria-label="Vital signs"></div>
       <p class="more" id="more"></p>
       <p class="since" id="since" hidden></p>
+      <div class="card" id="gift" hidden>
+        <h2>Seed the next box</h2>
+        <p class="price"><b id="giftNow">£0</b><span id="giftNote"></span></p>
+        <div id="giftBar"></div>
+        <a class="pay" id="give" href="#" aria-disabled="true">Gifts open soon</a>
+        <p class="note">A gift breaks no ampoule. If the gifts reach the target, the next box starts the following morning, with another stone and another chance. If they never do, the money goes to building the real box.</p>
+      </div>
       <div class="card" id="buy">
         <h2>Break an ampoule</h2>
         <p class="price"><b id="priceNow">£–</b><span id="priceNote"></span></p>
@@ -201,6 +213,8 @@ footer a::after { content: " →"; }
     <p>I built it with Claude, an AI. Fonts: VT323 by Peter Hull, Inter by Rasmus Andersson, IBM Plex Mono by IBM.</p>
     <p class="cap">Alejandro Ramos Saavedra · <a href="https://ramos-saavedra.com">ramos-saavedra.com</a></p>
   </section>
+
+  <p class="cap boxes" id="boxes" hidden></p>
 
   <footer>
     <a href="simulator/">Try your own box in the simulator</a>
@@ -440,7 +454,8 @@ const STEP_UTC = 5 * 60 + 10;    // the daily step lands around 05:10 UTC
 const reduced = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
 const money = v => '£' + (Math.round(v * 100) / 100).toLocaleString('en-GB', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 });
 const fmtDay = (d, opts) => new Date(new Date(L.start).getTime() + d * 864e5).toLocaleDateString('en-GB', opts || { day: 'numeric', month: 'short', year: 'numeric' });
-try { if (new URLSearchParams(location.search).has('paid')) $('thanks').hidden = false; } catch (e) {}
+let VIEW = null;
+try { const q = new URLSearchParams(location.search); if (q.has('paid')) $('thanks').hidden = false; if (q.has('gave')) $('thanksGift').hidden = false; VIEW = +q.get('box') || null; } catch (e) {}
 
 // how each ampoule is marked once the urn has opened; sealed ones are grey dots
 const SALT = ['fresh', 'salty', 'very salty', 'poisoned'];
@@ -475,16 +490,20 @@ function msToNextStep(now) {
 const dur = ms => { const m = Math.max(1, Math.round(ms / 60000)), h = Math.floor(m / 60); return h ? `${h} h ${m % 60} min` : `${m} min`; };
 
 // ---------- loading ----------
-let L = null, S = null, refreshTimer = null;
+// a closed box can be looked at later: ?box=N loads it from its archive
+let L = null, S = null, SERIES = null, ARCHIVED = false, refreshTimer = null;
 async function load() {
   try {
-    const [a, b] = await Promise.all([fetch('ledger.json', { cache: 'no-store' }), fetch('state.json', { cache: 'no-store' })]);
+    SERIES = await fetch('series.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
+    const old = VIEW && SERIES && VIEW !== SERIES.current ? SERIES.boxes.find(b => b.n === VIEW && b.archive) : null;
+    ARCHIVED = !!old; const base = old ? old.archive : '';
+    const [a, b] = await Promise.all([fetch(base + 'ledger.json', { cache: 'no-store' }), fetch(base + 'state.json', { cache: 'no-store' })]);
     L = await a.json(); S = await b.json();
     if (S.started === undefined) S.started = true;
   } catch (e) { $('mood').innerHTML = '<b>Out of reach.</b><span>The box could not be loaded. Try again later.</span>'; return; }
   prepareBox(); render();
   clearTimeout(refreshTimer);
-  if (!S.closed) refreshTimer = setTimeout(load, msToNextStep(new Date()) + 6 * 60000);
+  if (!ARCHIVED) refreshTimer = setTimeout(load, msToNextStep(new Date()) + 6 * 60000);
 }
 
 // ---------- the box: a still layer drawn once, and a moving layer on top ----------
@@ -595,7 +614,7 @@ function vitals() {
   const f = L.fund, r = L.rules, hmax = Math.max(10, ...S.hist), stock = L.kinds.reduce((a, k) => a + (k.stock || 0), 0) || 100;
   const rows = [
     ['Plants', seg(S.alive / hmax, { blink: S.alive > 0 && S.alive <= 2 }), `${S.alive}<small>alive</small>`],
-    ['Salt', seg([0.2, 0.5, 0.8, 1][S.saltBand], { blink: S.saltBand >= 1 }), `${SALT[S.saltBand]}`],
+    ['Salt', seg([0, 0.4, 0.7, 1][S.saltBand], { blink: S.saltBand >= 1 }), `${SALT[S.saltBand]}`],
     ['Rail', seg(L.left / stock), `${L.left}<small>ampoules</small>`],
     ...(r.rent > 0 ? [['Rent', seg((f.monthsLeft || 0) / r.reserveMonths, { blink: (f.monthsLeft || 0) < 1.5 }), `${Math.floor(f.monthsLeft || 0)}<small>${Math.floor(f.monthsLeft || 0) === 1 ? 'month' : 'months'}</small>`]] : []),
   ];
@@ -605,7 +624,8 @@ function vitals() {
 function mood(now) {
   const night = S.started && !S.closed && !lampOn(now), f = L.fund, r = L.rules;
   let b, s;
-  if (S.closed) { b = 'Closed.'; s = `The money ran out on day ${L.closedDay}. The box stays as it was that day.`; }
+  if (S.closed && ARCHIVED) { const nx = SERIES.boxes.find(x => x.n === (L.box || 1) + 1); b = 'Closed.'; s = `Box ${L.box || 1} ran out of money on day ${L.closedDay} and stays as it was that day.` + (nx ? ` Box ${nx.n} started on ${new Date(nx.start).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.` : ''); }
+  else if (S.closed) { b = 'Closed.'; s = `The money ran out on day ${L.closedDay}. The box stays as it was that day. If gifts reach ${money(r.reviveTarget || 30)}, the next box starts the morning after.`; }
   else if (S.alive === 0 && S.waiting === 0) { b = 'Empty.'; s = 'Nothing is alive in the box. Only seeds can bring it back.'; }
   else if (!S.started) { b = 'Sealed.'; s = `The box starts on ${fmtDay(0, { day: 'numeric', month: 'long', year: 'numeric' })}. Until then nothing moves inside.`; }
   else if (S.saltBand >= 3) { b = 'Poisoned.'; s = 'The water is so salty that nothing can germinate.'; }
@@ -626,10 +646,11 @@ function clock(now) {
 
 // ---------- since your last visit (kept in this browser only) ----------
 function since() {
-  const now = { day: S.day, alive: S.alive, buys: L.purchases.length, opens: L.openings.length, price: L.price };
+  const now = { box: L.box || 1, day: S.day, alive: S.alive, buys: L.purchases.length, opens: L.openings.length, price: L.price };
   let before = null;
   try { before = JSON.parse(localStorage.getItem('urna.seen') || 'null'); } catch (e) {}
   try { localStorage.setItem('urna.seen', JSON.stringify(now)); } catch (e) {}
+  if (before && (before.box || 1) !== now.box) { $('since').textContent = `Since your last visit, box ${before.box || 1} closed and box ${now.box} started.`; $('since').hidden = false; return; }
   if (!before || before.day >= now.day) return;
   const bits = [];
   const wk = now.day - before.day; bits.push(`${wk} ${wk === 1 ? 'week has' : 'weeks have'} passed in the box`);
@@ -656,7 +677,25 @@ function render() {
   $('opsLink').href = L.actionary; $('opsLink2').href = L.actionary;
   const nameOf = k => (L.kinds.find(x => x.key === k) || { name: k }).name;
   const r = L.rules, now = new Date();
-  vitals(); mood(now); clock(now); if (S.started) since();
+  vitals(); mood(now); clock(now); if (S.started && !ARCHIVED) since();
+  // which box, and the others in the series
+  const many = SERIES && SERIES.boxes.length > 1, n = L.box || 1;
+  $('eyebrow').textContent = ARCHIVED ? `Closed Systems · archive · box ${n}` : `Closed Systems · live${many ? ` · box ${n}` : ''}`;
+  $('archive').hidden = !ARCHIVED;
+  if (ARCHIVED) $('archive').innerHTML = `This is box ${n}, as it was when it closed. <a href="./">See the box running now →</a>`;
+  $('boxes').hidden = !many;
+  if (many) $('boxes').innerHTML = 'Every box so far: ' + SERIES.boxes.map(x => x.n === SERIES.current ? `<a href="./">${x.n} (now)</a>` : `<a href="?box=${x.n}">${x.n}</a>`).join('');
+  // a closed box takes gifts for the next one; an archived one takes nothing
+  const rv = L.revive || { target: r.reviveTarget || 30, raised: 0, gifts: [] };
+  $('buy').hidden = S.closed; $('gift').hidden = !S.closed || ARCHIVED;
+  if (S.closed && !ARCHIVED) {
+    $('giftNow').textContent = money(rv.raised);
+    $('giftNote').textContent = `of ${money(rv.target)} given so far. When the gifts reach it, the next box starts the following morning.`;
+    $('giftBar').innerHTML = seg(rv.raised / rv.target);
+    const give = $('give');
+    if (L.reviveLink) { give.textContent = 'Give to the next box'; give.href = L.reviveLink; give.setAttribute('aria-disabled', 'false'); }
+    else { give.textContent = 'Gifts open soon'; give.setAttribute('aria-disabled', 'true'); give.removeAttribute('href'); }
+  }
   // price and choice
   $('priceNow').textContent = money(L.price);
   const nd = nextDrop();
@@ -686,7 +725,8 @@ function render() {
   for (const d of L.donations) rows.push({ day: d.day, o: 0, cls: 'r-don', html: `<b>${d.alias}</b> gave ${money(d.amount)}, less than the day's price: no ampoule, all to the fund.` });
   for (const o of L.openings) rows.push({ day: o.day, o: 2, cls: 'r-open', html: o.final ? `The urn opened for the last time as it closed: ${o.count} ${o.count === 1 ? 'ampoule' : 'ampoules'} shown.` : `The urn opened: ${o.count} ${o.count === 1 ? 'ampoule' : 'ampoules'} shown${o.count ? ': ' + Object.entries(o.counts).map(([k, v]) => `${v} ${nameOf(k).toLowerCase()}`).join(', ') : ''}.` });
   if (L.closedDay != null) rows.push({ day: L.closedDay, o: 3, cls: 'r-closed', html: 'The money did not cover the rent. The urn closed.' });
-  for (const d of (L.late || [])) rows.push({ day: d.day, o: 0, cls: 'r-don', html: `<b>${d.alias}</b> paid ${money(d.amount)} after the urn closed. It will be refunded.` });
+  for (const d of (L.late || [])) rows.push({ day: d.day, o: 0, cls: 'r-don', html: `<b>${d.alias}</b> paid ${money(d.amount)} while the urn was closed. It will be refunded.` });
+  for (const g of (L.revive && L.revive.gifts) || []) rows.push({ day: g.day, o: 4, cls: 'r-don', html: `<b>${g.alias}</b> gave ${money(g.amount)} towards the next box.` });
   rows.sort((a, b) => b.day - a.day || b.o - a.o);
   $('log').innerHTML = rows.length ? rows.map(x => `<li class="${x.cls}"><span class="when"><b>day ${x.day}</b>${fmtDay(x.day)}</span><span class="txt">${x.html}</span></li>`).join('') : '<li><span class="when"><b>–</b></span><span class="txt">Nobody has paid yet.</span></li>';
   checkSeals();
