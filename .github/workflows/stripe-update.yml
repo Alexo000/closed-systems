@@ -1,0 +1,19 @@
+# Run by hand from the Actions tab: updates the existing Stripe payment links (where people land after paying,
+# and the text above the pay button) from config.json, without creating new ones.
+name: stripe-update
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: read
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Update the payment links
+        run: node scripts/stripe-update.js
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}

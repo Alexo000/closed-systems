@@ -18,7 +18,7 @@ const S = require('../lib/stripe.js');
       line_items: [{ price: pr.id, quantity: 1 }],
       custom_fields: [S.ampouleField(cfg.kinds), S.aliasField],
       custom_text: { submit: { message: S.consentText } },
-      after_completion: { type: 'redirect', redirect: { url: cfg.site + '?paid=1' } },
+      after_completion: { type: 'redirect', redirect: { url: (cfg.returnTo || cfg.site) + '?paid=1' } },
       submit_type: 'pay',
       metadata: { urna_price: String(price) },
     });
@@ -32,7 +32,7 @@ const S = require('../lib/stripe.js');
     line_items: [{ price: gp.id, quantity: 1 }],
     custom_fields: [S.aliasField],
     custom_text: { submit: { message: S.giftText } },
-    after_completion: { type: 'redirect', redirect: { url: cfg.site + '?gave=1' } },
+    after_completion: { type: 'redirect', redirect: { url: (cfg.returnTo || cfg.site) + '?gave=1' } },
     submit_type: 'donate',
   });
   await S.setActive({ id: gl.id }, false);

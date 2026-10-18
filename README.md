@@ -48,6 +48,7 @@ The public page is one file, `src/page.html`, in the same family as Shubyrinth: 
 | `lib/stripe.js` | The little of the Stripe API the urn needs, with no dependencies |
 | `scripts/tick.js` | The daily step |
 | `scripts/stripe-setup.js` | Creates the product, one payment link per step of the price ladder (85 links, £1 to £4,100) and the gift link for the next box |
+| `scripts/stripe-update.js` | Updates the existing links (where people land after paying, the text above the pay button) without making new ones. Also a button in the Actions tab |
 | `scripts/demo.js` | A demo without Stripe, with an invented public. `--revive` makes the rent high enough for boxes to close and come back |
 | `scripts/verify.js` | Checks the seals in any `ledger.json` |
 | `scripts/new-key.js` | Makes the key that encrypts the choices |
