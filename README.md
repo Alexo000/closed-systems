@@ -62,27 +62,49 @@ The public page is one file, `src/page.html`, in the same family as Shubyrinth: 
 
 Nothing to install: only Node 18 or newer.
 
-### Setting it up
+### Where things stand (18 October 2026)
 
-1. **Repository.** This one, `alexo000/closed-systems`, public.
-2. **Key.** Run `node scripts/new-key.js` and keep the result in two places: as the `URNA_KEY` secret on GitHub (Settings → Secrets and variables → Actions) and in your password manager. If it is lost, nobody can open the urn.
-3. **Stripe, in test mode.** Create a restricted key with these permissions: Products (write), Prices (write), Payment Links (write) and Checkout Sessions (read). Save it as the `STRIPE_SECRET_KEY` secret on GitHub.
-4. **Payment links.** On your computer, run `STRIPE_SECRET_KEY=sk_test_... node scripts/stripe-setup.js`. It writes the 85 links and the gift link into `config.json`. Commit it.
-5. **Settings.** In `config.json`, check the start date (`start`), the starting fund (`fund.start`), the rent (`fund.rent`) and the public address (`site`). Stripe sends people back there after paying.
-6. **Pages.** Run `node scripts/build-pages.js` and commit `docs/`. On GitHub, go to Settings → Pages → Deploy from a branch → `main` → `/docs`.
-7. **First step.** In the Actions tab, run "urna-daily-step" by hand. From then on it runs by itself every morning.
-8. **Test.** Pay with the test card 4242 4242 4242 4242. The next day, or when you run the step by hand, the payment shows in the log.
-9. **Live.** Repeat step 4 with the live key (`sk_live_...`) and change the secret on GitHub. Delete the test files in `docs/` and `private/` before opening.
+- **Repository and Pages.** `Alexo000/closed-systems`, public. GitHub Pages serves `docs/` from `main` at https://alexo000.github.io/closed-systems/.
+- **Secrets** (Settings → Secrets and variables → Actions):
+  - `URNA_KEY`: 64 hex characters made with `openssl rand -hex 32`. It encrypts the choices. Also kept in the password manager as "Urna · URNA_KEY". It can't be recovered or changed: without it the urn can't be opened.
+  - `STRIPE_SECRET_KEY`: a **live** restricted key (`rk_live_…`) with only Products (write), Prices (write), Payment Links (write) and Checkout Sessions (read). Also in the password manager. If it is lost or leaked, make a new one in Stripe (dashboard.stripe.com/apikeys) and replace the secret.
+- **Stripe.** 85 live payment links, one per step of the price ladder, and one gift link, all in `config.json`. They stay off until the box starts and the daily step switches them on the morning of 1 November 2026. After paying, people land on `returnTo` (https://www.ramos-saavedra.com/urna) with `?paid=1`, or `?gave=1` after a gift.
+- **The box** is sealed until `start` (1 November 2026, 00:00 UTC). Before then the daily step publishes it at day 0 and needs no key.
+
+### Buttons in the Actions tab
+
+| Workflow | What it does | When |
+|---|---|---|
+| `urna-daily-step` | The daily step (`scripts/tick.js`), then commits `docs/` and `private/` | By itself at 05:07 UTC every day; by hand any time, it is safe to run twice |
+| `stripe-setup` | Creates a new set of payment links and the gift link with `STRIPE_SECRET_KEY`, and commits `config.json` | Only once per Stripe mode (test or live). Running it again makes a second set and the page switches to it |
+| `stripe-update` | Updates the existing links: where people land after paying (`returnTo`) and the text above the pay button | After changing `returnTo` or the texts in `lib/stripe.js` |
+
+### Changing things safely
+
+The page only reads `docs/ledger.json` and `docs/state.json`. Payments live in Stripe and in the daily step. So:
+
+- **Safe at any time:** the page (`src/page.html`, then `node scripts/build-pages.js`), its texts, design and motion; the simulator; the Squarespace page; `returnTo` and the payment texts (then run `stripe-update`); the rent and the gift target for the future (they apply from the next daily step).
+- **Ask before changing, once the box has started:**
+  - `engine/engine.js` and the box settings in `config.json` (`engine`, `seed`, `start`, `breakWithinDays`): the box is rebuilt from day 0 every morning, so these rewrite its past.
+  - The price ladder (`price.start`, `price.max`, `price.stepsPerDouble`): each Stripe link is tied to an exact amount, so new links are needed.
+  - The ampoule keys (`seeds`, `salt`…): the Stripe menu and the seals use them. Names, operations and descriptions can change.
+  - `URNA_KEY`: never.
+
+### Setting it up from scratch
+
+1. **Repository.** A public repository with these files. On GitHub: Settings → Pages → Deploy from a branch → `main` → `/docs`.
+2. **Key.** `openssl rand -hex 32` (or `node scripts/new-key.js`). Save it as the `URNA_KEY` secret and in a password manager.
+3. **Stripe.** Create a restricted key (Developers → API keys → Create secret key → Custom permissions) with Products (write), Prices (write), Payment Links (write) and Checkout Sessions (read); in the permission list, search `/v1/prices` if Prices is hard to find. Save it as the `STRIPE_SECRET_KEY` secret. Then run `stripe-setup` from the Actions tab. To test first, use a test-mode key (`rk_test_…`) and the card 4242 4242 4242 4242, then repeat with the live key.
+4. **Settings.** In `config.json`, check `start`, `fund.start`, `fund.rent`, `revive.target`, `site` and `returnTo`.
+5. **First step.** Run `urna-daily-step` by hand. From then on it runs every morning.
 
 ### For the site
 
-On ramos-saavedra.com, the page `/urna` embeds https://alexo000.github.io/closed-systems/ in an iframe, as with Shubyrinth, and the home page lists it under *try*:
+On ramos-saavedra.com (Squarespace):
 
-> **Live systems.** Things that keep running and remember what people do.
->
-> **Shubyrinth.** A labyrinth that builds itself as you walk through it.
->
-> **Urna.** A sealed box that lives or dies by what strangers pay. Break an ampoule for a pound or two. Nobody knows what you chose until the urn opens.
+- **`/urna`** is a copy of the Shubyrinth page, in the *try* folder. Its code block embeds https://alexo000.github.io/closed-systems/ in an iframe on desktop; on phones it shows `docs/card.png` with a link that opens the box full screen. A short script in the same block shows the thank-you note when the address has `?paid=1` or `?gave=1`.
+- **SEO** (page settings): title "Urna — Ramos Saavedra"; the description matches the card. The social image goes in Advanced → Page header code injection as `og:image` and `twitter:image` pointing to `docs/card.png`, as on the Transmogrificadora page.
+- **Home page:** the Transmogrificadora code block under "Try something" holds two cards, Transmogrificadora and Urna ("Live"), side by side.
 
 For an address of its own, such as `urna.ramos-saavedra.com`, add a `docs/CNAME` file with that name and a CNAME record in your DNS pointing to GitHub Pages.
 
@@ -103,6 +125,6 @@ node scripts/verify.js https://alexo000.github.io/closed-systems/ledger.json
 ### Still open
 
 - **The real rent.** £5 a month is a guess: domain and margin. GitHub Pages and Actions are free on a public repository.
-- **Terms.** The payment page already says the ampoule breaks straight away and there is no refund. I am not a lawyer: get it checked and, if Stripe asks, link to terms.
+- **Terms.** The payment page already says the payment can't be cancelled or refunded once the ampoule is on the rail. I am not a lawyer: get it checked and, if Stripe asks, link to terms.
 - **Calibration.** The salt, the stock and the price come from simulations with an invented public. Worth checking after a few months with real people.
 - **What still shows.** When a type sells out it leaves the menu, so people learn that every one of that type was bought. Ink darkens the glass when it breaks; with the secret break day, it can't be pinned on a buyer unless very few people paid in the previous six weeks.
