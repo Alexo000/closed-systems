@@ -1,6 +1,6 @@
 # Closed Systems
 
-Live pieces from Closed Systems, a series of sealed boxes where what happens inside depends on rules set from outside. Published at https://alexo000.github.io/closed-systems/.
+Live pieces from Closed Systems, a series of sealed boxes where what happens inside depends on rules set from outside. Published at https://urna.ramos-saavedra.com/ (the old address, https://alexo000.github.io/closed-systems/, forwards there).
 
 - **Urna** (`/`): a sealed box that lives or dies by what strangers pay.
 - **The Cycle** (`/simulator/`, in Spanish at `/simulator/es/`): the simulator the box runs on, to test your own designs.
@@ -62,14 +62,14 @@ The public page is one file, `src/page.html`, in the same family as Shubyrinth: 
 
 Nothing to install: only Node 18 or newer.
 
-### Where things stand (18 October 2026)
+### Where things stand (19 October 2026)
 
-- **Repository and Pages.** `Alexo000/closed-systems`, public. GitHub Pages serves `docs/` from `main` at https://alexo000.github.io/closed-systems/.
+- **Repository and Pages.** `Alexo000/closed-systems`, public. GitHub Pages serves `docs/` from `main` at https://urna.ramos-saavedra.com/, with "Enforce HTTPS" on. The address comes from `site` in `config.json`: `build-pages.js` writes it to `docs/CNAME`. In Squarespace (Domains → ramos-saavedra.com → DNS), a custom record `CNAME urna → alexo000.github.io`, like the ones for operations, mmm, tasks and toolkit.
 - **Secrets** (Settings → Secrets and variables → Actions):
   - `URNA_KEY`: 64 hex characters made with `openssl rand -hex 32`. It encrypts the choices. Also kept in the password manager as "Urna · URNA_KEY". It can't be recovered or changed: without it the urn can't be opened.
   - `STRIPE_SECRET_KEY`: a **live** restricted key (`rk_live_…`) with only Products (write), Prices (write), Payment Links (write) and Checkout Sessions (read). Also in the password manager. If it is lost or leaked, make a new one in Stripe (dashboard.stripe.com/apikeys) and replace the secret.
-- **Stripe.** 85 live payment links, one per step of the price ladder, and one gift link, all in `config.json`. They stay off until the box starts and the daily step switches them on the morning of 19 October 2026. After paying, people land on `returnTo` (https://www.ramos-saavedra.com/urna) with `?paid=1`, or `?gave=1` after a gift.
-- **The box** is sealed until `start` (19 October 2026, 00:00 UTC). Before then the daily step publishes it at day 0 and needs no key.
+- **Stripe.** 85 live payment links, one per step of the price ladder, and one gift link, all in `config.json`. The daily step switched them on the morning of 19 October 2026. After paying, people land on `returnTo` (https://urna.ramos-saavedra.com/) with `?paid=1`, or `?gave=1` after a gift.
+- **The box** started on 19 October 2026, 00:00 UTC (`start`).
 
 ### Buttons in the Actions tab
 
@@ -102,11 +102,9 @@ The page only reads `docs/ledger.json` and `docs/state.json`. Payments live in S
 
 On ramos-saavedra.com (Squarespace):
 
-- **`/urna`** is a copy of the Shubyrinth page, in the *try* folder. Its code block embeds https://alexo000.github.io/closed-systems/ in an iframe on desktop; on phones it shows `docs/card.png` with a link that opens the box full screen. A short script in the same block shows the thank-you note when the address has `?paid=1` or `?gave=1`.
-- **SEO** (page settings): title "Urna — Ramos Saavedra"; the description matches the card. The social image goes in Advanced → Page header code injection as `og:image` and `twitter:image` pointing to `docs/card.png`, as on the Transmogrificadora page.
-- **Home page:** the Transmogrificadora code block under "Try something" holds two cards, Transmogrificadora and Urna ("Live"), side by side.
-
-For an address of its own, such as `urna.ramos-saavedra.com`, add a `docs/CNAME` file with that name and a CNAME record in your DNS pointing to GitHub Pages.
+- **`/urna`** stays in the *try* folder so the menu and old links keep working. A script in its page settings (Advanced → Page header code injection) sends visitors straight to https://urna.ramos-saavedra.com/, keeping `?paid=1` or `?gave=1`; it does nothing inside the Squarespace editor. The same box holds `og:image` and `twitter:image` pointing to `card.png`. The old iframe code block is still on the page but nobody sees it.
+- **The page's own tags.** Title, description, sharing image and canonical address are at the top of `src/page.html`; `build-pages.js` puts them in the `<head>`.
+- **Home page:** the Transmogrificadora code block under "Try something" holds two cards, Transmogrificadora and Urna ("Live"), side by side. The Urna card links to https://urna.ramos-saavedra.com/ and uses its `card.png`.
 
 ### Trying it without Stripe
 
@@ -119,7 +117,7 @@ It invents some days of public and leaves the ledger and the box in `demo/`. To 
 ### Checking the seals
 
 ```
-node scripts/verify.js https://alexo000.github.io/closed-systems/ledger.json
+node scripts/verify.js https://urna.ramos-saavedra.com/ledger.json
 ```
 
 ### Still open
