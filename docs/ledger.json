@@ -13,12 +13,12 @@
  ],
  "name": "Urna",
  "start": "2026-10-19T00:00:00Z",
- "started": false,
- "updated": "2026-10-18T18:45:21.074Z",
+ "started": true,
+ "updated": "2026-10-19T05:26:55.464Z",
  "today": 0,
  "date": "2026-10-19",
  "price": 1,
- "link": null,
+ "link": "https://buy.stripe.com/cNiaEWfXU3wreUW27NgEg00",
  "kinds": [
   {
    "key": "seeds",

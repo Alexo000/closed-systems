@@ -9,7 +9,7 @@
  ],
  "current": 1,
  "stripe": {
-  "open": false,
+  "open": true,
   "kinds": "seeds,salt,water,resin,hormone,ink",
   "gifts": false
  }
