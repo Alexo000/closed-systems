@@ -127,6 +127,7 @@ details.rules li b { font-weight: 600; }
 .chip.ok::after { content: "seal ✓"; color: var(--muted); font-weight: 400; margin-left: 2px; }
 .chip.bad::after { content: "seal ✗"; margin-left: 2px; }
 .log li.r-open { background: var(--tint); }
+.log li.r-wait { outline: 1px dashed var(--ink); outline-offset: -1px; }
 .log li.r-closed { background: var(--ink); color: var(--paper); }
 .log li.r-closed .when, .log li.r-closed .when b { color: var(--paper); }
 .credits { display: grid; gap: 8px; border-top: 1px solid var(--rule); padding-top: 18px; max-width: 70ch; font-size: 13.5px; }
@@ -148,8 +149,7 @@ footer a::after { content: " →"; }
       <li>Choose what is inside. It breaks on a secret day within six weeks, and nobody else knows what it was until the urn opens.</li>
       <li>Come back. Every morning the box lives one more week.</li>
     </ol>
-    <p class="thanks" id="thanks" hidden>Thank you. Your ampoule goes on the rail at the next daily step, early tomorrow UK time, and breaks on a secret day within the next 45 days. Your alias and the price will be in the log tomorrow.</p>
-    <p class="thanks" id="thanksGift" hidden>Thank you for your gift. It counts towards the next box at tomorrow's daily step.</p>
+    <p class="thanks" id="thanks" role="status" hidden></p>
     <p class="archive" id="archive" hidden></p>
   </header>
 
@@ -237,8 +237,20 @@ const STEP_UTC = 5 * 60 + 10;    // the daily step lands around 05:10 UTC
 const reduced = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
 const money = v => '£' + (Math.round(v * 100) / 100).toLocaleString('en-GB', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 });
 const fmtDay = (d, opts) => new Date(new Date(L.start).getTime() + d * 864e5).toLocaleDateString('en-GB', opts || { day: 'numeric', month: 'short', year: 'numeric' });
-let VIEW = null;
-try { const q = new URLSearchParams(location.search); if (q.has('paid')) $('thanks').hidden = false; if (q.has('gave')) $('thanksGift').hidden = false; VIEW = +q.get('box') || null; } catch (e) {}
+let VIEW = null, PENDING = [];
+// Stripe sends people back with ?paid=1 or ?gave=1. Their payment only shows after the next daily step,
+// so this browser remembers it until then and the page says what is going on.
+try {
+  const q = new URLSearchParams(location.search), kind = q.has('paid') ? 'paid' : q.has('gave') ? 'gave' : null;
+  VIEW = +q.get('box') || null;
+  try { PENDING = JSON.parse(localStorage.getItem('urna.pending') || '[]').filter(p => Date.now() - p.at < 4 * 864e5); } catch (e) {}
+  if (kind) {
+    PENDING.push({ kind, at: Date.now() });
+    try { localStorage.setItem('urna.pending', JSON.stringify(PENDING)); } catch (e) {}
+    q.delete('paid'); q.delete('gave');
+    history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+  }
+} catch (e) {}
 
 // how each ampoule is marked once the urn has opened; sealed ones are grey dots
 const SALT = ['fresh', 'salty', 'very salty', 'poisoned'];
@@ -467,6 +479,21 @@ function since() {
   $('since').hidden = false;
 }
 
+// ---------- your payment, until the daily step picks it up (kept in this browser only) ----------
+const nextStepText = () => { const ms = msToNextStep(new Date()), [h, m] = londonHM(new Date(Date.now() + ms)); return `around ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')} London time, in ${dur(ms)}`; };
+const waiting = () => ARCHIVED || !L ? [] : PENDING.filter(p => p.at > new Date(L.updated).getTime());
+function pending() {
+  const t = $('thanks'), wait = waiting(), done = ARCHIVED || !L ? [] : PENDING.filter(p => p.at <= new Date(L.updated).getTime());
+  const buys = wait.filter(p => p.kind === 'paid').length, gifts = wait.length - buys, when = nextStepText(), bits = [];
+  if (buys) bits.push(`<b>${buys === 1 ? 'Your payment went through.' : `Your ${buys} payments went through.`}</b> ${buys === 1 ? 'Your ampoule is' : 'Your ampoules are'} waiting for the next daily step, ${when}. Then your alias and the price appear in the log and ${buys === 1 ? 'the ampoule goes' : 'they go'} on the rail. ${buys === 1 ? 'It breaks' : 'Each one breaks'} on a secret day within the next 45 days.`);
+  if (gifts) bits.push(`<b>${gifts === 1 ? 'Your gift went through.' : `Your ${gifts} gifts went through.`}</b> ${gifts === 1 ? 'It counts' : 'They count'} towards the next box at the next daily step, ${when}.`);
+  if (!wait.length && done.length) bits.push(done.some(p => p.kind === 'paid') ? '<b>Your payment is in.</b> Your alias and the price are in the log below, and your ampoule is on the rail.' : '<b>Your gift is in.</b> It is in the log below.');
+  t.innerHTML = bits.join('<br><br>');
+  t.hidden = !bits.length;
+  // once the daily step has picked a payment up, say so once and forget it
+  if (done.length) { PENDING = PENDING.filter(p => !done.includes(p)); try { localStorage.setItem('urna.pending', JSON.stringify(PENDING)); } catch (e) {} }
+}
+
 // ---------- the rest ----------
 // the next drop: one step down the ladder after dropEveryDays days with nobody paying
 function nextDrop() {
@@ -481,7 +508,7 @@ function render() {
   $('opsLink').href = L.actionary; $('opsLink2').href = L.actionary;
   const nameOf = k => (L.kinds.find(x => x.key === k) || { name: k }).name;
   const r = L.rules, now = new Date();
-  vitals(); mood(now); clock(now); if (S.started && !ARCHIVED) since();
+  vitals(); mood(now); clock(now); if (S.started && !ARCHIVED) since(); pending();
   // which box, and the others in the series
   const many = SERIES && SERIES.boxes.length > 1, n = L.box || 1;
   $('eyebrow').textContent = ARCHIVED ? `Closed Systems · archive · box ${n}` : `Closed Systems · live${many ? ` · box ${n}` : ''}`;
@@ -532,7 +559,9 @@ function render() {
   for (const d of (L.late || [])) rows.push({ day: d.day, o: 0, cls: 'r-don', html: `<b>${d.alias}</b> paid ${money(d.amount)} while the urn was closed. It will be refunded.` });
   for (const g of (L.revive && L.revive.gifts) || []) rows.push({ day: g.day, o: 4, cls: 'r-don', html: `<b>${g.alias}</b> gave ${money(g.amount)} towards the next box.` });
   rows.sort((a, b) => b.day - a.day || b.o - a.o);
-  $('log').innerHTML = rows.length ? rows.map(x => `<li class="${x.cls}"><span class="when"><b>day ${x.day}</b>${fmtDay(x.day)}</span><span class="txt">${x.html}</span></li>`).join('') : '<li><span class="when"><b>–</b></span><span class="txt">Nobody has paid yet.</span></li>';
+  // payments made from this browser that the daily step hasn't picked up yet: only this visitor sees these rows
+  const mine = waiting().map(p => `<li class="r-wait"><span class="when"><b>soon</b>next step</span><span class="txt"><b>You</b> ${p.kind === 'paid' ? 'paid for an ampoule' : 'gave towards the next box'}. It shows here with your alias at the next daily step, ${nextStepText()}.</span></li>`).join('');
+  $('log').innerHTML = mine + (rows.length ? rows.map(x => `<li class="${x.cls}"><span class="when"><b>day ${x.day}</b>${fmtDay(x.day)}</span><span class="txt">${x.html}</span></li>`).join('') : mine ? '' : '<li><span class="when"><b>–</b></span><span class="txt">Nobody has paid yet.</span></li>');
   checkSeals();
   drawSpark(); drawPrice(); drawBox(performance.now() / 1000, now);
 }
@@ -576,7 +605,7 @@ let rt = null; window.addEventListener('resize', () => { clearTimeout(rt); rt = 
 const retheme = () => { if (S) { prepareBox(); render(); } };
 try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', retheme); } catch (e) {}
 new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-setInterval(() => { if (S) { const now = new Date(); clock(now); mood(now); if (reduced) drawBox(0, now); } }, 30000);
+setInterval(() => { if (S) { const now = new Date(); clock(now); mood(now); if (waiting().length) pending(); if (reduced) drawBox(0, now); } }, 30000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && S && !S.closed && Date.now() - new Date(S.updated).getTime() > 25 * 3600e3) load(); });
 load();
 if (!reduced) requestAnimationFrame(frame);
