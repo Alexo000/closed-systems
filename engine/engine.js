@@ -60,8 +60,8 @@ function makeSim(opt) {
   const salt = [];
   let rackI = 0;
   // En una caja cerrada la sal no se va nunca: escurre al agua y se acumula.
-  let saltG = 0, waterTop0 = 0;
-  const waterVol = () => o.waterMl * Math.max(1, H - 1 - waterTop) / Math.max(1, H - 1 - waterTop0);   // ml: cambia si sube o baja el agua
+  let saltG = 0, waterTop0 = 0, extraMl = 0, risenMm = 0;   // extraMl: agua que trajeron las ampolletas (ampMl cada una)
+  const waterVol = () => (o.waterMl + extraMl) * Math.max(1, H - 1 - waterTop) / Math.max(1, H - 1 - waterTop0);   // ml: cambia si sube o baja el agua
   const salinity = () => saltG / (waterVol() / 1000);                     // gramos por litro
   // tinta en el vidrio: cuánta luz deja pasar cada columna (1 = toda)
   const shade = new Float32Array(160).fill(1);
@@ -963,8 +963,12 @@ function makeSim(opt) {
       if (near) { p.energy -= lp.water ? dmgE * 0.4 : dmgE; tot.chem++; if (p.energy <= 0) kill(p, 'químico'); }
     }
   }
-  function fireAmpoule(kind) {
-    const x = Math.max(4, Math.min(W - 5, RACK[rackI++ % RACK.length] + Math.round((rnd() - 0.5) * 6)));
+  function fireAmpoule(kind, n) {
+    // Una ampolleta con número (la urna) tiene su propio lugar en el riel y su propio azar:
+    // así lo que hace es solo suyo, y no mueve a las que vienen después.
+    let rr = rnd;
+    if (n != null) { let sa = (((o.seed >>> 0) ^ Math.imul(n + 1, 0x9E3779B1)) >>> 0) || 1; rr = () => { sa = (sa + 0x6D2B79F5) | 0; let t = Math.imul(sa ^ (sa >>> 15), 1 | sa); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+    const x = Math.max(4, Math.min(W - 5, RACK[(n != null ? n : rackI++) % RACK.length] + Math.round((rr() - 0.5) * 6)));
     const lp = landPoint(x);
     tot.ext++; tot.extBy[kind] = (tot.extBy[kind] || 0) + 1;
     events.push({ k: 'ext', t: kind, x, y: lp.y, w: week });
@@ -972,13 +976,13 @@ function makeSim(opt) {
       const n = Math.max(1, Math.round(o.seedsPerCap));
       let g = 1; for (const p of plants) if (p.alive && p.gen > g) g = p.gen;
       const nP = o.capMix === 'mezcla' && n >= 2 ? Math.max(1, Math.round(n * 0.3)) : 0;
-      for (let k = 0; k < n; k++) releaseSeed(x + Math.round((rnd() - 0.5) * 4), 7, g, true, week, k < nP ? PARTNER : MAIN, true);
+      for (let k = 0; k < n; k++) releaseSeed(x + Math.round((rr() - 0.5) * 4), 7, g, true, week, k < nP ? PARTNER : MAIN, true);
     } else if (kind === 'nutrientes') {
       boostUntil = week + 26; // medio año con más vigor
     } else if (kind === 'acido') {
       if (!lp.water) {
         // el ácido disuelve la caliza donde cae y debilita los puentes de las líneas cercanas
-        for (let dy = 1; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) { const i = at(lp.x + dx, lp.y + dy); if (type[i] === STONE && Math.abs(dx) + dy <= 4 && rnd() < 0.7) crackCell(i, null); }
+        for (let dy = 1; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) { const i = at(lp.x + dx, lp.y + dy); if (type[i] === STONE && Math.abs(dx) + dy <= 4 && rr() < 0.7) crackCell(i, null); }
         for (const h of holes) {
           if (!h.intact || !h.line || !h.cells.length) continue;
           const c0 = h.cells[0], hx = c0 % W, hy = (c0 / W) | 0;
@@ -1011,6 +1015,11 @@ function makeSim(opt) {
       // Correr con lo que sobra: composta de las raíces muertas. Más muertas, más semanas de vigor para todas
       let dead = 0; for (let i = 0; i < N; i++) if (type[i] === DROOT) dead++;
       boostUntil = Math.max(boostUntil, week) + Math.min(52, 6 + Math.round(dead / 30));
+    } else if (kind === 'agua' && o.ampMl > 0) {
+      // Ensayar, como en la vida real: un mililitro más en el agua. Diluye un poco la sal; el nivel sube solo cuando suman un milímetro
+      extraMl += o.ampMl;
+      const mm = Math.floor(extraMl / (o.waterMl / Math.max(1, H - 1 - waterTop0)));
+      if (mm > risenMm) { setWater(Math.max(waterTop0 - 24, waterTop - (mm - risenMm))); risenMm = mm; }
     } else if (kind === 'sal') {
       saltG += o.saltG;
       hurtRoots(lp, 22, 1.3);

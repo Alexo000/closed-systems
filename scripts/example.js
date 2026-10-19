@@ -39,7 +39,7 @@ function run(seed, extra) {
   const byDay = new Map(); for (const e of entries) { if (!byDay.has(e.breakDay)) byDay.set(e.breakDay, []); byDay.get(e.breakDay).push(e); }
   const total = cfg.kinds.reduce((a, k) => a + k.stock, 0), frames = [];
   for (let w = 1; w <= weeks; w++) {
-    for (const e of (byDay.get(w - 1) || [])) sim.fire(C.engineKind ? C.engineKind(c, e.kind) : (cfg.kinds.find(k => k.key === e.kind).engine || e.kind));
+    for (const e of (byDay.get(w - 1) || [])) sim.fire(C.engineKind(c, e.kind), e.n);
     sim.step();
     if (w % every === 0 || w === weeks) frames.push({ week: w, left: total - entries.filter(e => e.day < w && e.n < 1e6).length, state: Object.assign(C.snapshot(c, sim), { started: true, closed: false, day: w }) });
   }

@@ -16,7 +16,8 @@
     "capMix": "mezcla",
     "temp": 21,
     "lightMode": "led",
-    "saltG": 0.13
+    "saltG": 0.13,
+  "ampMl": 1
   },
   "kinds": [
     {
@@ -40,7 +41,7 @@
       "engine": "agua",
       "name": "Water",
       "op": "Rehearse",
-      "does": "Plain water. It breaks like the others and changes nothing, and from outside nobody can tell it apart.",
+      "does": "One millilitre of water. It dilutes the salt very slightly: all twenty together would raise the level by less than a millimetre.",
       "stock": 20
     },
     {
