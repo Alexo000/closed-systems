@@ -32,12 +32,15 @@ Everything is worked out from the ledger, so anyone can redo the sums.
 The public page is one file, `src/page.html`, in the same family as Shubyrinth: ink on white, VT323, IBM Plex Mono and Inter, hard shadows on what you can press.
 
 - **A box that is alive.** The box is redrawn a few times a second: leaves sway, the water drifts, grains fall from the cracks, and at night the lamp goes off and the leaves droop. With "reduce motion" switched on, it stays still.
-- **Vital signs.** Plants, salt (in bands), ampoules left on the rail and months of rent, as segmented bars. A bar blinks when that sign is in danger.
+- **Vital signs.** Plants, salt (in bands), ampoules left on the rail and months of rent, as segmented bars, with a line saying what a full bar means. A bar blinks when that sign is in danger.
+- **The rail.** The vials drawn under the lid are the ampoules nobody has paid for yet. A bought one leaves the rail at the next daily step (it is "filled with your choice"), so the drawing never shows when an ampoule breaks.
+- **Labels.** Small labels on the box name the rail, a seed capsule, stone, roots and water. "Hide labels" under the box turns them off, remembered in the browser (`urna.labels`).
+- **What's going on.** Beside the box on wide screens, above it on phones: the mood, "Since your last visit", the latest change (payments recorded that morning, plants alive, an opening), the next step and the next opening date.
 - **Mood.** One word for how the box is: Sealed, Growing, Dormant, Salty, Poisoned, Hungry, Empty, Asleep or Closed.
 - **Since your last visit.** The page remembers, in your browser only, what the box looked like when you last came, and tells you what changed.
 - **After paying.** Stripe sends people back with `?paid=1` (or `?gave=1`). The page remembers that in the browser (`urna.pending`) and, until the next daily step picks the payment up, says at the top that it went through and when it will show, with a dashed "soon" row at the top of the log that only that person sees. After the step it says once that the payment is in, then forgets it.
 - **It refreshes itself** a few minutes after each daily step if the page is left open.
-- **Glyphs.** Each ampoule shows its operation's glyph from the Actionary (`src/glyphs.js`).
+- **Ampoule cards.** Each card leads with the material and what it does, from `does` in `config.json`; the Actionary operation is a small link underneath. The daily step copies these texts into `ledger.json`, so a change shows after the next step.
 
 ### Files
 
@@ -124,6 +127,6 @@ node scripts/verify.js https://urna.ramos-saavedra.com/ledger.json
 ### Still open
 
 - **The real rent.** £5 a month is a guess: domain and margin. GitHub Pages and Actions are free on a public repository.
-- **Terms.** The payment page already says the payment can't be cancelled or refunded once the ampoule is on the rail. I am not a lawyer: get it checked and, if Stripe asks, link to terms.
+- **Terms.** The payment page already says the payment can't be cancelled or refunded once the ampoule is filled at the next daily step. I am not a lawyer: get it checked and, if Stripe asks, link to terms.
 - **Calibration.** The salt, the stock and the price come from simulations with an invented public. Worth checking after a few months with real people.
 - **What still shows.** When a type sells out it leaves the menu, so people learn that every one of that type was bought. Ink darkens the glass when it breaks; with the secret break day, it can't be pinned on a buyer unless very few people paid in the previous six weeks.
