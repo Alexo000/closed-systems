@@ -56,6 +56,7 @@ The public page is one file, `src/page.html`, in the same family as Shubyrinth: 
 | `scripts/stripe-setup.js` | Creates the product, one payment link per step of the price ladder (85 links, £1 to £4,100) and the gift link for the next box |
 | `scripts/stripe-update.js` | Updates the existing links (where people land after paying, the text above the pay button) without making new ones. Also a button in the Actions tab |
 | `scripts/demo.js` | A demo without Stripe, with an invented public. `--revive` makes the rent high enough for boxes to close and come back |
+| `scripts/example.js`, `example-frames.js`, `example-gif.py`, `example-pair.py` | The two example loops under "How it lives" (`docs/example-*.gif`, with dark and still versions). An example box with another seed and an invented public, run through the real engine and drawn with the page's own code. To remake them: `node scripts/example.js a.json --seed 23 --years 15 --every 12`, the same with `--extra hormone@20` for the comparison, then `example-frames.js` (needs Playwright and the page served from `docs/`) and the two Python scripts (need Pillow). |
 | `scripts/verify.js` | Checks the seals in any `ledger.json` |
 | `scripts/new-key.js` | Makes the key that encrypts the choices |
 | `scripts/build-pages.js` | Builds `docs/index.html` (the urn), `docs/simulator/` (in English) and `docs/simulator/es/` (in Spanish) |
