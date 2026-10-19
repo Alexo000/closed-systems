@@ -1,5 +1,14 @@
 {
- "purchases": [],
+ "purchases": [
+  {
+   "n": 1,
+   "day": 0,
+   "date": "2026-10-19",
+   "alias": "ETAT",
+   "price": 1,
+   "seal": "417459051eda77b1df9f9c6ae987fe753e76263087c2b243b947bc20ddf04383"
+  }
+ ],
  "donations": [],
  "openings": [],
  "closedDay": null,
@@ -14,7 +23,7 @@
  "name": "Urna",
  "start": "2026-10-19T00:00:00Z",
  "started": true,
- "updated": "2026-10-19T05:26:55.464Z",
+ "updated": "2026-10-19T05:57:14.251Z",
  "today": 0,
  "date": "2026-10-19",
  "price": 1,
@@ -69,7 +78,7 @@
    "available": true
   }
  ],
- "left": 100,
+ "left": 99,
  "actionary": "https://operations.ramos-saavedra.com/all/",
  "nextOpening": {
   "day": 261,
@@ -175,10 +184,10 @@
  },
  "fund": {
   "start": 30,
-  "balance": 30,
+  "balance": 30.79,
   "toBox": 0,
   "rentPaid": 0,
-  "monthsLeft": 6
+  "monthsLeft": 6.16
  },
  "priceHistory": [
   1
