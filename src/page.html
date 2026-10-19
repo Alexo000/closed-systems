@@ -49,6 +49,10 @@ p { margin: 0; }
 .lbl { position: absolute; font: 400 10.5px/1.2 var(--mono); color: var(--ink); background: color-mix(in srgb, var(--paper) 82%, transparent); padding: 1px 4px; white-space: nowrap; }
 .lblt { justify-self: start; font: 400 11.5px var(--mono); color: var(--muted); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
 .what { font-size: 14px; }
+.example { margin: 0; display: grid; gap: 6px; }
+.example img { display: block; max-width: 100%; height: auto; image-rendering: pixelated; }
+.example figcaption { font-size: 13.5px; color: var(--muted); max-width: 52ch; }
+.example figcaption b { color: var(--ink); font-weight: 600; }
 .handoff { font: 400 12px var(--mono); color: var(--muted); text-align: center; margin-top: -4px; }
 .funding b { color: var(--ink); font-weight: 600; }
 .cycle b { color: var(--ink); font-weight: 600; }
@@ -175,6 +179,24 @@ footer a::after { content: " →"; }
       <div class="glass"><canvas id="box" role="img" aria-label="Cross-section of the box: the rail of ampoules under the lid, stone slabs with seed capsules, roots and water"></canvas><div class="labels" id="labels" aria-hidden="true"></div><div class="tip" id="tip" hidden></div></div>
       <button class="lblt" id="lblToggle" type="button">Hide labels</button>
       <p class="cycle"><b>How it lives.</b> Roots grow into the holes in the stone and split it. Falling stone cracks the seed capsules, and the seeds that come out start the next generation. If that stops, the box goes quiet.</p>
+      <figure class="example">
+        <picture>
+          <source media="(prefers-color-scheme: dark) and (prefers-reduced-motion: reduce)" srcset="example-cycle-dark.png">
+          <source media="(prefers-color-scheme: dark)" srcset="example-cycle-dark.gif">
+          <source media="(prefers-reduced-motion: reduce)" srcset="example-cycle.png">
+          <img src="example-cycle.gif" width="320" height="400" loading="lazy" alt="An example box over 15 years: roots grow into the stone, the top slab splits and falls, the seed capsules crack, new plants grow, and later another slab gives way.">
+        </picture>
+        <figcaption>An example box over 15 years, with an invented public. This one will go its own way.</figcaption>
+      </figure>
+      <figure class="example">
+        <picture>
+          <source media="(prefers-color-scheme: dark) and (prefers-reduced-motion: reduce)" srcset="example-one-dark.png">
+          <source media="(prefers-color-scheme: dark)" srcset="example-one-dark.gif">
+          <source media="(prefers-reduced-motion: reduce)" srcset="example-one.png">
+          <img src="example-one.gif" width="412" height="292" loading="lazy" alt="The same example box twice, side by side. They match for two years; then, on the side with one hormone ampoule, the top slab splits sooner and fewer plants grow.">
+        </picture>
+        <figcaption><b>What one ampoule does.</b> The same example box twice. On the right, one more ampoule: hormone, in week 20. One plant's roots thicken, the top slab splits sooner, and the box goes another way.</figcaption>
+      </figure>
       <canvas id="spark" role="img" aria-label="Plants alive over time"></canvas>
       <p class="more" id="more"></p>
     </div>

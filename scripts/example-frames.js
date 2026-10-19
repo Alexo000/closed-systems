@@ -15,7 +15,7 @@ let chromium; try { ({ chromium } = require('playwright')); } catch (e) { consol
   // no labels, no animation loop of its own: we draw each frame ourselves
   await p.addInitScript(() => { try { localStorage.setItem('urna.labels', 'off'); } catch (e) {} window.requestAnimationFrame = () => 0; });
   await p.goto(process.env.URNA_LOCAL || 'http://localhost:8766/');
-  await p.waitForFunction(() => typeof S !== 'undefined' && S && typeof prepareBox === 'function');
+  await p.waitForFunction(() => typeof S !== 'undefined' && S && typeof prepareBox === 'function', null, { timeout: 120000 });
   for (let i = 0; i < data.frames.length; i++) {
     const f = data.frames[i];
     const url = await p.evaluate(([f, i, w]) => {
