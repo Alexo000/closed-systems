@@ -24,7 +24,7 @@
       "engine": "semillas",
       "name": "Seeds",
       "op": "Seed And Leave",
-      "does": "They sprout where they land.",
+      "does": "Adds seeds. They sprout where they land.",
       "stock": 30
     },
     {
@@ -32,7 +32,7 @@
       "engine": "sal",
       "name": "Salt",
       "op": "Ratchet",
-      "does": "It runs into the water and stays there for good.",
+      "does": "Salts the water for good. The more salt, the harder it is for the plants that drink it.",
       "stock": 20
     },
     {
@@ -40,7 +40,7 @@
       "engine": "agua",
       "name": "Water",
       "op": "Rehearse",
-      "does": "The whole gesture, with no effect.",
+      "does": "Plain water. It breaks like the others and changes nothing, and from outside nobody can tell it apart.",
       "stock": 20
     },
     {
@@ -48,7 +48,7 @@
       "engine": "resina",
       "name": "Resin",
       "op": "Freeze The Joint",
-      "does": "Glues the joints nearby: that slab won't split.",
+      "does": "Glues the stone where it breaks, so that slab can't split.",
       "stock": 10
     },
     {
@@ -56,7 +56,7 @@
       "engine": "hormona",
       "name": "Hormone",
       "op": "Exaggerate",
-      "does": "One plant thickens its roots two and a half times, for a year.",
+      "does": "One plant's roots grow two and a half times thicker for a year in the box, about seven weeks here.",
       "stock": 10
     },
     {
@@ -64,7 +64,7 @@
       "engine": "tinta",
       "name": "Ink",
       "op": "Conceal",
-      "does": "A strip of the glass goes dark for good, for the plants and for you.",
+      "does": "Darkens a strip of the glass for good: less light for the plants and less view for you.",
       "stock": 10
     }
   ],

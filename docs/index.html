@@ -47,6 +47,9 @@ h3 { font: 500 11.5px/1.3 var(--mono); letter-spacing: .08em; text-transform: up
 p { margin: 0; }
 .eyebrow { font: 500 12px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .lede { max-width: 54ch; font-size: 17px; }
+.cycle { max-width: 60ch; font-size: 15px; color: var(--muted); }
+.cycle b { color: var(--ink); font-weight: 600; }
+.scale { font: 400 12px/1.6 var(--mono); color: var(--muted); margin-top: 8px; }
 .note { font-size: 13.5px; color: var(--muted); max-width: 66ch; }
 .cap { font: 400 12px/1.5 var(--mono); color: var(--muted); }
 header { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; border-bottom: 1px solid var(--ink); padding-bottom: 24px; }
@@ -88,10 +91,10 @@ header { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; border
 .price span { font-size: 13.5px; color: var(--muted); max-width: 40ch; }
 .amps { display: grid; gap: 8px; }
 .amps .row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.amp { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; align-content: start; padding: 10px; border: 1px solid var(--rule); min-width: 0; }
+.amp { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; align-content: start; padding: 10px; border: 1px solid var(--ink); min-width: 0; }
 .amp .mk { grid-row: span 3; width: 14px; height: 14px; margin-top: 4px; }
 .amp b { font: 400 22px/1 var(--display); }
-.amp a { font: 400 11px/1.3 var(--mono); color: var(--muted); text-decoration: none; }
+.amp a { font: 400 11px/1.3 var(--mono); color: var(--muted); text-decoration: none; margin-top: 4px; }
 .amp a:hover { text-decoration: underline; }
 .amp span { font-size: 13px; line-height: 1.35; }
 .amps .row.base .amp { border-color: var(--ink); }
@@ -148,13 +151,14 @@ footer a::after { content: " →"; }
 
 <div class="wrap">
   <header>
-    <div class="eyebrow" id="eyebrow">Closed Systems · live</div>
+    <div class="eyebrow" id="eyebrow">Closed Systems · a shared simulation, live</div>
     <h1>Urna</h1>
-    <p class="lede">A sealed box of stone, roots, seeds and water. Anyone can pay to break an ampoule inside it and choose, in secret, what it holds.</p>
+    <p class="lede">A box of stone, roots, seeds and water, simulated here and moved on once a day. Everyone sees the same box. Anyone can pay for an ampoule, a small glass capsule on a rail inside it, and choose in secret what it holds. What's left after the box's own costs goes to building a real one.</p>
+    <p class="cycle"><b>How it lives.</b> Roots grow into the holes in the stone and split it. Falling stone cracks the seed capsules, and the seeds that come out start the next generation. If that stops, the box goes quiet.</p>
     <ol class="steps">
-      <li>Pay to break an ampoule. The price doubles every time someone does, and drops a little every week nobody does.</li>
-      <li>Choose what is inside. It breaks on a secret day within six weeks, and nobody else knows what it was until the urn opens.</li>
-      <li>Come back. Every morning the box lives one more week.</li>
+      <li>Pay for an ampoule and choose what it holds.</li>
+      <li>It breaks on a secret day within 45 days. Nobody else learns what it was until the next opening.</li>
+      <li>Come back, or just watch. One day here is one week in the box.</li>
     </ol>
     <p class="thanks" id="thanks" role="status" hidden></p>
     <p class="archive" id="archive" hidden></p>
@@ -169,6 +173,7 @@ footer a::after { content: " →"; }
     </div>
     <div class="side">
       <div class="vitals" id="vitals" aria-label="Vital signs"></div>
+      <p class="scale" id="scale"></p>
       <p class="more" id="more"></p>
       <p class="since" id="since" hidden></p>
       <div class="card" id="gift" hidden>
@@ -179,20 +184,21 @@ footer a::after { content: " →"; }
         <p class="note">A gift breaks no ampoule. If the gifts reach the target, the next box starts the following morning, with another stone and another chance. If they never do, the money goes to building the real box.</p>
       </div>
       <div class="card" id="buy">
-        <h2>Break an ampoule</h2>
+        <h2>Pay for an ampoule</h2>
         <p class="price"><b id="priceNow">£–</b><span id="priceNote"></span></p>
         <div class="amps" id="amps"></div>
         <a class="pay" id="pay" href="#" aria-disabled="true">Payments open soon</a>
-        <p class="note">You choose the ampoule on the next page. It goes on the rail at the next daily step and breaks on a secret day within the next 45 days, so the payment can't be cancelled or refunded. Your alias and the price go in the public log.</p>
+        <p class="note">You choose what it holds on the next page. It goes on the rail at the next daily step and breaks on a secret day within the next 45 days, so the payment can't be cancelled or refunded. Your alias and the price go in the public log.</p>
       </div>
       <details class="rules">
-        <summary>The rules</summary>
+        <summary>How it works</summary>
         <ul>
-          <li><b>Price.</b> <span id="rPrice">Starts at £1. It doubles with every ampoule broken and drops about 9% each week with none.</span></li>
-          <li><b>Secret.</b> Your alias and the price go in the log. Your choice, and the day it breaks, are sealed with a code published the same day. The break day is random, between 1 and <span id="rWithin">45</span> days later, so nobody can tell whose ampoule just broke. The salt in the water only shows in bands.</li>
-          <li><b>Openings.</b> <span id="rOpen">Every 261 days the urn opens.</span> Every choice is shown, and anyone can check it against its seal.</li>
-          <li><b>Rent.</b> <span id="rRent">The money pays the urn's own costs.</span> What is left builds the real box. If a month can't be paid, the urn closes for good.</li>
-          <li><b>Time.</b> One day here is one week in the box. The lamp in the box is on from 07:00 to 21:00, London time.</li>
+          <li><b>Simulation.</b> It runs on the same engine as the sandbox, once a day. One day here is one week in the box. The lamp is on from 07:00 to 21:00 London time.</li>
+          <li><b>Price.</b> <span id="rPrice">Set each morning and the same for everyone that day. Each ampoule paid for doubles the next day's price. Each week with none, it drops about 9%, so it halves in about 49 days.</span></li>
+          <li><b>Secret.</b> Your alias and the price go in the log the next morning, with a seal: a code that fixes your choice and its break day without showing them. The break day is random, between 1 and <span id="rWithin">45</span> days later, so nobody can tell whose ampoule just broke. Salt only shows in bands.</li>
+          <li><b>Openings.</b> <span id="rOpen">Every 261 days (five years in the box) the urn opens.</span> The choice and break day of every ampoule that has already broken are published, and anyone can check them against the seals. Nothing resets, and ampoules still waiting stay sealed.<span id="rNext"></span></li>
+          <li><b>Rent.</b> <span id="rRent">Payments go into a fund that pays the box's own costs.</span> The rest builds the real box. If a month can't be paid, the urn opens one last time and the box stays as it is.</li>
+          <li><b>How secrecy is checked.</b> Each seal is the SHA-256 of "number:choice:secret". At an opening the choice and secret are published, so anyone can work the code out again. This page does it for you.</li>
         </ul>
       </details>
     </div>
@@ -202,7 +208,7 @@ footer a::after { content: " →"; }
     <div class="two">
       <div>
         <h3>Price</h3>
-        <canvas id="pricec" role="img" aria-label="The price of breaking an ampoule over time"></canvas>
+        <canvas id="pricec" role="img" aria-label="The price of an ampoule over time"></canvas>
         <p class="legend" id="legend"></p>
       </div>
       <div>
@@ -215,7 +221,7 @@ footer a::after { content: " →"; }
   <section class="edge" aria-labelledby="logH">
     <h2 id="logH">Log</h2>
     <ol class="log" id="log"></ol>
-    <p class="note">How to check a seal: on the day of each purchase the log shows a code, the SHA-256 of "number:choice:secret". When the urn opens it publishes the choice and the secret, and anyone can work the code out again. This page checks the opened ones for you.</p>
+    <p class="note">Each payment appears here the morning after, with its seal. At each opening, the choices of the ampoules that have broken appear here too.</p>
   </section>
 
   <section class="credits" aria-label="Who made this">
@@ -228,7 +234,7 @@ footer a::after { content: " →"; }
   <p class="cap boxes" id="boxes" hidden></p>
 
   <footer>
-    <a href="simulator/">Try your own box in the simulator</a>
+    <a href="simulator/">Try a box of your own in the free sandbox (pretend money)</a>
     <a id="opsLink2" href="https://operations.ramos-saavedra.com/all/">Actionary</a>
     <a href="https://ramos-saavedra.com">ramos-saavedra.com</a>
   </footer>
@@ -659,11 +665,12 @@ function vitals() {
   const rows = [
     ['Plants', seg(S.alive / hmax, { blink: S.alive > 0 && S.alive <= 2 }), `${S.alive}<small>alive</small>`],
     ['Salt', seg([0, 0.4, 0.7, 1][S.saltBand], { blink: S.saltBand >= 1 }), `${SALT[S.saltBand]}`],
-    ['Rail', seg(L.left / stock), `${L.left}<small>ampoules</small>`],
-    ...(r.rent > 0 ? [['Rent', seg((f.monthsLeft || 0) / r.reserveMonths, { blink: (f.monthsLeft || 0) < 1.5 }), `${Math.floor(f.monthsLeft || 0)}<small>${Math.floor(f.monthsLeft || 0) === 1 ? 'month' : 'months'}</small>`]] : []),
+    ['Ampoules', seg(L.left / stock), `${L.left}<small>left of ${stock}</small>`],
+    ...(r.rent > 0 ? [['Fund', seg((f.monthsLeft || 0) / r.reserveMonths, { blink: (f.monthsLeft || 0) < 1.5 }), `${Math.floor(f.monthsLeft || 0)}<small>${Math.floor(f.monthsLeft || 0) === 1 ? 'month' : 'months'} of rent</small>`]] : []),
   ];
   $('vitals').innerHTML = rows.map(([l, b, v]) => `<div class="vital"><span class="vl">${l}</span>${b}<span class="vv">${v}</span></div>`).join('');
-  $('more').textContent = `Generation ${S.generation} · ${S.planted} plants so far · ${S.lines} lines of holes split · ${S.capsBroken} of ${S.caps} capsules broken` + (S.shade.length ? ` · ${Math.round(100 * S.shade.length / S.W)}% of the glass inked` : '');
+  $('scale').textContent = `Bars are full at ${hmax} plants, ${stock} ampoules` + (r.rent > 0 ? ` and ${r.reserveMonths} months of rent.` : '.');
+  $('more').textContent = `Generation ${S.generation} · ${S.planted} plants so far · stone split along ${S.lines} ${S.lines === 1 ? 'line' : 'lines'} of holes · ${S.capsBroken} of ${S.caps} seed capsules cracked` + (S.shade.length ? ` · ${Math.round(100 * S.shade.length / S.W)}% of the glass inked` : '');
 }
 function mood(now) {
   const night = S.started && !S.closed && !lampOn(now), f = L.fund, r = L.rules;
@@ -698,7 +705,7 @@ function since() {
   if (!before || before.day >= now.day) return;
   const bits = [];
   const wk = now.day - before.day; bits.push(`${wk} ${wk === 1 ? 'week has' : 'weeks have'} passed in the box`);
-  const nb = now.buys - before.buys; if (nb > 0) bits.push(`${nb} ${nb === 1 ? 'ampoule' : 'ampoules'} broke`);
+  const nb = now.buys - before.buys; if (nb > 0) bits.push(`${nb} ${nb === 1 ? 'ampoule was' : 'ampoules were'} paid for`);
   if (now.alive !== before.alive) bits.push(`plants alive went from ${before.alive} to ${now.alive}`);
   if (now.opens > before.opens) bits.push('the urn opened');
   if (now.price !== before.price) bits.push(`the price went from ${money(before.price)} to ${money(now.price)}`);
@@ -739,7 +746,7 @@ function render() {
   vitals(); mood(now); clock(now); if (S.started && !ARCHIVED) since(); pending();
   // which box, and the others in the series
   const many = SERIES && SERIES.boxes.length > 1, n = L.box || 1;
-  $('eyebrow').textContent = ARCHIVED ? `Closed Systems · archive · box ${n}` : `Closed Systems · live${many ? ` · box ${n}` : ''}`;
+  $('eyebrow').textContent = ARCHIVED ? `Closed Systems · archive · box ${n}` : `Closed Systems · a shared simulation, live${many ? ` · box ${n}` : ''}`;
   $('archive').hidden = !ARCHIVED;
   if (ARCHIVED) $('archive').innerHTML = `This is box ${n}, as it was when it closed. <a href="./">See the box running now →</a>`;
   $('boxes').hidden = !many;
@@ -758,18 +765,19 @@ function render() {
   // price and choice
   $('priceNow').textContent = money(L.price);
   const nd = nextDrop();
-  $('priceNote').textContent = !S.started ? `to break the first one, from ${fmtDay(0, { day: 'numeric', month: 'long' })}.` : S.closed ? 'The urn is closed.' : `today. The next person doubles it to ${money(upPrice())}.` + (nd ? ` If nobody pays, it drops to ${money(nd.price)} on ${fmtDay(nd.day, { day: 'numeric', month: 'short' })}, and a little more each week after.` : '');
-  const card = k => `<div class="amp${k.available ? '' : ' out'}">${markSVG(k.key)}<b>${k.name}</b><a href="${L.actionary.replace(/all\/?$/, '')}${k.op.toLowerCase().replace(/\s+/g, '-')}/">${k.op}</a><span>${k.does}</span></div>`;
+  $('priceNote').textContent = !S.started ? `for the first one, from ${fmtDay(0, { day: 'numeric', month: 'long' })}.` : S.closed ? 'The urn is closed.' : `today, the same for everyone who pays today. Each ampoule paid for doubles tomorrow's price.` + (nd ? ` If nobody pays, it drops to ${money(nd.price)} on ${fmtDay(nd.day, { day: 'numeric', month: 'short' })}, and a little more each week after.` : '');
+  const card = k => `<div class="amp${k.available ? '' : ' out'}">${markSVG(k.key)}<b>${k.name}</b><span>${k.does}</span><a href="${L.actionary.replace(/all\/?$/, '')}${k.op.toLowerCase().replace(/\s+/g, '-')}/">Operation: ${k.op}</a></div>`;
   const base = L.kinds.filter(k => ['seeds', 'salt', 'water'].includes(k.key)), ops = L.kinds.filter(k => !['seeds', 'salt', 'water'].includes(k.key));
-  $('amps').innerHTML = `<div class="row base">${base.map(card).join('')}</div>` + (ops.length ? `<h3>Other operations</h3><div class="row">${ops.map(card).join('')}</div>` : '');
+  $('amps').innerHTML = `<div class="row base">${base.map(card).join('')}</div>` + (ops.length ? `<h3>${new Set(ops.map(k => k.stock)).size === 1 ? `Fewer of these, ${ops[0].stock} each` : 'Fewer of these'}</h3><div class="row">${ops.map(card).join('')}</div>` : '');
   const pay = $('pay');
   if (S.closed) { pay.textContent = 'The urn is closed'; pay.setAttribute('aria-disabled', 'true'); pay.removeAttribute('href'); }
-  else if (L.link) { pay.textContent = `Pay ${money(L.price)} and break one`; pay.href = L.link; pay.setAttribute('aria-disabled', 'false'); }
+  else if (L.link) { pay.textContent = `Pay ${money(L.price)} for an ampoule`; pay.href = L.link; pay.setAttribute('aria-disabled', 'false'); }
   else { pay.textContent = S.started ? 'Payments open soon' : `Opens on ${fmtDay(0, { day: 'numeric', month: 'long' })}`; pay.setAttribute('aria-disabled', 'true'); pay.removeAttribute('href'); }
   $('rWithin').textContent = r.breakWithinDays || 45;
-  $('rPrice').textContent = `Starts at ${money(r.start)}. It doubles with every ampoule broken and drops about ${Math.round(100 * (1 - Math.pow(2, -1 / r.stepsPerDouble)))}% every ${r.dropEveryDays === 7 ? 'week' : r.dropEveryDays + ' days'} with none, so it halves in about ${r.stepsPerDouble * r.dropEveryDays} days. Everyone who pays on the same day pays that day's price.`;
-  $('rOpen').textContent = `Every ${r.openEveryDays} days the urn opens; the next opening is on ${fmtDay(L.nextOpening.day)}.`;
-  $('rRent').textContent = `The money pays the urn's own costs, ${money(r.rent)} every ${r.monthDays} days, and keeps ${r.reserveMonths} months in reserve.`;
+  $('rPrice').textContent = `Set each morning and the same for everyone that day. Each ampoule paid for doubles the next day's price. Each ${r.dropEveryDays === 7 ? 'week' : r.dropEveryDays + ' days'} with none, it drops about ${Math.round(100 * (1 - Math.pow(2, -1 / r.stepsPerDouble)))}%, so it halves in about ${r.stepsPerDouble * r.dropEveryDays} days.`;
+  $('rOpen').textContent = `Every ${r.openEveryDays} days (${Math.round(r.openEveryDays * 7 / 365.25)} years in the box) the urn opens.`;
+  $('rNext').textContent = L.nextOpening ? ` Next opening: ${fmtDay(L.nextOpening.day, { day: 'numeric', month: 'long', year: 'numeric' })}.` : '';
+  $('rRent').textContent = `Payments go into a fund that pays the box's own costs (${money(r.rent)} every ${r.monthDays} days) and keeps ${r.reserveMonths} months in reserve.`;
   // money
   const f = L.fund;
   $('money').innerHTML = [
