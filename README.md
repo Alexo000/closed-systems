@@ -35,6 +35,7 @@ The public page is one file, `src/page.html`, in the same family as Shubyrinth: 
 - **Vital signs.** Plants, salt (in bands), ampoules left on the rail and months of rent, as segmented bars. A bar blinks when that sign is in danger.
 - **Mood.** One word for how the box is: Sealed, Growing, Dormant, Salty, Poisoned, Hungry, Empty, Asleep or Closed.
 - **Since your last visit.** The page remembers, in your browser only, what the box looked like when you last came, and tells you what changed.
+- **After paying.** Stripe sends people back with `?paid=1` (or `?gave=1`). The page remembers that in the browser (`urna.pending`) and, until the next daily step picks the payment up, says at the top that it went through and when it will show, with a dashed "soon" row at the top of the log that only that person sees. After the step it says once that the payment is in, then forgets it.
 - **It refreshes itself** a few minutes after each daily step if the page is left open.
 - **Glyphs.** Each ampoule shows its operation's glyph from the Actionary (`src/glyphs.js`).
 
