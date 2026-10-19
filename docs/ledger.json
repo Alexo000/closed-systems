@@ -23,7 +23,7 @@
  "name": "Urna",
  "start": "2026-10-19T00:00:00Z",
  "started": true,
- "updated": "2026-10-19T10:41:23.100Z",
+ "updated": "2026-10-19T11:38:32.167Z",
  "today": 0,
  "date": "2026-10-19",
  "price": 1,
@@ -33,7 +33,7 @@
    "key": "seeds",
    "name": "Seeds",
    "op": "Seed And Leave",
-   "does": "They sprout where they land.",
+   "does": "Adds seeds. They sprout where they land.",
    "stock": 30,
    "available": true
   },
@@ -41,7 +41,7 @@
    "key": "salt",
    "name": "Salt",
    "op": "Ratchet",
-   "does": "It runs into the water and stays there for good.",
+   "does": "Salts the water for good. The more salt, the harder it is for the plants that drink it.",
    "stock": 20,
    "available": true
   },
@@ -49,7 +49,7 @@
    "key": "water",
    "name": "Water",
    "op": "Rehearse",
-   "does": "The whole gesture, with no effect.",
+   "does": "Plain water. It breaks like the others and changes nothing, and from outside nobody can tell it apart.",
    "stock": 20,
    "available": true
   },
@@ -57,7 +57,7 @@
    "key": "resin",
    "name": "Resin",
    "op": "Freeze The Joint",
-   "does": "Glues the joints nearby: that slab won't split.",
+   "does": "Glues the stone where it breaks, so that slab can't split.",
    "stock": 10,
    "available": true
   },
@@ -65,7 +65,7 @@
    "key": "hormone",
    "name": "Hormone",
    "op": "Exaggerate",
-   "does": "One plant thickens its roots two and a half times, for a year.",
+   "does": "One plant's roots grow two and a half times thicker for a year in the box, about seven weeks here.",
    "stock": 10,
    "available": true
   },
@@ -73,7 +73,7 @@
    "key": "ink",
    "name": "Ink",
    "op": "Conceal",
-   "does": "A strip of the glass goes dark for good, for the plants and for you.",
+   "does": "Darkens a strip of the glass for good: less light for the plants and less view for you.",
    "stock": 10,
    "available": true
   }
