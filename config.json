@@ -2,8 +2,8 @@
   "name": "Urna",
   "start": "2026-10-19T00:00:00Z",
   "seed": 7919,
-  "site": "https://alexo000.github.io/closed-systems/",
-  "returnTo": "https://www.ramos-saavedra.com/urna",
+  "site": "https://urna.ramos-saavedra.com/",
+  "returnTo": "https://urna.ramos-saavedra.com/",
   "actionary": "https://operations.ramos-saavedra.com/all/",
   "engine": {
     "layout": "pisos",

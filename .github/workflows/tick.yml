@@ -28,4 +28,5 @@ jobs:
           git add -A docs
           if [ -d private ]; then git add -A private; fi
           git commit -m "Daily step $(date -u +%F)" || echo "Nothing new"
+          git pull --rebase   # in case something else was pushed while the step ran
           git push
