@@ -23,11 +23,11 @@
  "name": "Urna",
  "start": "2026-10-19T00:00:00Z",
  "started": true,
- "updated": "2026-10-19T11:38:32.167Z",
- "today": 0,
- "date": "2026-10-19",
- "price": 1,
- "link": "https://buy.stripe.com/cNiaEWfXU3wreUW27NgEg00",
+ "updated": "2026-10-20T09:58:15.757Z",
+ "today": 1,
+ "date": "2026-10-20",
+ "price": 2,
+ "link": "https://buy.stripe.com/00w9ASeTQc2X7su5jZgEg07",
  "kinds": [
   {
    "key": "seeds",
@@ -49,7 +49,7 @@
    "key": "water",
    "name": "Water",
    "op": "Rehearse",
-   "does": "Plain water. It breaks like the others and changes nothing, and from outside nobody can tell it apart.",
+   "does": "One millilitre of water. It dilutes the salt very slightly: all twenty together would raise the level by less than a millimetre.",
    "stock": 20,
    "available": true
   },
@@ -190,7 +190,8 @@
   "monthsLeft": 6.16
  },
  "priceHistory": [
-  1
+  1,
+  2
  ],
  "box": 1,
  "reviveLink": null
