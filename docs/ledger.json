@@ -23,9 +23,9 @@
  "name": "Urna",
  "start": "2026-10-19T00:00:00Z",
  "started": true,
- "updated": "2026-10-20T09:58:15.757Z",
- "today": 1,
- "date": "2026-10-20",
+ "updated": "2026-10-21T10:02:53.067Z",
+ "today": 2,
+ "date": "2026-10-21",
  "price": 2,
  "link": "https://buy.stripe.com/00w9ASeTQc2X7su5jZgEg07",
  "kinds": [
@@ -191,6 +191,7 @@
  },
  "priceHistory": [
   1,
+  2,
   2
  ],
  "box": 1,
