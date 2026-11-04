@@ -219,7 +219,7 @@ footer a::after { content: " →"; }
         <div class="amps" id="amps"></div>
         <a class="pay" id="pay" href="#" aria-disabled="true">Payments open soon</a>
         <p class="handoff">You choose and pay on Stripe's secure page.</p>
-        <p class="note">Your ampoule is filled with your choice at the next daily step, so the payment can't be cancelled or refunded. Your alias and the price go in the public log.</p>
+        <p class="note">Your ampoule is filled with your choice at the next daily step, so the payment can't be cancelled or refunded. Your alias and the price go in the public log. <a href="terms/">Terms of sale</a>.</p>
         <p class="note funding" id="funding"><b>Where the money goes.</b> First the box's rent, which stands for the cost of keeping it going. What's left goes to building a real box.</p>
       </div>
       <details class="rules">
@@ -229,7 +229,7 @@ footer a::after { content: " →"; }
           <li><b>Price.</b> <span id="rPrice">Set each morning and the same for everyone that day. Each ampoule paid for doubles the next day's price. Each week with none, it drops about 9%, so it halves in about 49 days.</span></li>
           <li><b>Secret.</b> Your alias and the price go in the log the next morning, with a seal: a code that fixes your choice and its break day without showing them. The break day is random, between 1 and <span id="rWithin">45</span> days later, so nobody can tell whose ampoule just broke. Salt only shows in bands.</li>
           <li><b>Openings.</b> <span id="rOpen">Every 261 days (five years in the box) the urn opens.</span> The choice and break day of every ampoule that has already broken are published, and anyone can check them against the seals. Nothing resets, and ampoules still waiting stay sealed.<span id="rNext"></span></li>
-          <li><b>Rent.</b> <span id="rRent">The rent stands for the cost of keeping the box going. The rule is that it has to pay to exist.</span> The rest builds the real box. If a month can't be paid, the urn opens one last time and the box stays as it is.</li>
+          <li><b>Rent.</b> <span id="rRent">The rent stands for the cost of keeping the box going. The rule is that it has to pay to exist.</span> The rest builds the real box. If a month can't be paid, the urn opens one last time and the box stays as it is. Any ampoule still waiting then never breaks, and is not refunded.</li>
           <li><b>How secrecy is checked.</b> Each seal is the SHA-256 of "number:choice:secret". At an opening the choice and secret are published, so anyone can work the code out again. This page does it for you.</li>
         </ul>
       </details>
@@ -268,6 +268,7 @@ footer a::after { content: " →"; }
   <footer>
     <a href="simulator/">Try a box of your own in the free sandbox (pretend money)</a>
     <a id="opsLink2" href="https://operations.ramos-saavedra.com/all/">Actionary</a>
+    <a href="terms/">Terms of sale</a>
     <a href="https://ramos-saavedra.com">ramos-saavedra.com</a>
   </footer>
 </div>

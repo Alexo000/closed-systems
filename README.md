@@ -51,6 +51,7 @@ The public page is one file, `src/page.html`, in the same family as Shubyrinth: 
 | `config.json` | Start date, the box's seed, ampoules, price, openings, rent, Stripe links |
 | `engine/engine.js` | The engine from The Cycle (its comments are in Spanish) |
 | `lib/core.js` | Price, fund, seals, encryption, rebuilding the box |
+| `src/terms.html` | The terms of sale |
 | `lib/stripe.js` | The little of the Stripe API the urn needs, with no dependencies |
 | `scripts/tick.js` | The daily step |
 | `scripts/stripe-setup.js` | Creates the product, one payment link per step of the price ladder (85 links, £1 to £4,100) and the gift link for the next box |
@@ -130,6 +131,6 @@ node scripts/verify.js https://urna.ramos-saavedra.com/ledger.json
 ### Still open
 
 - **The real rent.** £5 a month is a guess: domain and margin. GitHub Pages and Actions are free on a public repository.
-- **Terms.** The payment page already says the payment can't be cancelled or refunded once the ampoule is filled at the next daily step. I am not a lawyer: get it checked and, if Stripe asks, link to terms.
+- **Terms.** The terms of sale live at `src/terms.html` (served at /terms/). Each ampoule link asks for a required tick box, which needs the terms address in Stripe's Public details. I am not a lawyer: get them checked.
 - **Calibration.** The salt, the stock and the price come from simulations with an invented public. Worth checking after a few months with real people.
 - **What still shows.** When a type sells out it leaves the menu, so people learn that every one of that type was bought. Ink darkens the glass when it breaks; with the secret break day, it can't be pinned on a buyer unless very few people paid in the previous six weeks.

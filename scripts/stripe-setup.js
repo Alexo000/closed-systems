@@ -17,7 +17,8 @@ const S = require('../lib/stripe.js');
     const link = await S.call('POST', 'payment_links', {
       line_items: [{ price: pr.id, quantity: 1 }],
       custom_fields: [S.ampouleField(cfg.kinds), S.aliasField],
-      custom_text: { submit: { message: S.consentText } },
+      custom_text: { submit: { message: S.consentText }, terms_of_service_acceptance: { message: S.termsText } },
+      consent_collection: { terms_of_service: 'required' },
       after_completion: { type: 'redirect', redirect: { url: (cfg.returnTo || cfg.site) + '?paid=1' } },
       submit_type: 'pay',
       metadata: { urna_price: String(price) },
