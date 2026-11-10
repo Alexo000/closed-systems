@@ -23,11 +23,11 @@
  "name": "Urna",
  "start": "2026-10-19T00:00:00Z",
  "started": true,
- "updated": "2026-11-09T13:47:51.963Z",
- "today": 21,
- "date": "2026-11-09",
- "price": 1.6,
- "link": "https://buy.stripe.com/8x25kC4fcc2X146aEjgEg05",
+ "updated": "2026-11-10T13:24:47.368Z",
+ "today": 22,
+ "date": "2026-11-10",
+ "price": 1.5,
+ "link": "https://buy.stripe.com/5kQeVc3b88QL14627NgEg04",
  "kinds": [
   {
    "key": "seeds",
@@ -211,7 +211,8 @@
   1.6,
   1.6,
   1.6,
-  1.6
+  1.6,
+  1.5
  ],
  "box": 1,
  "reviveLink": null
